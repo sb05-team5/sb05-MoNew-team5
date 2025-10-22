@@ -106,6 +106,7 @@ CREATE TABLE notifications (
                                id UUID NOT NULL,
                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                                updated_at TIMESTAMP WITH TIME ZONE NULL,
+
                                confirmed BOOLEAN NOT NULL DEFAULT FALSE,
                                content VARCHAR(255) NOT NULL,
                                resource_type VARCHAR(10) NOT NULL,
