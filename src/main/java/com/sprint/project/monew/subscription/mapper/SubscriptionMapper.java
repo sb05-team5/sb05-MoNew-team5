@@ -10,7 +10,6 @@ public interface SubscriptionMapper {
 
   @Mapping(source = "interest.id", target = "interestId")
   @Mapping(source = "interest.name", target = "interestName")
-  @Mapping(source = "interest.keyword", target = "interestKeywords")
   @Mapping(source = "interest.subscriberCount", target = "interestSubscriberCount")
   SubscriptionDto toSubscriptionDto(Subscription subscription);
 }
