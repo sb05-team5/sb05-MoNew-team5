@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:monewdb
+    url: jdbc:h2:mem:monewdb;
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -10,7 +10,7 @@ spring:
       path: /monew-console
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
