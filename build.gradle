@@ -35,6 +35,19 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    
+    //아래 2개는 네이버 api를 위해 추가
+    // Spring WebFlux (WebClient)
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Jackson JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+
+    // mapstruct
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 }
 
 tasks.named('test') {
