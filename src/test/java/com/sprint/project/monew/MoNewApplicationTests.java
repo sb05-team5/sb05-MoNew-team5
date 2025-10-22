@@ -1,10 +1,10 @@
-package com.sprint.project.monew.sb05monewteam05;
+package com.sprint.project.monew;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Sb05MoNewTeam05ApplicationTests {
+class MoNewApplicationTests {
 
   @Test
   void contextLoads() {

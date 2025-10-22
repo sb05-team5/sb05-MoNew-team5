@@ -1,13 +1,13 @@
-package com.sprint.project.monew.sb05monewteam05;
+package com.sprint.project.monew;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Sb05MoNewTeam05Application {
+public class MoNewApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(Sb05MoNewTeam05Application.class, args);
+    SpringApplication.run(MoNewApplication.class, args);
   }
 
 }
