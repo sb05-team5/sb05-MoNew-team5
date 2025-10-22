@@ -106,7 +106,7 @@ CREATE TABLE subscriptions (
 CREATE TABLE notifications (
                                id UUID NOT NULL,
                                created_at TIMESTAMP NOT NULL DEFAULT now(),
-                               updated_at TIMESTAMP NULL,
+                               updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
                                confirmed BOOLEAN NOT NULL DEFAULT FALSE,
                                content VARCHAR(255) NOT NULL,
                                resource_type VARCHAR(10) NOT NULL,
