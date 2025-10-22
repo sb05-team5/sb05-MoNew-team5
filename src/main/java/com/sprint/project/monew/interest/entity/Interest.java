@@ -20,7 +20,7 @@ public class Interest extends BaseEntity {
   private String name;
 
   @Column(name = "subscriber_Count", nullable = false)
-  private int subscriberCount;
+  private long subscriberCount = 0L;
 
   @Column(nullable = false)
   private String keyword;
