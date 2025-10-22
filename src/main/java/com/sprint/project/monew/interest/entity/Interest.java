@@ -4,6 +4,8 @@ import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,10 +26,4 @@ public class Interest extends BaseEntity {
 
   @Column(nullable = false)
   private String keyword;
-
-  public void update(String keyword) {
-    if (keyword != null && keyword.equals(this.keyword)) {
-      this.keyword = keyword;
-    }
-  }
 }

@@ -2,6 +2,7 @@ package com.sprint.project.monew.subscription.entity;
 
 import com.sprint.project.monew.common.BaseEntity;
 import com.sprint.project.monew.interest.entity.Interest;
+import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -23,6 +24,8 @@ public class Subscription extends BaseEntity {
   @JoinColumn(name = "interest_id", nullable = false)
   private Interest interest;
 
-  // 사용자
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
 }
