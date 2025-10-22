@@ -2,7 +2,7 @@ package com.sprint.project.monew.comment.entity;
 
 import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
