@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface InterestMapper {
 
-  @Mapping(target = "keywords", expression = "java(java.util.Arrays.asList(interest.getKeyword().split(\",\")))")
+  @Mapping(target = "keywords", expression = "java(interest.getKeywords())")
   InterestDto toDto(Interest interest);
 
   @Mapping(target = "keyword", expression = "java(String.join(\",\", req.keywords()))")

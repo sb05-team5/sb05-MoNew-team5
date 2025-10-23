@@ -33,4 +33,16 @@ public class Interest extends BaseEntity {
     this.name = name;
     this.keyword = keyword;
   }
+
+  public List<String> getKeywords() {
+    if (keyword == null || keyword.isBlank()) {
+      return List.of();
+    }
+
+    return Arrays.asList(keyword.split(","));
+  }
+
+  public void update(List<String> keywords) {
+    this.keyword = String.join(",", keywords);
+  }
 }
