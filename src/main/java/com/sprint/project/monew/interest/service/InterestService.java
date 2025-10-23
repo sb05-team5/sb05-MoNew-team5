@@ -50,6 +50,12 @@ public class InterestService {
     return interestMapper.toDto(interest);
   }
 
+  @Transactional
+  public void delete(UUID interestId) {
+    Interest interest = validatedInterestId(interestId);
+    interestRepository.delete(interest);
+  }
+
   private void validateDuplicateName(String name) {
     if (interestRepository.existsByNameSimilarity(name)) {
       throw new IllegalArgumentException("유사한 이름이 이미 존재합니다.");
@@ -61,13 +67,13 @@ public class InterestService {
         .orElseThrow(() -> new NoSuchElementException("관심사가 존재하지 않습니다."));
   }
 
-  private static void validateKeywordsNotEmpty(List<String> newKeywords) {
+  private void validateKeywordsNotEmpty(List<String> newKeywords) {
     if (newKeywords == null || newKeywords.isEmpty()) {
       throw new IllegalArgumentException("키워드는 비어 있을 수 없습니다.");
     }
   }
 
-  private static void validateDuplicateKeywords(List<String> newKeywords) {
+  private void validateDuplicateKeywords(List<String> newKeywords) {
     Set<String> combined = new HashSet<>(newKeywords);
     if (combined.size() < newKeywords.size()) {
       throw new IllegalArgumentException("키워드 목록에 중복된 값이 있습니다.");
