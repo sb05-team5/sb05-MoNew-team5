@@ -10,10 +10,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "interests")
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Interest extends BaseEntity {
@@ -26,4 +28,9 @@ public class Interest extends BaseEntity {
 
   @Column(nullable = false)
   private String keyword;
+
+  public Interest(String name, String keyword) {
+    this.name = name;
+    this.keyword = keyword;
+  }
 }
