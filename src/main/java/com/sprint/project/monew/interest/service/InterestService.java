@@ -21,11 +21,12 @@ public class InterestService {
 
   private final InterestRepository interestRepository;
   private final InterestMapper interestMapper;
+  private final static double similarityThreshold = 0.8;
 
   @Transactional
   public InterestDto create(InterestRegisterRequest req) {
     String name = req.name();
-    validateDuplicateName(name);
+    validateSimiliarName(name);
 
     List<String> newKeywords = req.keywords();
     validateKeywordsNotEmpty(newKeywords);
@@ -56,9 +57,29 @@ public class InterestService {
     interestRepository.delete(interest);
   }
 
-  private void validateDuplicateName(String name) {
-    if (interestRepository.existsByNameSimilarity(name)) {
-      throw new IllegalArgumentException("유사한 이름이 이미 존재합니다.");
+  private void validateSimiliarName(String name) {
+    List<Interest> existing = interestRepository.findAll();
+    double similarity = 0.0;
+
+    for (Interest existingInterest : existing) {
+      String existingName = existingInterest.getName();
+
+      if (existingName.toLowerCase().contains(name.toLowerCase())) {
+        String lowerName = name.toLowerCase();
+        String lowerExistingName = existingName.toLowerCase();
+
+        if (lowerExistingName.equals(lowerName)) {
+          similarity = 1.0;
+        } else {
+          int min = Math.min(lowerName.length(), lowerExistingName.length());
+          int max = Math.max(lowerName.length(), lowerExistingName.length());
+          similarity = (double) min / max;
+        }
+
+        if (similarity > similarityThreshold) {
+          throw new IllegalArgumentException("이름이 비슷한 관심사는 등록이 안됩니다.");
+        }
+      }
     }
   }
 
