@@ -54,4 +54,11 @@ public class UserService {
         .orElseThrow(()->new NoSuchElementException("존재하지 않는 아이디"));
     userRepository.deleteByIdForSoft(id, Instant.now());
   }
+
+  @Transactional
+  public void deleteById(UUID id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(()->new NoSuchElementException("존재하지 않는 아이디"));
+    userRepository.deleteById(id);
+  }
 }

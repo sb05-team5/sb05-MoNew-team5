@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
           where u.id = :id
       """)
   void deleteByIdForSoft(@Param("id") UUID id, @Param("now") Instant now);
+
+  void deleteById(UUID id);
 }
