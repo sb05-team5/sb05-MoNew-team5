@@ -1,9 +1,13 @@
 package com.sprint.project.monew.user.repository;
 
 import com.sprint.project.monew.user.entity.User;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
@@ -14,4 +18,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   Optional<User> findByEmail(String email);
 
   Optional<User> findById(UUID id);
+
+  @Modifying
+  @Query("""
+          update User u 
+          set u.deletedAt = :now 
+          where u.id = :id
+      """)
+  void deleteByIdForSoft(@Param("id") UUID id, @Param("now") Instant now);
 }
