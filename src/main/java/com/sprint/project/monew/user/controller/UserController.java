@@ -49,4 +49,10 @@ public class UserController {
     userService.deleteSoft(userId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
   }
+
+  @DeleteMapping(path = "{userId}/hard")
+  public ResponseEntity<UserDto> deleteHard(@PathVariable("userId") UUID userId) {
+    userService.deleteById(userId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+  }
 }
