@@ -6,6 +6,7 @@ import com.sprint.project.monew.user.dto.UserRegisterRequest;
 import com.sprint.project.monew.user.dto.UserUpdateRequest;
 import com.sprint.project.monew.user.service.AuthService;
 import com.sprint.project.monew.user.service.UserService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,20 +27,20 @@ public class UserController {
   private final AuthService authService;
 
   @PostMapping
-  public ResponseEntity<UserDto> create(@RequestBody UserRegisterRequest userRegisterRequest) {
+  public ResponseEntity<UserDto> create(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
     UserDto userDto = userService.create(userRegisterRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<UserDto> login(@RequestBody UserLoginRequest userLoginRequest) {
+  public ResponseEntity<UserDto> login(@RequestBody @Valid UserLoginRequest userLoginRequest) {
     UserDto userDto = authService.login(userLoginRequest);
     return ResponseEntity.status(HttpStatus.OK).body(userDto);
   }
 
   @PatchMapping(path = "{userId}")
   public ResponseEntity<UserDto> update(@PathVariable("userId") UUID userId,
-                                        @RequestBody UserUpdateRequest request) {
+                                        @RequestBody @Valid UserUpdateRequest request) {
     UserDto userDto = userService.update(userId, request);
     return ResponseEntity.status(HttpStatus.OK).body(userDto);
   }
