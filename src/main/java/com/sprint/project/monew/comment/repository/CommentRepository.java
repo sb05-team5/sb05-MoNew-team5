@@ -1,12 +1,12 @@
 package com.sprint.project.monew.comment.repository;
 
-import com.sprint.project.monew.comment.entity.CommentEntity;
+import com.sprint.project.monew.comment.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface CommentRepository extends JpaRepository<CommentEntity, UUID> {
+public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
-    List<CommentEntity> findByArticleId(UUID articleId);
+    List<Comment> findByArticleId(UUID articleId);
 }

@@ -32,7 +32,7 @@ public class NotificationEntity extends BaseEntity {
 
 
     @CreatedDate
-    @Column(columnDefinition = "timestamp with time zone defatult now()",
+    @Column(columnDefinition = "timestamp with time zone default now()",
             nullable = false)
     private Instant updated_at;
 
