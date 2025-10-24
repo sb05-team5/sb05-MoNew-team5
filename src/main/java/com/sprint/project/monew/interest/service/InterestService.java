@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class InterestService {
   private final InterestRepository interestRepository;
   private final InterestMapper interestMapper;
   private final static double similarityThreshold = 0.8;
+  private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
 
   @Transactional
   public InterestDto create(InterestRegisterRequest req) {
@@ -72,21 +75,11 @@ public class InterestService {
     for (Interest existingInterest : existing) {
       String existingName = existingInterest.getName();
 
-      if (existingName.toLowerCase().contains(name.toLowerCase())) {
-        String lowerName = name.toLowerCase();
-        String lowerExistingName = existingName.toLowerCase();
+      int distance = levenshteinDistance.apply(existingName, name);
+      similarity = 1 - (double) distance / Math.max(existingName.length(), name.length());
 
-        if (lowerExistingName.equals(lowerName)) {
-          similarity = 1.0;
-        } else {
-          int min = Math.min(lowerName.length(), lowerExistingName.length());
-          int max = Math.max(lowerName.length(), lowerExistingName.length());
-          similarity = (double) min / max;
-        }
-
-        if (similarity > similarityThreshold) {
-          throw new IllegalArgumentException("이름이 비슷한 관심사는 등록이 안됩니다.");
-        }
+      if (similarity >= similarityThreshold) {
+        throw new IllegalArgumentException("유사한 이름의 관심사가 이미 존재합니다.");
       }
     }
   }
