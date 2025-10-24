@@ -1,6 +1,8 @@
 package com.sprint.project.monew.interest.service;
 
+import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.dto.InterestDto;
+import com.sprint.project.monew.interest.dto.InterestQuery;
 import com.sprint.project.monew.interest.dto.InterestRegisterRequest;
 import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
 import com.sprint.project.monew.interest.entity.Interest;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,11 @@ public class InterestService {
     interestRepository.save(interest);
 
     return interestMapper.toDto(interest);
+  }
+
+  @Transactional(readOnly = true)
+  public CursorPageResponse<InterestDto> findAll(InterestQuery query) {
+    return interestRepository.findAll(query);
   }
 
   @Transactional
