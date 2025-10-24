@@ -36,7 +36,7 @@ CREATE TABLE interests (
 CREATE TABLE articles (
                           id UUID NOT NULL,
                           source VARCHAR(255) NOT NULL,
-                          source_url VARCHAR(255) NOT NULL,
+                          source_url VARCHAR(255) NOT NULL UNIQUE,
                           title VARCHAR(255) NOT NULL,
                           created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                           publish_date TIMESTAMP NOT NULL,

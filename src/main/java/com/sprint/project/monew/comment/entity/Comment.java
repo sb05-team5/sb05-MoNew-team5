@@ -41,7 +41,6 @@ public class Comment extends BaseEntity {
                         .userId(userId)
                         .content(content.trim())
                         .likeCount(0)
-                        .deleted(false)
                         .build();
         }
 
