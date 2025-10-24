@@ -1,10 +1,13 @@
 package com.sprint.project.monew.comment.mapper;
 
 import com.sprint.project.monew.comment.dto.CommentDto;
-import com.sprint.project.monew.comment.entity.CommentEntity;
+import com.sprint.project.monew.comment.entity.Comment;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
-    CommentDto toCommentDto(CommentEntity comment);
+
+    @Mapping(target = "id", source = "id")
+    CommentDto toDto(Comment comment);
 }
