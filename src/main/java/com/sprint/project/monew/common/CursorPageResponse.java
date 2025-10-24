@@ -14,6 +14,6 @@ public record CursorPageResponse<T>(
     String nextAfter,
     Integer size,
     Boolean hasNext,
-    Long totalElements
+    Integer totalElements
 ) {
 }

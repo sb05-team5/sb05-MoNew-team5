@@ -185,7 +185,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
                 nextAfter,
                 size,
                 hasNext,
-                (long) contents.size()
+                contents.size()
         );
     }
 
