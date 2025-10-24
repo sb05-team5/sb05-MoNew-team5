@@ -63,7 +63,7 @@ public class InterestController {
   }
 
   @DeleteMapping("{interestId}/subscriptions")
-  public ResponseEntity<Void> deleteSubscription(@PathVariable UUID interestId, UUID userId) {
+  public ResponseEntity<Void> deleteSubscription(@PathVariable UUID interestId, @RequestParam UUID userId) {
     subscriptionService.delete(userId, interestId);
     return ResponseEntity.noContent().build();
   }

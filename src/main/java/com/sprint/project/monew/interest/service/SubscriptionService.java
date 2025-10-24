@@ -44,6 +44,8 @@ public class SubscriptionService {
     Interest interest = validatedInterest(interestId);
     validatedSubscription(user, interest);
 
+    interest.decreaseSubscriber();
+
     subscriptionRepository.deleteByUserAndInterest(user, interest);
   }
 
