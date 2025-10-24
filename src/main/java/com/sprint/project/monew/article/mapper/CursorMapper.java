@@ -31,7 +31,7 @@ public interface CursorMapper {
                 .hasNext(slice.hasNext())
                 .nextCursor(next)
                 .nextAfter(String.valueOf(nextAfter))
-                .totalElements((long) slice.getNumberOfElements())
+                .totalElements(slice.getNumberOfElements())
                 .content(slice.getContent())
                 .build();
     }
@@ -43,7 +43,7 @@ public interface CursorMapper {
                 .size(slice.getSize())
                 .hasNext(slice.hasNext())
                 .nextCursor(nextCursor.toString())
-                .totalElements((long) slice.getNumberOfElements())
+                .totalElements( slice.getNumberOfElements())
                 .content(slice.getContent())
                 .build();
     }
