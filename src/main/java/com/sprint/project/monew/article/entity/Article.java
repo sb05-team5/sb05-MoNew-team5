@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "articles")
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @ToString(callSuper = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
 @AllArgsConstructor
@@ -23,12 +24,12 @@ import java.util.UUID;
 public class Article extends BaseEntity {
 
     @Column(nullable = false)
-    private LocalDate publishDate;
+    private Instant publishDate;
 
     @Column(nullable = false, length = 255)
     private String source;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 255, unique = true)
     private String sourceUrl;
 
     @Column(nullable = false, length = 255)
@@ -42,5 +43,8 @@ public class Article extends BaseEntity {
 
     @Column(nullable = true, length = 255)
     private UUID interest_id;
+
+    @Column(nullable = true)
+    private Instant deleted_at;
 
 }

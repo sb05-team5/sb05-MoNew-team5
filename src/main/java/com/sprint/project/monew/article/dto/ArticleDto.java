@@ -5,11 +5,11 @@ import lombok.Builder;
 
 import java.util.UUID;
 
-@Builder
+@Builder(toBuilder = true)
 public record ArticleDto(
     UUID id,
-    String sourceUrl,
     String source,
+    String sourceUrl,
     String title,
     String publishDate,
     String summary,
