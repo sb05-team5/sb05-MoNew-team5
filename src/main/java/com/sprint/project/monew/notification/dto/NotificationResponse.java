@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class NotificationResponse {
-    private Long id;
+    private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
     private boolean confirmed;
