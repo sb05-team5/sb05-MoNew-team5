@@ -223,3 +223,9 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,gradle,groovy,windows,macos,java
+
+
+#개인 테스트를 위해 yml,env 추가
+.yml
+.yaml
+.env
