@@ -45,4 +45,8 @@ public class Interest extends BaseEntity {
   public void update(List<String> keywords) {
     this.keyword = String.join(",", keywords);
   }
+
+  public void increaseSubscriber() {
+    this.subscriberCount++;
+  }
 }
