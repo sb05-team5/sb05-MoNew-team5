@@ -1,7 +1,7 @@
-package com.sprint.project.monew.subscription.mapper;
+package com.sprint.project.monew.interest.mapper;
 
-import com.sprint.project.monew.subscription.dto.SubscriptionDto;
-import com.sprint.project.monew.subscription.entity.Subscription;
+import com.sprint.project.monew.interest.dto.SubscriptionDto;
+import com.sprint.project.monew.interest.entity.Subscription;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,6 +12,6 @@ public interface SubscriptionMapper {
   @Mapping(source = "interest.name", target = "interestName")
   @Mapping(source = "interest.subscriberCount", target = "interestSubscriberCount")
   @Mapping(target = "interestKeywords",
-      expression = "java(java.util.Arrays.asList(subscription.getInterest().getKeyword().split(\",\")))")
+      expression = "java(subscription.getInterest().getKeywords())")
   SubscriptionDto toSubscriptionDto(Subscription subscription);
 }

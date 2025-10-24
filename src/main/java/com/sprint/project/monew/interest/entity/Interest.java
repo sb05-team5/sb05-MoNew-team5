@@ -45,4 +45,15 @@ public class Interest extends BaseEntity {
   public void update(List<String> keywords) {
     this.keyword = String.join(",", keywords);
   }
+
+  public void increaseSubscriber() {
+    this.subscriberCount++;
+  }
+
+  public void decreaseSubscriber() {
+    if (this.subscriberCount < 0) {
+      throw new IllegalArgumentException("구독자 수는 0보다 작을 수 없습니다.");
+    }
+    this.subscriberCount--;
+  }
 }
