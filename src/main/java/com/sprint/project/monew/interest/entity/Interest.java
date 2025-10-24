@@ -4,14 +4,18 @@ import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "interests")
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Interest extends BaseEntity {
@@ -25,9 +29,20 @@ public class Interest extends BaseEntity {
   @Column(nullable = false)
   private String keyword;
 
-  public void update(String keyword) {
-    if (keyword != null && keyword.equals(this.keyword)) {
-      this.keyword = keyword;
+  public Interest(String name, String keyword) {
+    this.name = name;
+    this.keyword = keyword;
+  }
+
+  public List<String> getKeywords() {
+    if (keyword == null || keyword.isBlank()) {
+      return List.of();
     }
+
+    return Arrays.asList(keyword.split(","));
+  }
+
+  public void update(List<String> keywords) {
+    this.keyword = String.join(",", keywords);
   }
 }
