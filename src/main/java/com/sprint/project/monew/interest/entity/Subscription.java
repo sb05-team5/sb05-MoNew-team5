@@ -1,7 +1,6 @@
-package com.sprint.project.monew.subscription.entity;
+package com.sprint.project.monew.interest.entity;
 
 import com.sprint.project.monew.common.BaseEntity;
-import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

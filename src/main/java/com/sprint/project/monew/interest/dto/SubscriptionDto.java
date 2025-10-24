@@ -1,4 +1,4 @@
-package com.sprint.project.monew.subscription.dto;
+package com.sprint.project.monew.interest.dto;
 
 import java.time.Instant;
 import java.util.List;
