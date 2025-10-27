@@ -1,22 +1,16 @@
 package com.sprint.project.monew.comment.service;
 
-import com.sprint.project.monew.comment.entity.CommentEntity;
-import com.sprint.project.monew.comment.repository.CommentRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.sprint.project.monew.comment.entity.Comment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class CommentService {
-    private final CommentRepository commentRepository;
+public interface CommentService {
 
-    @Transactional
-    public UUID writeComment(UUID articleId, UUID userId, String content) {
-        CommentEntity comment = CommentEntity.create(articleId, userId, content);
-        return commentRepository.save(comment).getId();
-    }
+    UUID write(UUID articleId, UUID userId, String content);
+    Page<Comment> list(Pageable pageable);
+    void update(UUID commentId, UUID userId, String content);
+    void softDelete(UUID commentId, UUID userId); // 논리삭제
+    void hardDelete(UUID commentId, UUID userId); // 물리삭제
 }
