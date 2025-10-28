@@ -30,9 +30,14 @@ public class User extends BaseEntity {
   @Column
   private Instant deletedAt;
 
+
   public User(String email, String nickname, String password) {
     this.email = email;
     this.nickname = nickname;
     this.password = password;
+  }
+
+  public void changeNickname(String newNickname) {
+    this.nickname = newNickname;
   }
 }
