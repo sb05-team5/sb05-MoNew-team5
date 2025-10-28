@@ -2,11 +2,10 @@ package com.sprint.project.monew.article.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.project.monew.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,8 +22,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Article extends BaseEntity {
 
+
     @Column(nullable = false)
-    private Instant publishDate;
+    private String publishDate;
 
     @Column(nullable = false, length = 255)
     private String source;
