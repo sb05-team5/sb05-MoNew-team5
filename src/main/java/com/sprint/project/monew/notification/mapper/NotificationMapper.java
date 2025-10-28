@@ -1,6 +1,7 @@
 package com.sprint.project.monew.notification.mapper;
 
 
+import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.notification.dto.NotificationRequest;
 import com.sprint.project.monew.notification.dto.NotificationResponse;
 import com.sprint.project.monew.notification.entity.NotificationEntity;
@@ -17,7 +18,6 @@ public interface NotificationMapper {
     NotificationResponse toNotificationRepose(NotificationEntity notification);
 
     List<NotificationResponse> toNotificationResponses(List<NotificationEntity> notificationResponses);
-
 
 
 
