@@ -65,7 +65,7 @@ public class InterestQueryRepositoryImpl implements InterestQueryRepository {
     }
 
     List<InterestDto> interestDtos = interests.stream()
-        .map(interestMapper::toDto)
+        .map(interest -> interestMapper.toDto(interest, false))
         .toList();
 
     return new CursorPageResponse<>(
@@ -73,8 +73,9 @@ public class InterestQueryRepositoryImpl implements InterestQueryRepository {
         nextCursor,
         nextAfter,
         query.size(),
-        totalElements,
-        hasNext
+        hasNext,
+        totalElements
+
     );
   }
 
