@@ -15,9 +15,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByNickname(String nickname);
 
-  Optional<User> findByEmail(String email);
+  Optional<User> findByEmailAndDeletedAtIsNull(String email);
 
-  Optional<User> findById(UUID id);
+  Optional<User> findByIdAndDeletedAtIsNull(UUID uuid);
 
   @Modifying
   @Query("""
@@ -26,6 +26,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
           where u.id = :id
       """)
   void deleteByIdForSoft(@Param("id") UUID id, @Param("now") Instant now);
-
-  void deleteById(UUID id);
 }

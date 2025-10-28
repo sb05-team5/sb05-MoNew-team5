@@ -48,12 +48,12 @@ public class UserController {
   @DeleteMapping(path = "{userId}")
   public ResponseEntity<UserDto> deleteSoft(@PathVariable("userId") UUID userId) {
     userService.deleteSoft(userId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping(path = "{userId}/hard")
   public ResponseEntity<UserDto> deleteHard(@PathVariable("userId") UUID userId) {
     userService.deleteById(userId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    return ResponseEntity.noContent().build();
   }
 }

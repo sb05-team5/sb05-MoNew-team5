@@ -17,7 +17,7 @@ public class AuthService {
   private final UserMapper userMapper;
 
   public UserDto login(UserLoginRequest userLoginRequest) {
-    User user = userRepository.findByEmail(userLoginRequest.email())
+    User user = userRepository.findByEmailAndDeletedAtIsNull(userLoginRequest.email())
         .orElseThrow(() -> new NoSuchElementException(userLoginRequest.email() + "이메일 존재하지 않습니다."));
 
     if (!user.getPassword().equals(userLoginRequest.password())) {
