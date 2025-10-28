@@ -1,10 +1,13 @@
 package com.sprint.project.monew.article.repository;
 
 import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
+import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.common.CursorPageResponse;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ArticleQueryRepository {
@@ -14,4 +17,17 @@ public interface ArticleQueryRepository {
                                                            String publishDateFrom, String publishDateTo,
                                                            String orderBy, String direction,
                                                            String cursor, String after, Integer limit, UUID userId);
+
+    List<String> searchSource();
+
+    ArticleDto searchOne(UUID articleId,UUID userId);
+
+    List<Article> searchForRestore(String from, String to);
+
+    Optional<Article> findByArticleId(UUID articleId);
+
+    List<Article> findAllArticle();
+
+
+
 }

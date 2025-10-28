@@ -9,9 +9,13 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
+import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.article.entity.QArticle;
 import com.sprint.project.monew.article.entity.Source;
 import com.sprint.project.monew.article.repository.ArticleQueryRepository;
+import com.sprint.project.monew.article.repository.ArticleRepository;
+import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
 import com.sprint.project.monew.articleView.entity.QArticleView;
 import com.sprint.project.monew.comment.entity.QComment;
 import com.sprint.project.monew.common.CursorPageResponse;
@@ -19,6 +23,11 @@ import com.sprint.project.monew.interest.entity.QInterest;
 import com.sprint.project.monew.user.entity.QUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -26,22 +35,151 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
+public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     private final JPAQueryFactory queryFactory;
     private static final QArticle a =QArticle.article;
     private static final QInterest i = QInterest.interest;
     private static final QComment c = QComment.comment;
     private static final QArticleView v = QArticleView.articleView;
     private static final QUser u = QUser.user;
+
+
+
+
+
+
+    @Override
+    public ArticleDto searchOne(UUID articleId,UUID  userId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        // soft delete 처리
+        builder.and(a.deleted_at.isNull());
+        builder.and(a.id.eq(articleId));
+
+        // viewedByMe 서브쿼리: articleView에 내가 본 기록이 존재하는지 여부
+        BooleanExpression viewedByMeExpr = JPAExpressions
+                .selectOne()
+                .from(v)
+                .where(v.article.eq(a).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
+                .exists();
+
+        builder.and(viewedByMeExpr);
+
+        return queryFactory
+                .select(Projections.constructor(
+                                ArticleDto.class,
+                                a.id,
+                                a.source,
+                                a.sourceUrl,
+                                a.title,
+                                a.publishDate,
+                                a.summary,
+                                c.id.countDistinct(),
+                                a.viewCount,
+                                viewedByMeExpr
+                        ))
+                .from(a)
+                .leftJoin(c).on(c.articleId.eq(a.id))
+                .where(builder)
+                .fetchOne();
+    }
+
+
+    @Override
+    public List<String> searchSource() {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        // soft delete 처리
+        builder.and(a.deleted_at.isNull());
+
+        List<String> sources = queryFactory
+                .selectDistinct(
+                        a.source
+                )
+                .from(a)
+                .where(builder)
+                .fetch();
+
+        return sources;
+    }
+
+
+
+    @Override
+    public List<Article> searchForRestore(String from, String to) {
+        BooleanBuilder builder = new BooleanBuilder();
+        // soft delete 처리
+        builder.and(a.deleted_at.isNull());
+
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
+
+        if (from != null && !from.isBlank()) {
+            Instant fromInstant = parseToInstant(from, zone, dateTimeFormatter);
+            if (fromInstant != null) {
+                builder.and(a.publishDate.goe(fromInstant));
+            }
+        }
+
+        if (to != null && !to.isBlank()) {
+            Instant toInstant = parseToInstant(to, zone, dateTimeFormatter);
+            if (toInstant != null) {
+                builder.and(a.publishDate.loe(toInstant));
+            }
+        }
+
+        return queryFactory
+                .selectDistinct(Projections.constructor(
+                        Article.class,
+                        a.id,
+                        a.source,
+                        a.sourceUrl,
+                        a.title,
+                        a.publishDate,
+                        a.summary,
+                        a.viewCount
+                ))
+                .from(a)
+                .where(builder)
+                .fetch();
+
+    }
+
+
+
+    @Override
+    public Optional<Article> findByArticleId(UUID articleId) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(a.deleted_at.isNull());
+        builder.and(a.id.eq(articleId));
+        return Optional.ofNullable(queryFactory
+                .select(a)
+                .from(a)
+                .where(builder)
+                .fetchOne());
+    }
+
+
+    @Override
+    public List<Article> findAllArticle() {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(a.deleted_at.isNull());
+        return queryFactory
+                .select(a)
+                .from(a)
+                .where(builder)
+                .fetch();
+
+    }
+
+
 
 
     @Override
@@ -144,7 +282,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
         BooleanExpression viewedByMeExpr = JPAExpressions
                 .selectOne()
                 .from(v)
-                .where(v.article.eq(a).and(v.user.id.eq(userId)))
+                .where(v.article.eq(a).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
                 .exists();
 
 
@@ -165,7 +303,16 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
                 .from(a)
                 .leftJoin(c).on(c.articleId.eq(a.id))
                 .where(builder)
-                .groupBy(a.id)
+                .groupBy(
+                        a.id,
+                        a.source,
+                        a.sourceUrl,
+                        a.title,
+                        a.publishDate,
+                        a.summary,
+                        a.viewCount
+                        // H2에서는 select에 있는 컬럼은 모두 group by에 넣어야 함
+                )
                 .orderBy(orderSpecifier)
                 .limit(size + 1)
                 .fetch();
@@ -175,7 +322,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
 
         String nextAfter = null;
         if (!contents.isEmpty()) {
-            Instant lastPublishDate = Instant.parse(contents.get(contents.size() - 1).publishDate());
+            Instant lastPublishDate = contents.get(contents.size() - 1).publishDate();
             nextAfter = lastPublishDate.toString();
         }
 
@@ -188,6 +335,9 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
                 contents.size()
         );
     }
+
+
+
 
     // -----------------
 // 공통 유틸 메서드
@@ -203,4 +353,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository {
             return null;
         }
     }
+
+
 }

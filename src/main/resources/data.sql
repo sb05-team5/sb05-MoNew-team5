@@ -7,12 +7,12 @@ INSERT INTO users (id, email, nickname, password, created_at, deleted_at) VALUES
 ('55555555-5555-5555-5555-555555555555', 'user5@example.com', 'user5', 'password5', now(), NULL);
 
 -- // interests
-INSERT INTO interests (id, name, subscriber_count, keyword) VALUES
-('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1', 'Technology', 100, 'tech, ai, programming'),
-('aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'Sports', 200, 'soccer, basketball, olympics'),
-('aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaa3', 'Finance', 150, 'stock, crypto, economy'),
-('aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaa4', 'Health', 80, 'fitness, nutrition, wellness'),
-('aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5', 'Travel', 120, 'tourism, adventure, travel');
+INSERT INTO interests (id, created_at, name, subscriber_count, keyword) VALUES
+('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1',now(), 'Technology', 100, '기술, ai, 프로그래밍'),
+('aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaa2',now(), 'Sports', 200, '축구, 농구, 올림픽'),
+('aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaa3',now(), 'Finance', 150, '암호화폐, 경제'),
+('aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaa4',now(), 'Health', 80, '운동, 영양, 건강'),
+('aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',now(), 'Travel', 120, '관광, 모험, 여행');
 
 -- // articles
 INSERT INTO articles (id, source, source_url, title, created_at, publish_date, summary, view_count, deleted_at, interest_id) VALUES
@@ -39,12 +39,12 @@ INSERT INTO COMMENT_LIKES (ID, CREATED_AT, DELETED_AT, COMMENT_ID) VALUES
 (CAST('a5555555-aaaa-aaaa-aaaa-aaaaaaaaaaa5' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc4-cccc-cccc-cccc-ccccccccccc4' AS UUID));
 
 -- // article_views
-INSERT INTO article_views (id, created_at, article_id, viewed_by) VALUES
-('eeeeeee1-eeee-eeee-eeee-eeeeeeeeeee1', now(), 'bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '11111111-1111-1111-1111-111111111111'),
-('eeeeeee2-eeee-eeee-eeee-eeeeeeeeeee2', now(), 'bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', '22222222-2222-2222-2222-222222222222'),
-('eeeeeee3-eeee-eeee-eeee-eeeeeeeeeee3', now(), 'bbbbbbb3-bbbb-bbbb-bbbb-bbbbbbbbbbb3', '33333333-3333-3333-3333-333333333333'),
-('eeeeeee4-eeee-eeee-eeee-eeeeeeeeeee4', now(), 'bbbbbbb4-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '44444444-4444-4444-4444-444444444444'),
-('eeeeeee5-eeee-eeee-eeee-eeeeeeeeeee5', now(), 'bbbbbbb5-bbbb-bbbb-bbbb-bbbbbbbbbbb5', '55555555-5555-5555-5555-555555555555');
+INSERT INTO article_views (id, created_at, article_id, viewed_by, deleted_at) VALUES
+('eeeeeee1-eeee-eeee-eeee-eeeeeeeeeee1', now(), 'bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '11111111-1111-1111-1111-111111111111',null),
+('eeeeeee2-eeee-eeee-eeee-eeeeeeeeeee2', now(), 'bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', '22222222-2222-2222-2222-222222222222',null),
+('eeeeeee3-eeee-eeee-eeee-eeeeeeeeeee3', now(), 'bbbbbbb3-bbbb-bbbb-bbbb-bbbbbbbbbbb3', '33333333-3333-3333-3333-333333333333',null),
+('eeeeeee4-eeee-eeee-eeee-eeeeeeeeeee4', now(), 'bbbbbbb4-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '44444444-4444-4444-4444-444444444444',null),
+('eeeeeee5-eeee-eeee-eeee-eeeeeeeeeee5', now(), 'bbbbbbb5-bbbb-bbbb-bbbb-bbbbbbbbbbb5', '55555555-5555-5555-5555-555555555555',null);
 
 -- // subscriptions
 INSERT INTO subscriptions (id, created_at, user_id, interest_id) VALUES
