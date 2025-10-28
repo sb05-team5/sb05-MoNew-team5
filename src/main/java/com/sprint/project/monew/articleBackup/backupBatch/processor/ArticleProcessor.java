@@ -10,6 +10,7 @@ import com.sprint.project.monew.articleBackup.backupBatch.dto.InterestKeywordDto
 import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -22,12 +23,16 @@ import java.util.UUID;
 public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Article> {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ArticleMapper articleMapper;
+    @Value("${CLIENT_SECRET}")
+    private String clientSecret;
 
 
     @Override
     public Article process(InterestKeywordDto item) throws Exception {
         final String clientId= "7UJkEH_tIBCmVEAY1HXl";
-        final String clientSecret= "";
+
+
+
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://openapi.naver.com/v1/search/news.json")
                 .defaultHeader("X-Naver-Client-Id", clientId)
@@ -55,10 +60,11 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
 
             ArticleDto articleDto = ArticleDto.builder()
                     .id(null) // 새로 생성
+                    .createdAt(null)
                     .source(Source.NAVER.getSource())
-                    .sourceUrl(firstItem.path("link").asText())
+                    .sourceUrl(firstItem.path("link").asText().replaceAll("<.*?>", ""))
                     .title(firstItem.path("title").asText().replaceAll("<.*?>", ""))
-                    .publishDate(Instant.now())
+                    .publishDate(firstItem.path("pubDate").asText().replaceAll("<.*?>",""))
                     .summary(firstItem.path("description").asText().replaceAll("<.*?>", ""))
                     .commentCount(0L)
                     .viewCount(0)
