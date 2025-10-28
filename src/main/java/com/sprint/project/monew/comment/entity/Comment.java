@@ -2,9 +2,9 @@ package com.sprint.project.monew.comment.entity;
 
 import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.Comment;
 
 import java.util.UUID;
 
@@ -13,27 +13,30 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
-@Table( name = "comment")
-public class CommentEntity extends BaseEntity {
+@Table(name = "comment")
+public class Comment extends BaseEntity {
 
-        // 댓글이 달린 기사
         @Column(name = "article_id", columnDefinition = "uuid", nullable = false)
         private UUID articleId;
 
-        // 댓글 작성자
         @Column(name = "user_id", columnDefinition = "uuid", nullable = false)
         private UUID userId;
 
+        @NotBlank
         @Size(max = 1000)
         @Column(name = "content", nullable = false, length = 1000)
-        @Comment("댓글 내용")
+        @org.hibernate.annotations.Comment("댓글 내용")
         private String content;
 
         @Column(name = "like_count", nullable = false)
         private int likeCount;
 
-        public static CommentEntity create(UUID articleId, UUID userId, String content) {
-                return CommentEntity.builder()
+        // deleted가 true면 논리삭제 상태
+        @Column(name = "deleted", nullable = false)
+        private boolean deleted;
+
+        public static Comment create(UUID articleId, UUID userId, String content) {
+                return Comment.builder()
                         .articleId(articleId)
                         .userId(userId)
                         .content(content.trim())
@@ -41,8 +44,20 @@ public class CommentEntity extends BaseEntity {
                         .build();
         }
 
-        public void editContent(String newContent) {
-                this.content = newContent.trim();
+        public void update(String newContent) {
+                if (newContent != null) {
+                        this.content = newContent.trim();
+                }
+        }
+
+        // 논리삭제 : 삭제
+        public void softDelete() {
+                this.deleted = true;
+        }
+
+        // 논리삭제 : 복원
+        public void restore() {
+                this.deleted = false;
         }
 
         public void increaseLike() { this.likeCount++; }
