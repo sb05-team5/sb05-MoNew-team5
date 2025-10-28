@@ -32,7 +32,7 @@ public class CommentController {
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") int size
     ) {
-        return null; // 관련 미구현
+        return null; // 관련 미완성...
     }
 
     // 댓글 등록
