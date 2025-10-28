@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
+
 
 @Entity
 @Table(name = "article_views")
@@ -29,10 +31,12 @@ public class ArticleView extends BaseEntity {
     private Article article;
 
 
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "viewed_by", nullable = false, unique = true)
     private User user;
+
+    @Column(nullable = true)
+    private Instant deleted_at;
 
 
 }

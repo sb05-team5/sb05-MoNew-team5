@@ -48,6 +48,22 @@ CREATE TABLE articles (
 
 
 );
+-- // 기사 백업 - 단순 백업을 위한 테이블이라 제약조건 최소화
+CREATE TABLE article_backup (
+                          id UUID ,
+                          article_id UUID,
+                          source VARCHAR(255) ,
+                          source_url VARCHAR(255),
+                          title VARCHAR(255),
+                          created_at TIMESTAMP WITH TIME ZONE,
+                          publish_date TIMESTAMP,
+                          summary TEXT,
+                          view_count INT,
+                          deleted_at TIMESTAMP,
+                          interest_id UUID,
+                          CONSTRAINT pk_article_backup PRIMARY KEY (id)
+
+);
 
 -- // 댓글
 CREATE TABLE comments (
@@ -81,6 +97,7 @@ CREATE TABLE article_views (
                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                                article_id UUID NOT NULL,
                                viewed_by UUID NOT NULL,
+                               deleted_at TIMESTAMP NULL,
                                CONSTRAINT pk_article_views PRIMARY KEY (id),
                                CONSTRAINT fk_article_views_articles FOREIGN KEY (article_id)
                                    REFERENCES articles (id) ON DELETE CASCADE,
@@ -314,3 +331,4 @@ CREATE TABLE BATCH_JOB_EXECUTION_CONTEXT (
 -- -- DROP SEQUENCE IF EXISTS batch_job_execution_seq;
 -- -- DROP SEQUENCE IF EXISTS batch_step_execution_seq;
 -- -- DROP SEQUENCE IF EXISTS BATCH_JOB_SEQ CASCADE;
+
