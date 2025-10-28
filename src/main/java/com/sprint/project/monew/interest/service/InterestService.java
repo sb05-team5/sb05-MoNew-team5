@@ -35,6 +35,7 @@ public class InterestService {
 
     List<String> newKeywords = req.keywords();
     validateKeywordsNotEmpty(newKeywords);
+    validateDuplicateKeywords(newKeywords);
 
     Interest interest = interestMapper.toEntity(req);
     interestRepository.save(interest);
