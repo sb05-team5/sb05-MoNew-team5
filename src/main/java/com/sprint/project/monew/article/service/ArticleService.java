@@ -25,6 +25,7 @@ import com.sprint.project.monew.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,17 +48,16 @@ import static com.sprint.project.monew.article.entity.QArticle.article;
 public class ArticleService {
     private final ArticleRepository articleRepository;
     private final InterestRepository interestRepository;
-    private final UserRepository userRepository;
-    private final ArticleViewRepository articleViewRepository;
-    private final ArticleViewService articleViewService;
     private final ArticleBackupRepository articleBackupRepository;
     private final ArticleMapper articleMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final CommentRepository commentRepository;
 
     //네이버 API를 위한 키값
     private final String clientId= "7UJkEH_tIBCmVEAY1HXl";
-    private final String clientSecret= "fAbkGxQVv7";
+
+
+    @Value("${CLIENT_SECRET}")
+    private String clientSecret;
 
 
 
@@ -104,24 +104,24 @@ public class ArticleService {
 //    }
 
 
-    public ArticleDto searchOne(UUID articleId,UUID userId) {
-        Article article = articleRepository.findByArticleId(articleId)
-                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
-
-        User user =userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
-
-        articleViewService.createArticleView(article, user);
-
-        article = article.toBuilder()
-                .viewCount(article.getViewCount()+1)
-                .build();
-        articleRepository.save(article);
-
-
-        return articleRepository.searchOne(articleId,userId);
-
-    }
+//    public ArticleDto searchOne(UUID articleId,UUID userId) {
+//        Article article = articleRepository.findByArticleId(articleId)
+//                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
+//
+//        User user =userRepository.findById(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+//
+//        //ArticleView view = articleViewCreate(article, user);
+//
+//        article = article.toBuilder()
+//                .viewCount(article.getViewCount()+1)
+//                .build();
+//        articleRepository.save(article);
+//
+//
+//        return articleRepository.searchOne(articleId,userId);
+//
+//    }
 
 
 

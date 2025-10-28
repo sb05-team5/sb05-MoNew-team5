@@ -50,7 +50,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     private static final QComment c = QComment.comment;
     private static final QArticleView v = QArticleView.articleView;
     private static final QUser u = QUser.user;
-    private final ArticleRepository articleRepository;
 
 
     @Override
