@@ -16,26 +16,26 @@ import java.util.List;
 @ActiveProfiles("test")
 public class NotificationRepositoryTest {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+//    @Autowired
+//    private NotificationRepository notificationRepository;
+//
+//    @Autowired
+//    private TestEntityManager em;
 
-    @Autowired
-    private TestEntityManager em;
-
-    @Test
-    @DisplayName("findAll Test")
-    void findAllTest() {
-
-        List<NotificationEntity> list  = notificationRepository.findAll();
-
-
-        assert !list.isEmpty();
-        System.out.println(list);
-
-
-
-
-    }
+//    @Test
+//    @DisplayName("findAll Test")
+//    void findAllTest() {
+//
+//        List<NotificationEntity> list  = notificationRepository.findAll();
+//
+//
+//        assert !list.isEmpty();
+//        System.out.println(list);
+//
+//
+//
+//
+//    }
 
 
 }

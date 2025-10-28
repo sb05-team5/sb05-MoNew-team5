@@ -1,6 +1,7 @@
 package com.sprint.project.monew.article.controller;
 
 import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
 import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.articleView.entity.ArticleView;
 import com.sprint.project.monew.common.CursorPageResponse;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,9 +23,30 @@ public class ArticleController {
     private final ArticleService articleService;
 
     // ✅ naver 뉴스 가져와서 DB 저장 - 관심사(키워드)가 추가되면 그 키워드가 포함되는 기사만 수집할 수 있게 수정 필요
+    // batch로 작성해서 안 쓰지만 일단 놔둠
     @GetMapping("/news")
-    public void fetchEntertainmentNews() {
+    public void fetchEntertainmentNews() throws InterruptedException {
         articleService.naverFetchAndSaveNews();
+    }
+
+
+    @GetMapping("/{articleId}")
+    public ArticleDto searchOne(@PathVariable("articleId") UUID articleId,
+                                @RequestHeader("Monew-Request-User-ID") UUID userId
+                                ) throws InterruptedException {
+
+        return articleService.searchOne(articleId,userId);
+    }
+
+
+
+    @GetMapping("/restore")
+    public List<ArticleRestoreResultDto> restore(
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to
+    ) throws InterruptedException {
+
+        return Collections.singletonList(articleService.restore(from, to));
     }
 
 
@@ -70,7 +93,7 @@ public class ArticleController {
     @GetMapping("/sources")
     public ResponseEntity<List<String>> getSources() {
 
-        return ResponseEntity.ok().body(articleService.getSource());
+        return ResponseEntity.ok().body(articleService.searchSource());
 
     }
 
