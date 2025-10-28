@@ -20,7 +20,6 @@ import java.io.IOException;
 @EnableScheduling
 @RequiredArgsConstructor
 public class BackupScheduler {
-    private final ArticleService articleService;
     private final JobLauncher jobLauncher;
 
     private final Job articleBackupJob;

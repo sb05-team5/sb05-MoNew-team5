@@ -30,13 +30,13 @@ public class ArticleController {
     }
 
 
-    @GetMapping("/{articleId}")
-    public ArticleDto searchOne(@PathVariable("articleId") UUID articleId,
-                                @RequestHeader("Monew-Request-User-ID") UUID userId
-                                ) throws InterruptedException {
-
-        return articleService.searchOne(articleId,userId);
-    }
+//    @GetMapping("/{articleId}")
+//    public ArticleDto searchOne(@PathVariable("articleId") UUID articleId,
+//                                @RequestHeader("Monew-Request-User-ID") UUID userId
+//                                ) throws InterruptedException {
+//
+//        return articleService.searchOne(articleId,userId);
+//    }
 
 
 
@@ -45,6 +45,8 @@ public class ArticleController {
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String to
     ) throws InterruptedException {
+        log.info("Controllerrestore -->{} {}", from, to);
+
 
         return Collections.singletonList(articleService.restore(from, to));
     }
