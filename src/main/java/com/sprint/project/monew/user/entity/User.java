@@ -28,4 +28,8 @@ public class User extends BaseEntity {
 
   @Column
   private Instant deletedAt;
+
+  public void changeNickname(String newNickname) {
+    this.nickname = newNickname;
+  }
 }
