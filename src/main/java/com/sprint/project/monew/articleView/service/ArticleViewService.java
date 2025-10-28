@@ -20,7 +20,7 @@ import java.util.UUID;
 @Slf4j
 public class ArticleViewService {
     private final ArticleViewRepository articleViewRepository;
-    private final ArticleService articleService;
+
 
     public ArticleView createArticleView(Article article, User user) {
 
@@ -35,7 +35,7 @@ public class ArticleViewService {
                 .user(user)
                 .build();
 
-        articleService.incrementViewCount(article.getId());
+//        articleService.incrementViewCount(article.getId()); articleService에서 직접하기
 
         return articleViewRepository.save(articleView);
     }
