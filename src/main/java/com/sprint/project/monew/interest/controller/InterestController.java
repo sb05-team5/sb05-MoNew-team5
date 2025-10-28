@@ -8,6 +8,7 @@ import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
 import com.sprint.project.monew.interest.dto.SubscriptionDto;
 import com.sprint.project.monew.interest.service.InterestService;
 import com.sprint.project.monew.interest.service.SubscriptionService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class InterestController {
   private final SubscriptionService subscriptionService;
 
   @PostMapping
-  public ResponseEntity<InterestDto> createInterest(@RequestBody InterestRegisterRequest req) {
+  public ResponseEntity<InterestDto> createInterest(@Valid @RequestBody InterestRegisterRequest req) {
     InterestDto created = interestService.create(req);
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
@@ -51,7 +52,7 @@ public class InterestController {
 
   @PatchMapping("{interestId}")
   public ResponseEntity<InterestDto> update(
-      @PathVariable UUID interestId, @RequestBody InterestUpdateRequest req) {
+      @PathVariable UUID interestId, @Valid @RequestBody InterestUpdateRequest req) {
     InterestDto updated = interestService.update(interestId, req);
     return ResponseEntity.ok(updated);
   }
