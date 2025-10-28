@@ -43,5 +43,13 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
                                  @Param("id") UUID id,
                                  @Param("page") Pageable page);
 
+    @Query("""
+        select count(c)
+        from Comment c
+        where c.articleId = :articleId
+          and c.deletedAt is null
+    """)
+    long countByArticleId(@Param("articleId") UUID articleId);
+
     Optional<Comment> findByCommentId(UUID id);
 }
