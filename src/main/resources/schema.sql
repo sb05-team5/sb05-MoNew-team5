@@ -1,4 +1,3 @@
--- // 자식 테이블부터 삭제 (외래키 종속 때문에)
 DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS subscriptions CASCADE;
 DROP TABLE IF EXISTS comment_likes CASCADE;
@@ -124,7 +123,6 @@ CREATE TABLE notifications (
                                id UUID NOT NULL,
                                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                                updated_at TIMESTAMP WITH TIME ZONE NULL,
-
                                confirmed BOOLEAN NOT NULL DEFAULT FALSE,
                                content VARCHAR(255) NOT NULL,
                                resource_type VARCHAR(10) NOT NULL,
@@ -134,6 +132,7 @@ CREATE TABLE notifications (
                                CONSTRAINT fk_notifications_users FOREIGN KEY (user_id)
                                    REFERENCES users (id) ON DELETE CASCADE
 );
+
 
 -- ===============================
 -- H2용 Spring Batch 5.x 스키마
@@ -332,5 +331,4 @@ CREATE TABLE BATCH_JOB_EXECUTION_CONTEXT (
 -- -- DROP SEQUENCE IF EXISTS batch_job_execution_seq;
 -- -- DROP SEQUENCE IF EXISTS batch_step_execution_seq;
 -- -- DROP SEQUENCE IF EXISTS BATCH_JOB_SEQ CASCADE;
-
 

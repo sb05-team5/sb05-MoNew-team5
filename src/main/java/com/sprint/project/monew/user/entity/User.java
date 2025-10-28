@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,12 @@ public class User extends BaseEntity {
 
   @Column
   private Instant deletedAt;
+
+
+  public User(String email, String nickname, String password) {
+    this.email = email;
+    this.nickname = nickname;
+    this.password = password;
 
   public void changeNickname(String newNickname) {
     this.nickname = newNickname;
