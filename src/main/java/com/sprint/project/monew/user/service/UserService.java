@@ -39,7 +39,7 @@ public class UserService {
 
   @Transactional
   public UserDto update(UUID id, UserUpdateRequest request) {
-    User user = userRepository.findById(id)
+    User user = userRepository.findByIdAndDeletedAtIsNull(id)
         .orElseThrow(()-> new NoSuchElementException("존재하지 않는 아이디"));
     if(user.getNickname().equals(request.newNickname())) {
       throw new RuntimeException("현재 닉네임과 같은 닉네임");
@@ -50,7 +50,7 @@ public class UserService {
 
   @Transactional
   public void deleteSoft(UUID id) {
-    User user = userRepository.findById(id)
+    User user = userRepository.findByIdAndDeletedAtIsNull(id)
         .orElseThrow(()->new NoSuchElementException("존재하지 않는 아이디"));
     userRepository.deleteByIdForSoft(id, Instant.now());
   }
