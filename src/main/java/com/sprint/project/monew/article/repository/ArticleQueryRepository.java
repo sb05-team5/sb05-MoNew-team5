@@ -22,11 +22,12 @@ public interface ArticleQueryRepository {
 
     ArticleDto searchOne(UUID articleId,UUID userId);
 
-    List<Article> searchForRestore(String from, String to);
+    List<ArticleDto> searchForRestore(String from, String to);
 
     Optional<Article> findByArticleId(UUID articleId);
 
     List<Article> findAllArticle();
+
 
 
 
