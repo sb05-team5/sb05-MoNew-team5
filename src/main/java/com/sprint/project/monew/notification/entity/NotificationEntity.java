@@ -6,7 +6,10 @@ import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
@@ -31,29 +34,30 @@ public class NotificationEntity extends BaseEntity {
 //    user_id UUID NOT NULL,
 
 
-    @CreatedDate
-    @Column(columnDefinition = "timestamp with time zone defatult now()",
-            nullable = false)
+    // updated_at TIMESTAMP WITH TIME ZONE NULL
+    @LastModifiedDate
+    @Column(name = "updated_at", columnDefinition = "timestamp with time zone")
     private Instant updated_at;
 
 
-    @Column(nullable = false )
-    private  boolean confirmed;
+    @Column(name = "confirmed", nullable = false)
+    @Builder.Default
+    private boolean confirmed = false;
 
-    @Column(nullable = false, length = 255)
-    private  String  content;
+    @Column(name = "content", nullable = false, length = 255)
+    private String content;
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "resource_type", nullable = false, length = 10)
     private String resource_type;
 
-    @Column(nullable = false)
+
+    @JdbcTypeCode(SqlTypes.UUID)
+    @Column(name = "resource_id", nullable = false)
     private UUID resource_id;
 
-    @Column(nullable = false)
-    private UUID uuid_id;
-
-
-
+    @JdbcTypeCode(SqlTypes.UUID)
+    @Column(name = "user_id", nullable = false)
+    private UUID user_id;
 
 
 }

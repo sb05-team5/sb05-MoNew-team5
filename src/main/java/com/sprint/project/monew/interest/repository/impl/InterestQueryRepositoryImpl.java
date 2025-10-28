@@ -73,8 +73,9 @@ public class InterestQueryRepositoryImpl implements InterestQueryRepository {
         nextCursor,
         nextAfter,
         query.size(),
-        totalElements,
-        hasNext
+        hasNext,
+        totalElements
+
     );
   }
 
