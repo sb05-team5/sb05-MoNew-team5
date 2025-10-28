@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "comment")
+@Table(name = "comments")
 public class Comment extends BaseEntity {
 
         @Column(name = "article_id", columnDefinition = "uuid", nullable = false)

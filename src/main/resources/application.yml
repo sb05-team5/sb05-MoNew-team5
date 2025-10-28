@@ -4,6 +4,16 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  batch:  # batch 관련 테이블 자동 생성을 위한 설정
+    jdbc:
+      initialize-schema: never
+  # batch 시간 job1 = backup시간 , job2 = article등록 시간  (초 분 시 일 월 요일)
+  backup:
+    job1:
+      cron: "0 0 23 * * *"
+    job2:
+      cron: "0 0 * * * *"
+
   sql:
     init:
       mode: always          # 항상 실행 (none, embedded, always 중 always 선택)
