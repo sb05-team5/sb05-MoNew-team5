@@ -1,6 +1,8 @@
 package com.sprint.project.monew.articleView.service;
 
 import com.sprint.project.monew.article.entity.Article;
+import com.sprint.project.monew.article.repository.ArticleRepository;
+import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.articleView.dto.ArticleViewDto;
 import com.sprint.project.monew.articleView.entity.ArticleView;
 import com.sprint.project.monew.articleView.repository.ArticleViewRepository;
@@ -18,13 +20,22 @@ import java.util.UUID;
 @Slf4j
 public class ArticleViewService {
     private final ArticleViewRepository articleViewRepository;
+    private final ArticleService articleService;
 
     public ArticleView createArticleView(Article article, User user) {
+
+        if( articleViewRepository.existsById( article.getId(),user.getId() ) ){
+            throw new IllegalStateException(
+                    "User " + user.getId() + " has already viewed article " + article.getId()
+            );
+        }
+
         ArticleView articleView = ArticleView.builder()
-                .id(article.getId())
+                .article(article)
                 .user(user)
                 .build();
 
+        articleService.incrementViewCount(article.getId());
 
         return articleViewRepository.save(articleView);
     }

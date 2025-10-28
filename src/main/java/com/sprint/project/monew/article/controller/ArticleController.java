@@ -45,6 +45,8 @@ public class ArticleController {
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String to
     ) throws InterruptedException {
+        log.info("Controllerrestore -->{} {}", from, to);
+
 
         return Collections.singletonList(articleService.restore(from, to));
     }

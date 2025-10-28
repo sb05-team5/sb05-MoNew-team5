@@ -16,11 +16,11 @@ INSERT INTO interests (id, created_at, name, subscriber_count, keyword) VALUES
 
 -- // articles
 INSERT INTO articles (id, source, source_url, title, created_at, publish_date, summary, view_count, deleted_at, interest_id) VALUES
- ('bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', 'TechDaily', 'https://techdaily.com/article1', 'AI Advances in 2025', now(), now(), 'Summary of AI advances...', 1000, NULL, 'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1'),
- ('bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', 'SportsNews', 'https://sportsnews.com/article2', 'Soccer World Cup Highlights', now(), now(), 'Summary of world cup...', 800, NULL, 'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaa2'),
- ('bbbbbbb3-bbbb-bbbb-bbbb-bbbbbbbbbbb3', 'FinanceToday', 'https://financetoday.com/article3', 'Stock Market Update', now(), now(), 'Summary of stocks...', 600, NULL, 'aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaa3'),
- ('bbbbbbb4-bbbb-bbbb-bbbb-bbbbbbbbbbb4', 'HealthMagazine', 'https://healthmag.com/article4', '10 Tips for Wellness', now(), now(), 'Summary of wellness tips...', 400, NULL, 'aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaa4'),
- ('bbbbbbb5-bbbb-bbbb-bbbb-bbbbbbbbbbb5', 'TravelGuide', 'https://travelguide.com/article5', 'Top 5 Destinations', now(), now(), 'Summary of travel...', 500, NULL, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5');
+ ('bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', 'TechDaily', 'https://techdaily.com/article1', 'AI Advances in 2025', now(), '', 'Summary of AI advances...', 1000, NULL, 'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1'),
+ ('bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', 'SportsNews', 'https://sportsnews.com/article2', 'Soccer World Cup Highlights', now(), '', 'Summary of world cup...', 800, NULL, 'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaa2'),
+ ('bbbbbbb3-bbbb-bbbb-bbbb-bbbbbbbbbbb3', 'FinanceToday', 'https://financetoday.com/article3', 'Stock Market Update', now(), '', 'Summary of stocks...', 600, NULL, 'aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaa3'),
+ ('bbbbbbb4-bbbb-bbbb-bbbb-bbbbbbbbbbb4', 'HealthMagazine', 'https://healthmag.com/article4', '10 Tips for Wellness', now(), '', 'Summary of wellness tips...', 400, NULL, 'aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaa4'),
+ ('bbbbbbb5-bbbb-bbbb-bbbb-bbbbbbbbbbb5', 'TravelGuide', 'https://travelguide.com/article5', 'Top 5 Destinations', now(), '', 'Summary of travel...', 500, NULL, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5');
 
 -- // comments
 INSERT INTO comments (id, created_at, deleted_at, content, article_id, user_id) VALUES
