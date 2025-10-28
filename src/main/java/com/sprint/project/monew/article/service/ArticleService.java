@@ -8,17 +8,21 @@ import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.article.entity.Source;
 import com.sprint.project.monew.article.mapper.ArticleMapper;
 import com.sprint.project.monew.article.repository.ArticleRepository;
+import com.sprint.project.monew.articleBackup.dto.ArticleBackupDto;
 import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
 import com.sprint.project.monew.articleBackup.repository.ArticleBackupRepository;
+import com.sprint.project.monew.articleView.dto.ArticleViewDto;
 import com.sprint.project.monew.articleView.entity.ArticleView;
 import com.sprint.project.monew.articleView.repository.ArticleViewRepository;
 import com.sprint.project.monew.articleView.service.ArticleViewService;
+import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.repository.InterestRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import com.sprint.project.monew.user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.project.monew.article.entity.QArticle.article;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,19 +53,71 @@ public class ArticleService {
     private final ArticleBackupRepository articleBackupRepository;
     private final ArticleMapper articleMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final CommentRepository commentRepository;
 
     //네이버 API를 위한 키값
     private final String clientId= "7UJkEH_tIBCmVEAY1HXl";
-    private final String clientSecret= "";
+    private final String clientSecret= "fAbkGxQVv7";
 
+
+
+    public void incrementViewCount(UUID articleId) {
+        articleRepository.findByArticleId(articleId).ifPresent(article -> {
+            Article updatedArticle = article.toBuilder()
+                    .viewCount(article.getViewCount() + 1)
+                    .build();
+            // DB에 저장
+            articleRepository.save(updatedArticle);
+        });
+
+    }
+
+
+
+//    public ArticleViewDto articleViewCreate(UUID articleId, UUID userId) {
+//        Article article = articleRepository.findByArticleId(articleId)
+//                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
+//
+//        User user =userRepository.findById(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+//
+//        ArticleView view=articleViewService.createArticleView(article,user);
+//
+//        // article에 달린 댓글 수 조회하는 부분 넣고 commentCount에 넣기
+//
+//
+//
+//        return ArticleViewDto.builder()
+//                .id(view.getId())
+//                .viewedBy(userId)
+//                .createdAt(view.getCreatedAt())
+//                .articleId(articleId)
+//                .source(article.getSource())
+//                .sourceUrl(article.getSourceUrl())
+//                .articleTitle(article.getTitle())
+//                .articlePublishedDate(article.getPublishDate())
+//                .articleSummary(article.getSummary())
+//                .articleCommentCount(article.)
+//                .articleViewCount(article.getViewCount())
+//                .build();
+//
+//    }
 
 
     public ArticleDto searchOne(UUID articleId,UUID userId) {
-        Article article = articleRepository.findByArticleId(articleId).orElse(null);
+        Article article = articleRepository.findByArticleId(articleId)
+                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
 
-        User user =userRepository.findById(userId).orElse(null);
+        User user =userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
 
         articleViewService.createArticleView(article, user);
+
+        article = article.toBuilder()
+                .viewCount(article.getViewCount()+1)
+                .build();
+        articleRepository.save(article);
+
 
         return articleRepository.searchOne(articleId,userId);
 
@@ -70,9 +128,51 @@ public class ArticleService {
 
 
     public ArticleRestoreResultDto restore(String from, String to){
-        List<ArticleBackup> backups= articleBackupRepository.searchForRestore(from,to);
+        log.info("Controllerrestore -->{} {}", from, to);
+        if( from.isEmpty() || to.isEmpty()){
+            return new ArticleRestoreResultDto(null,null,null);
+        }
 
-        List<Article> article = articleRepository.searchForRestore(from,to);
+
+        List<ArticleBackupDto> backupDtos = articleBackupRepository.searchForRestore(from,to);
+        List<ArticleBackup> backups =  new ArrayList<>();
+        for (ArticleBackupDto articleBackupDto : backupDtos) {
+            backups.add(
+                    ArticleBackup.builder()
+                            .id(articleBackupDto.getId())
+                            .article_id(articleBackupDto.getArticle_id())
+                            .createdAt(articleBackupDto.getCreatedAt())
+                            .deleted_at(articleBackupDto.getDeleted_at())
+                            .interest_id(articleBackupDto.getInterest_id())
+                            .source(articleBackupDto.getSource())
+                            .title(articleBackupDto.getTitle())
+                            .sourceUrl(articleBackupDto.getSourceUrl())
+                            .publishDate(articleBackupDto.getPublishDate())
+                            .summary(articleBackupDto.getSummary())
+                            .viewCount(articleBackupDto.getViewCount())
+                            .build()
+
+            );
+        }
+
+        List<ArticleDto> articleDtos = articleRepository.searchForRestore(from,to);
+        List<Article> article =  new ArrayList<>();
+        for (ArticleDto a : articleDtos) {
+            article.add(
+                    Article.builder()
+                            .id(a.id())
+                            .createdAt(a.createdAt())
+                            .deleted_at(a.deleted_at())
+                            .viewCount(a.viewCount())
+                            .source(a.source())
+                            .title(a.title())
+                            .sourceUrl(a.sourceUrl())
+                            .publishDate(a.publishDate())
+                            .summary(a.summary())
+                            .build()
+            );
+        }
+
         List<UUID> articleIds = new ArrayList<>();
 
         for(Article a : article){
@@ -87,14 +187,14 @@ public class ArticleService {
                 targetIds.add(backup.getArticle_id().toString());
                 count++;
                 Article target= Article.builder()
-                        .id(backup.getArticle_id())
+                        .id(null)
                         .createdAt(backup.getCreatedAt())
                         .publishDate(backup.getPublishDate())
                         .source(backup.getSource())
                         .sourceUrl(backup.getSourceUrl())
                         .title(backup.getTitle())
                         .summary(backup.getSummary())
-                        .viewCount(backup.getViewCount())
+                        .viewCount(0)
                         .deleted_at(backup.getDeleted_at())
                         .interest_id(backup.getInterest_id())
                         .build();
@@ -102,11 +202,15 @@ public class ArticleService {
             }
         }
 
-        articleRepository.saveAll(targets);
+        for(Article a : targets){
+            articleRepository.save(a);
+        }
 
-
-
-
+        log.info("Servicerestore -->{}",ArticleRestoreResultDto.builder()
+                .restoreDate(Instant.now())
+                .restoredArticleIds(targetIds)
+                .restoredArticleCount(count)
+                .build());
 
         return ArticleRestoreResultDto.builder()
                 .restoreDate(Instant.now())
@@ -208,10 +312,11 @@ public class ArticleService {
 
                             ArticleDto articleDto = ArticleDto.builder()
                                     .id(null) // 새로 생성
+                                    .createdAt(null)
                                     .source(Source.NAVER.getSource())
                                     .sourceUrl(item.path("link").asText())
                                     .title(item.path("title").asText().replaceAll("<.*?>", ""))
-                                    .publishDate(Instant.now())
+                                    .publishDate( item.path("pubDate").asText().replaceAll("<.*?>","") )
                                     .summary(item.path("description").asText().replaceAll("<.*?>", ""))
                                     .commentCount(0L)
                                     .viewCount(0)

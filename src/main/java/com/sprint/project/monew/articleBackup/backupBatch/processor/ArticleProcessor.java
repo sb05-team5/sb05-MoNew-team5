@@ -27,7 +27,7 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
     @Override
     public Article process(InterestKeywordDto item) throws Exception {
         final String clientId= "7UJkEH_tIBCmVEAY1HXl";
-        final String clientSecret= "";
+        final String clientSecret= "fAbkGxQVv7";
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://openapi.naver.com/v1/search/news.json")
                 .defaultHeader("X-Naver-Client-Id", clientId)
@@ -55,10 +55,11 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
 
             ArticleDto articleDto = ArticleDto.builder()
                     .id(null) // 새로 생성
+                    .createdAt(null)
                     .source(Source.NAVER.getSource())
-                    .sourceUrl(firstItem.path("link").asText())
+                    .sourceUrl(firstItem.path("link").asText().replaceAll("<.*?>", ""))
                     .title(firstItem.path("title").asText().replaceAll("<.*?>", ""))
-                    .publishDate(Instant.now())
+                    .publishDate(firstItem.path("pubDate").asText().replaceAll("<.*?>",""))
                     .summary(firstItem.path("description").asText().replaceAll("<.*?>", ""))
                     .commentCount(0L)
                     .viewCount(0)
