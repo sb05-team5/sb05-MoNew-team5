@@ -1,18 +1,47 @@
 package com.sprint.project.monew.comment.repository;
 
 import com.sprint.project.monew.comment.entity.Comment;
-import org.springframework.data.domain.Page;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
-    // 논리삭제되지 않은 댓글만 조회
-    Page<Comment> findByDeletedFalse(Pageable pageable);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from Comment c where c.id = :id")
+    Optional<Comment> findForUpdate(@Param("id") UUID id);
 
-    // 논리삭제되지 않은 특정 댓글 조회
-    Optional<Comment> findByIdAndDeletedFalse(UUID id);
+    @Query()
+    List<Comment> pageByDateDesc(@Param("articleId") UUID articleId,
+                                 @Param("createdAt") Instant createdAt,
+                                 @Param("id") UUID id,
+                                 @Param("page") Pageable page);
+
+    @Query()
+    List<Comment> pageByDateAsc(@Param("articleId") UUID articleId,
+                                @Param("createdAt") Instant createdAt,
+                                @Param("id") UUID id,
+                                @Param("page") Pageable page);
+
+    @Query()
+    List<Comment> pageByLikesDesc(@Param("articleId") UUID articleId,
+                                  @Param("likeCount") long likeCount,
+                                  @Param("id") UUID id,
+                                  @Param("page") Pageable page);
+
+    @Query()
+    List<Comment> pageByLikesAsc(@Param("articleId") UUID articleId,
+                                 @Param("likeCount") long likeCount,
+                                 @Param("id") UUID id,
+                                 @Param("page") Pageable page);
+
+    Optional<Comment> findByCommentId(UUID id);
 }

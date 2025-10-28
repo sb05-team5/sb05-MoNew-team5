@@ -1,19 +1,17 @@
 package com.sprint.project.monew.comment.controller;
 
-import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
-import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.mapper.CommentMapper;
+import com.sprint.project.monew.comment.service.CommentQueryService;
 import com.sprint.project.monew.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -23,12 +21,18 @@ public class CommentController {
 
     private final CommentService commentService;
     private final CommentMapper commentMapper;
+    private final CommentQueryService commentQueryService;
 
     // 댓글 목록 조회
-    @GetMapping("/comments")
-    public ResponseEntity<Page<CommentDto>> list(Pageable pageable) {
-        Page<Comment> page = commentService.list(pageable);
-        return ResponseEntity.ok(page.map(commentMapper::toDto));
+    @GetMapping("/articles/{articleId}/comments")
+    public ResponseEntity<Map<String,Object>> listByArticle(
+            @PathVariable UUID articleId,
+            @RequestParam(defaultValue = "date") String sort,
+            @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return null; // 관련 미구현
     }
 
     // 댓글 등록
@@ -37,7 +41,7 @@ public class CommentController {
             @RequestHeader("User-Id") UUID userId,
             @Valid @RequestBody CommentRegisterRequest req
     ) {
-        UUID id = commentService.write(req.articleId(), userId, req.content());
+        UUID id = commentService.create(req.articleId(), userId, req.content());
         return ResponseEntity.created(URI.create("/api/comments/" + id)).build();
     }
 

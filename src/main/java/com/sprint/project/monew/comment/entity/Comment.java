@@ -2,66 +2,71 @@ package com.sprint.project.monew.comment.entity;
 
 import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "comment")
+
 public class Comment extends BaseEntity {
 
-        @Column(name = "article_id", columnDefinition = "uuid", nullable = false)
+        @GeneratedValue(strategy = GenerationType.UUID)
+        private UUID id;
+
+        @Column(nullable = false)
         private UUID articleId;
 
-        @Column(name = "user_id", columnDefinition = "uuid", nullable = false)
+        @Column(nullable = false)
         private UUID userId;
 
-        @NotBlank
-        @Size(max = 1000)
-        @Column(name = "content", nullable = false, length = 1000)
-        @org.hibernate.annotations.Comment("댓글 내용")
+        @Column(nullable = false, length = 1000)
         private String content;
 
-        @Column(name = "like_count", nullable = false)
-        private int likeCount;
+        @Column(nullable = false)
+        private int likeCount = 0;
 
-        // deleted가 true면 논리삭제 상태
-        @Column(name = "deleted", nullable = false)
-        private boolean deleted;
+        @Column()
+        private Instant deletedAt;
+
+        @Version
+        private Long version;
 
         public static Comment create(UUID articleId, UUID userId, String content) {
-                return Comment.builder()
-                        .articleId(articleId)
-                        .userId(userId)
-                        .content(content.trim())
-                        .likeCount(0)
-                        .deleted(false)
-                        .build();
+                Comment comment = new Comment();
+                comment.articleId = articleId;
+                comment.userId = userId;
+                comment.setContentInternal(content);
+                comment.deletedAt = null;
+                comment.likeCount = 0;
+                return comment;
         }
 
         public void update(String newContent) {
-                if (newContent != null) {
-                        this.content = newContent.trim();
-                }
+                setContentInternal(newContent);
         }
 
         // 논리삭제 : 삭제
         public void softDelete() {
-                this.deleted = true;
+                this.deletedAt = Instant.now();
         }
 
         // 논리삭제 : 복원
-        public void restore() {
-                this.deleted = false;
-        }
+        // public void restore() {}
 
         public void increaseLike() { this.likeCount++; }
-        public void decreaseLike() { if (this.likeCount > 0) this.likeCount--; }
+
+        public void decreaseLike() { this.likeCount = Math.max(0, this.likeCount - 1); }
+
+        private void setContentInternal(String content) {
+                if (content == null || content.isEmpty() || content.length() > 1000) {
+                        throw new IllegalArgumentException("댓글은 1000자 이내여야 합니다.");
+                }
+                this.content = content;
+        }
 }
 
