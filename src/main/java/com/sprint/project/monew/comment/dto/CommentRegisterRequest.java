@@ -8,5 +8,7 @@ import java.util.UUID;
 
 public record CommentRegisterRequest(
         @NotNull UUID articleId,
-        @NotBlank @Size(max = 1000) String content
+        @NotBlank
+        @Size(max = 1000, message = "댓글은 1000자까지만 입력 가능합니다.")
+        String content
 ) {}
