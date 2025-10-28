@@ -39,7 +39,7 @@ public class InterestService {
     Interest interest = interestMapper.toEntity(req);
     interestRepository.save(interest);
 
-    return interestMapper.toDto(interest);
+    return interestMapper.toDto(interest, false);
   }
 
   @Transactional(readOnly = true)
@@ -58,7 +58,7 @@ public class InterestService {
 
     interest.update(newKeywords);
 
-    return interestMapper.toDto(interest);
+    return interestMapper.toDto(interest, true);
   }
 
   @Transactional
