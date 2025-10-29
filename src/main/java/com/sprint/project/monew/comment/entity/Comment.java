@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "comments")
 @Entity
 public class Comment extends BaseEntity {
 
@@ -27,7 +28,7 @@ public class Comment extends BaseEntity {
         private String content;
 
         @Column(nullable = false)
-        private int likeCount = 0;
+        private long likeCount = 0;
 
         @Column()
         private Instant deletedAt;

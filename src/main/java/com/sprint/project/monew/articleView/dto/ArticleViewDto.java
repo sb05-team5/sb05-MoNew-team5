@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Builder(toBuilder = true)
 public record ArticleViewDto(
-  UUID id,
+  String id,
   UUID viewedBy,
   Instant createdAt,
   UUID articleId,
