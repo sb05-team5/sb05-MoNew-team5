@@ -9,10 +9,12 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleDtoUUID;
 import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
 import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.article.entity.QArticle;
 import com.sprint.project.monew.article.entity.Source;
+import com.sprint.project.monew.article.mapper.ArticleMapper;
 import com.sprint.project.monew.article.repository.ArticleQueryRepository;
 import com.sprint.project.monew.article.repository.ArticleRepository;
 import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
@@ -31,9 +33,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -50,6 +50,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     private static final QComment c = QComment.comment;
     private static final QArticleView v = QArticleView.articleView;
     private static final QUser u = QUser.user;
+    private final ArticleMapper articleMapper;
 
 
     @Override
@@ -132,9 +133,9 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
             }
         }
 
-        return queryFactory
+        List<ArticleDtoUUID> articleUDtos= queryFactory
                 .selectDistinct(Projections.constructor(
-                        ArticleDto.class,
+                        ArticleDtoUUID.class,
                         a.id,                           // UUID
                         a.createdAt,                    // Instant
                         a.source,                       // String
@@ -151,7 +152,9 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 .where(builder)
                 .fetch();
 
-
+        return articleUDtos.stream()
+                .map(articleMapper::toDto)
+                .collect(Collectors.toList());
 
     }
 
@@ -182,6 +185,41 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
 
     }
 
+    @Override
+    public List<Article> findTodayArticle(Instant day) {
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(a.deleted_at.isNull());
+        // 1️⃣ Instant -> ZonedDateTime (Asia/Seoul)
+        ZonedDateTime zonedDay = day.atZone(zone);
+
+        // 2️⃣ 당일 0시와 23:59:59.999 계산
+        ZonedDateTime startOfDay = zonedDay.toLocalDate().atStartOfDay(zone);
+        ZonedDateTime endOfDay = zonedDay.toLocalDate().atTime(LocalTime.MAX).atZone(zone);
+
+        Instant startInstant = startOfDay.toInstant();
+        Instant endInstant = endOfDay.toInstant();
+
+        // 3️⃣ QueryDSL 조건 추가
+        builder.and(a.deleted_at.isNull());
+        builder.and(a.createdAt.goe(startInstant));
+        builder.and(a.createdAt.loe(endInstant));
+
+        log.info("todayArticle --> {}", queryFactory
+                .select(a)
+                .from(a)
+                .where(builder)
+                .fetch());
+
+        return queryFactory
+                .select(a)
+                .from(a)
+                .where(builder)
+                .fetch();
+
+    }
 
 
     @Override
@@ -189,6 +227,14 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                                                                   String publishDateFrom, String publishDateTo,
                                                                   String orderBy, String direction, String cursor,
                                                                   String after, Integer limit , UUID userId) {
+
+        if( orderBy.equals("publishDate") ){
+            orderBy = "createdAt";
+        }
+
+        log.info("repositosy --> keyword={}, interestId={}, sourceIn={}, publishDateFrom={}, publishDateTo={}, orderBy={}, direction={}, cursor={}, after={}, limit={}, userId={}",
+                keyword, interestId, sourceIn,
+                publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit, userId);
         // 페이징 처리 기본 코드
         //int page = (cursor != null && cursor > 0) ? cursor : 0; // null, 음수 방지
         int page=0;
@@ -200,6 +246,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 page = 0;
             }
         }
+
         int size = (limit != null && limit > 0) ? limit : 10;
 
 
@@ -247,37 +294,74 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
             }
         }
 
-// ✅ 커서 처리 (after → 다음 페이지 기준점)
+        // after 커서 처리 (tie-breaker 포함)
+        Instant afterCreatedAt = null;
+        UUID afterId = null;
         if (after != null && !after.isBlank()) {
-            Instant cursorInstant = parseToInstant(after, zone, dateTimeFormatter);
-            if (cursorInstant != null) {
-                if ("asc".equalsIgnoreCase(direction)) {
-                    builder.and(a.createdAt.gt(cursorInstant));
+            String[] parts = after.split("\\|");
+            if (parts.length == 2) {
+                afterCreatedAt = Instant.parse(parts[0]);
+                afterId = UUID.fromString(parts[1]);
+
+                // 새 BooleanBuilder에 커서 조건만 담기
+                BooleanBuilder afterBuilder = new BooleanBuilder();
+
+                if (direction.equals("ASC")) {
+                    afterBuilder.and(
+                            a.createdAt.gt(afterCreatedAt)
+                                    .or(a.createdAt.eq(afterCreatedAt).and(a.id.gt(afterId)))
+                    );
                 } else {
-                    builder.and(a.createdAt.lt(cursorInstant));
+                    afterBuilder.and(
+                            a.createdAt.lt(afterCreatedAt)
+                                    .or(a.createdAt.eq(afterCreatedAt).and(a.id.lt(afterId)))
+                    );
                 }
-            } else {
-                log.warn("Invalid 'after' parameter: {}", after);
+
+                // 기존 builder와 AND로 합침
+                builder.and(afterBuilder);
             }
         }
+
+//// ✅ 커서 처리 (after → 다음 페이지 기준점)
+//        if (after != null && !after.isBlank()) {
+//            Instant cursorInstant = parseToInstant(after, zone, dateTimeFormatter);
+//            if (cursorInstant != null) {
+//                if (direction.equals("ASC")) {
+//                    builder.and(a.createdAt.goe(cursorInstant));
+//                } else {
+//                    builder.and(a.createdAt.loe(cursorInstant));
+//                }
+//            } else {
+//                log.warn("Invalid 'after' parameter: {}", after);
+//            }
+//        }
 
 
 
         // ✅ 정렬 기준  -일단은 해보자
         OrderSpecifier<?> orderSpecifier;
-        switch (orderBy != null ? orderBy : "publishDate") {
+        OrderSpecifier<?> orderSpecifierId;
+        switch (orderBy != null ? orderBy : "createdAt") {
             case "viewCount":
-                orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.viewCount.asc() : a.viewCount.desc();
+                orderSpecifier = direction.equals("ASC") ? a.viewCount.asc() : a.viewCount.desc();
                 break;
             case "title":
-                orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.title.asc() : a.title.desc();
+                orderSpecifier = direction.equals("ASC") ? a.title.asc() : a.title.desc();
                 break;
             case "source":
-                orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.source.asc() : a.source.desc();
+                orderSpecifier = direction.equals("ASC") ? a.source.asc() : a.source.desc();
                 break;
             default:
-                orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.createdAt.asc() : a.createdAt.desc();
+                orderSpecifier = direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc();
         }
+        if(direction.equals("ASC")){
+            orderSpecifierId=a.id.asc();
+        }else{
+            orderSpecifierId=a.id.desc();
+        }
+
+
 
 
         // viewedByMe 서브쿼리: articleView에 내가 본 기록이 존재하는지 여부
@@ -289,9 +373,9 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
 
 
         // ✅ 실제 데이터 조회 (limit + 1)
-        List<ArticleDto> articleDtos = queryFactory
+        List<ArticleDtoUUID> articleUDtos = queryFactory
                 .selectDistinct(Projections.constructor(
-                        ArticleDto.class,
+                        ArticleDtoUUID.class,
                         a.id,
                         a.createdAt,
                         a.source,
@@ -319,17 +403,24 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                         a.deleted_at
                         // H2에서는 select에 있는 컬럼은 모두 group by에 넣어야 함
                 )
-                .orderBy(orderSpecifier)
+                .orderBy(orderSpecifier,orderSpecifierId)
                 .limit(size + 1)
                 .fetch();
+
+        List<ArticleDto> articleDtos= articleUDtos.stream()
+                .map(articleMapper::toDto)
+                .collect(Collectors.toList());
+        log.info("dtos->{}", articleDtos);
         // Slice로 감싸기
         boolean hasNext = articleDtos.size() > size;
         List<ArticleDto> contents = hasNext ? articleDtos.subList(0, size) : articleDtos;
 
         String nextAfter = null;
         if (!contents.isEmpty()) {
-            Instant lastPublishDate = contents.get(contents.size() - 1).createdAt();
-            nextAfter = lastPublishDate.toString();
+            ArticleDto last = articleDtos.get(articleDtos.size() - 1);
+            nextAfter = last.createdAt().toString() + "|" + last.id(); // "|"로 구분
+//            Instant lastPublishDate = contents.get(contents.size() - 1).createdAt();
+//            nextAfter = lastPublishDate.toString();
         }
 
         return new CursorPageResponse<>(
@@ -348,6 +439,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     // -----------------
 // 공통 유틸 메서드
     private Instant parseToInstant(String text, ZoneId zone, DateTimeFormatter formatter) {
+        if (text == null || text.isBlank()) return null;
         try {
             if (text.endsWith("Z")) {
                 return Instant.parse(text);
