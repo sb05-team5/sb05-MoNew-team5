@@ -20,10 +20,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class CommentController {
-
+//
 //    private final CommentService commentService;
 //    private final CommentMapper commentMapper;
-
+//
 //    // 댓글 목록 조회
 //    @GetMapping("/comments")
 //    public ResponseEntity<Page<CommentDto>> list(Pageable pageable) {
