@@ -1,10 +1,10 @@
 -- // users
 INSERT INTO users (id, email, nickname, password, created_at, deleted_at) VALUES
-('11111111-1111-1111-1111-111111111111', 'user1@example.com', 'user1', 'password1', now(), NULL),
-('22222222-2222-2222-2222-222222222222', 'user2@example.com', 'user2', 'password2', now(), NULL),
-('33333333-3333-3333-3333-333333333333', 'user3@example.com', 'user3', 'password3', now(), NULL),
-('44444444-4444-4444-4444-444444444444', 'user4@example.com', 'user4', 'password4', now(), NULL),
-('55555555-5555-5555-5555-555555555555', 'user5@example.com', 'user5', 'password5', now(), NULL);
+('11111111-1111-1111-1111-111111111111', 'user1@example.com', 'user1', 'password1!', now(), NULL),
+('22222222-2222-2222-2222-222222222222', 'user2@example.com', 'user2', 'password2!', now(), NULL),
+('33333333-3333-3333-3333-333333333333', 'user3@example.com', 'user3', 'password3!', now(), NULL),
+('44444444-4444-4444-4444-444444444444', 'user4@example.com', 'user4', 'password4!', now(), NULL),
+('55555555-5555-5555-5555-555555555555', 'user5@example.com', 'user5', 'password5!', now(), NULL);
 
 -- // interests
 INSERT INTO interests (id, created_at, name, subscriber_count, keyword) VALUES
