@@ -30,6 +30,35 @@ public class NotificationService {
     }
 
 
+
+    @Transactional
+    public  void allCheckNotification(UUID userId) {
+        List<NotificationEntity> notifications = notificationRepository.findAllByUserId(userId);
+
+        for (NotificationEntity notification : notifications) {
+            notification.setConfirmed(true); // 확인 상태로 변경
+            notification.setUpdatedAt(Instant.now());
+        }
+        notificationRepository.saveAll(notifications);
+    }
+    @Transactional
+    public void oneCheckNotification(UUID userId , UUID notificationId){
+
+        List<NotificationEntity> list  = notificationRepository.findAllByUserIdAndResourceId(userId, notificationId);
+        list.forEach(n ->{
+            n.setConfirmed(true);
+            n.setUpdatedAt(Instant.now());
+        });
+
+        notificationRepository.saveAll(list);
+
+
+    }
+
+
+
+
+
     @Transactional(readOnly = true)
     public CursorPageResponse<NotificationResponse> findAllWithMeta(int limit, String cursor, Instant after, UUID userId) {
 
