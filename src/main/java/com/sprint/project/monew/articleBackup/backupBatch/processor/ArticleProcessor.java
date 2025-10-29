@@ -16,6 +16,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 @Component
@@ -25,12 +29,28 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
     private final ArticleMapper articleMapper;
     @Value("${CLIENT_SECRET}")
     private String clientSecret;
+    private Instant parseToInstant(String text, ZoneId zone, DateTimeFormatter formatter) {
+        if (text == null || text.isBlank()) return null;
+        try {
+            if (text.endsWith("Z")) {
+                return Instant.parse(text);
+            } else {
+                LocalDateTime ldt = LocalDateTime.parse(text, formatter);
+                return ldt.atZone(zone).toInstant();
+            }
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
 
 
     @Override
     public Article process(InterestKeywordDto item) throws Exception {
         final String clientId= "7UJkEH_tIBCmVEAY1HXl";
 
+        // 공통 Zone과 Formatter
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
 
 
         WebClient webClient = WebClient.builder()
@@ -60,7 +80,7 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
 
             ArticleDto articleDto = ArticleDto.builder()
                     .id(null) // 새로 생성
-                    .createdAt(null)
+                    .createdAt(parseToInstant(Instant.now().toString(), zone, dateTimeFormatter))
                     .source(Source.NAVER.getSource())
                     .sourceUrl(firstItem.path("link").asText().replaceAll("<.*?>", ""))
                     .title(firstItem.path("title").asText().replaceAll("<.*?>", ""))
@@ -75,7 +95,7 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
                     .interest_id(interestId)
                     .build();
 
-
+            Thread.sleep(700);
             return article;
 
         } catch (WebClientResponseException.TooManyRequests e) {
