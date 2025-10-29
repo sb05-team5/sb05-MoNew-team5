@@ -12,10 +12,6 @@ import java.util.UUID;
 
 public interface  NotificationRepository extends JpaRepository<NotificationEntity, UUID> {
 
-//
-//    // 관심사를 검색하는 기능을 추가.
-//    List<NotificationEntity> findArticlesByInterest(String  Interest);
-//
 
 
 }

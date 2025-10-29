@@ -21,6 +21,7 @@ import com.sprint.project.monew.comment.entity.QComment;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.entity.QInterest;
 import com.sprint.project.monew.user.entity.QUser;
+import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -49,10 +50,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     private static final QComment c = QComment.comment;
     private static final QArticleView v = QArticleView.articleView;
     private static final QUser u = QUser.user;
-
-
-
-
 
 
     @Override
@@ -113,7 +110,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
 
 
     @Override
-    public List<Article> searchForRestore(String from, String to) {
+    public List<ArticleDto> searchForRestore(String from, String to) {
         BooleanBuilder builder = new BooleanBuilder();
         // soft delete 처리
         builder.and(a.deleted_at.isNull());
@@ -124,31 +121,37 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         if (from != null && !from.isBlank()) {
             Instant fromInstant = parseToInstant(from, zone, dateTimeFormatter);
             if (fromInstant != null) {
-                builder.and(a.publishDate.goe(fromInstant));
+                builder.and(a.createdAt.goe(fromInstant));
             }
         }
 
         if (to != null && !to.isBlank()) {
             Instant toInstant = parseToInstant(to, zone, dateTimeFormatter);
             if (toInstant != null) {
-                builder.and(a.publishDate.loe(toInstant));
+                builder.and(a.createdAt.loe(toInstant));
             }
         }
 
         return queryFactory
                 .selectDistinct(Projections.constructor(
-                        Article.class,
-                        a.id,
-                        a.source,
-                        a.sourceUrl,
-                        a.title,
-                        a.publishDate,
-                        a.summary,
-                        a.viewCount
+                        ArticleDto.class,
+                        a.id,                           // UUID
+                        a.createdAt,                    // Instant
+                        a.source,                       // String
+                        a.sourceUrl,                    // String
+                        a.title,                        // String
+                        a.publishDate,                  // String
+                        a.summary,                      // String
+                        Expressions.constant(0L),       // Long commentCount
+                        a.viewCount,                    // Integer
+                        a.deleted_at,                   // Instant
+                        Expressions.constant(false)     // Boolean viewedByBme
                 ))
                 .from(a)
                 .where(builder)
                 .fetch();
+
+
 
     }
 
@@ -178,7 +181,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 .fetch();
 
     }
-
 
 
 
@@ -234,14 +236,14 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         if (publishDateFrom != null && !publishDateFrom.isBlank()) {
             Instant fromInstant = parseToInstant(publishDateFrom, zone, dateTimeFormatter);
             if (fromInstant != null) {
-                builder.and(a.publishDate.goe(fromInstant));
+                builder.and(a.createdAt.goe(fromInstant));
             }
         }
 
         if (publishDateTo != null && !publishDateTo.isBlank()) {
             Instant toInstant = parseToInstant(publishDateTo, zone, dateTimeFormatter);
             if (toInstant != null) {
-                builder.and(a.publishDate.loe(toInstant));
+                builder.and(a.createdAt.loe(toInstant));
             }
         }
 
@@ -250,9 +252,9 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
             Instant cursorInstant = parseToInstant(after, zone, dateTimeFormatter);
             if (cursorInstant != null) {
                 if ("asc".equalsIgnoreCase(direction)) {
-                    builder.and(a.publishDate.gt(cursorInstant));
+                    builder.and(a.createdAt.gt(cursorInstant));
                 } else {
-                    builder.and(a.publishDate.lt(cursorInstant));
+                    builder.and(a.createdAt.lt(cursorInstant));
                 }
             } else {
                 log.warn("Invalid 'after' parameter: {}", after);
@@ -274,7 +276,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.source.asc() : a.source.desc();
                 break;
             default:
-                orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.publishDate.asc() : a.publishDate.desc();
+                orderSpecifier = "asc".equalsIgnoreCase(direction) ? a.createdAt.asc() : a.createdAt.desc();
         }
 
 
@@ -291,6 +293,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 .selectDistinct(Projections.constructor(
                         ArticleDto.class,
                         a.id,
+                        a.createdAt,
                         a.source,
                         a.sourceUrl,
                         a.title,
@@ -298,6 +301,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                         a.summary,
                         c.id.countDistinct(),
                         a.viewCount,
+                        a.deleted_at,
                         viewedByMeExpr
                 ))
                 .from(a)
@@ -305,12 +309,14 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 .where(builder)
                 .groupBy(
                         a.id,
+                        a.createdAt,
                         a.source,
                         a.sourceUrl,
                         a.title,
                         a.publishDate,
                         a.summary,
-                        a.viewCount
+                        a.viewCount,
+                        a.deleted_at
                         // H2에서는 select에 있는 컬럼은 모두 group by에 넣어야 함
                 )
                 .orderBy(orderSpecifier)
@@ -322,7 +328,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
 
         String nextAfter = null;
         if (!contents.isEmpty()) {
-            Instant lastPublishDate = contents.get(contents.size() - 1).publishDate();
+            Instant lastPublishDate = contents.get(contents.size() - 1).createdAt();
             nextAfter = lastPublishDate.toString();
         }
 
