@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 public record ArticleDto(
-    UUID id,
+    String id,
     Instant createdAt,
     String source,
     String sourceUrl,
@@ -40,7 +40,7 @@ public record ArticleDto(
 
     @Builder(toBuilder = true)
     public static ArticleDto of(
-            UUID id,
+            String id,
             Instant createdAt,
             String source,
             String sourceUrl,

@@ -10,6 +10,7 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Iterator;
 
 @Component
@@ -22,7 +23,7 @@ public class ArticleBackupReader implements ItemReader<Article> {
     @Override
     public Article read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
         if(iterator == null){
-            iterator = articleRepository.findAll().iterator();
+            iterator = articleRepository.findTodayArticle(Instant.now()).iterator();
             log.info("backupReader --> {}", iterator);
         }
         return iterator.hasNext() ? iterator.next() : null;
