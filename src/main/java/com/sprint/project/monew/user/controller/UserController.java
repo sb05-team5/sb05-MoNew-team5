@@ -35,7 +35,11 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<UserDto> login(@RequestBody @Valid UserLoginRequest userLoginRequest) {
     UserDto userDto = authService.login(userLoginRequest);
-    return ResponseEntity.status(HttpStatus.OK).body(userDto);
+    UUID userId = userDto.id();
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .header("MoNew-Request-User-ID", userId.toString())
+        .body(userDto);
   }
 
   @PatchMapping(path = "{userId}")
