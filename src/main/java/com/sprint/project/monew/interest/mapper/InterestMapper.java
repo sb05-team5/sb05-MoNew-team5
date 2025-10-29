@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 public interface InterestMapper {
 
   @Mapping(target = "keywords", expression = "java(interest.getKeywords())")
-  InterestDto toDto(Interest interest, boolean subscribedByMe);
+  InterestDto toDto(Interest interest, Boolean subscribedByMe);
 
   @Mapping(target = "keyword", expression = "java(String.join(\",\", req.keywords()))")
   Interest toEntity(InterestRegisterRequest req);

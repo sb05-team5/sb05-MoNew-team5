@@ -29,6 +29,7 @@ public class InterestService {
 
   private final InterestRepository interestRepository;
   private final SubscriptionRepository subscriptionRepository;
+  private final UserRepository userRepository;
   private final InterestQueryRepository interestQueryRepository;
   private final InterestMapper interestMapper;
   private final static double similarityThreshold = 0.8;
@@ -46,7 +47,7 @@ public class InterestService {
     Interest interest = interestMapper.toEntity(req);
     interestRepository.save(interest);
 
-    return interestMapper.toDto(interest, false);
+    return interestMapper.toDto(interest, null);
   }
 
   @Transactional(readOnly = true)
@@ -57,7 +58,6 @@ public class InterestService {
   @Transactional
   public InterestDto update(UUID interestId, InterestUpdateRequest req) {
     Interest interest = validatedInterestId(interestId);
-    boolean hasSubscribers = subscriptionRepository.existsByInterestId(interestId);
 
     List<String> newKeywords = req.keywords();
     validateKeywordsNotEmpty(newKeywords);
@@ -66,7 +66,7 @@ public class InterestService {
 
     interest.update(newKeywords);
 
-    return interestMapper.toDto(interest, hasSubscribers);
+    return interestMapper.toDto(interest, null);
   }
 
   @Transactional
@@ -108,4 +108,10 @@ public class InterestService {
       throw new IllegalArgumentException("키워드 목록에 중복된 값이 있습니다.");
     }
   }
+
+  private User validatedUserId(UUID userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
+  }
+
 }

@@ -33,6 +33,9 @@ public class Interest extends BaseEntity {
   @Column(nullable = false)
   private String keyword;
 
+  @OneToMany(mappedBy = "interest")
+  private List<Subscription> subscriptions = new ArrayList<>();
+
   public Interest(String name, String keyword) {
     this.name = name;
     this.keyword = keyword;

@@ -8,7 +8,7 @@ public record InterestDto(
     String name,
     List<String> keywords,
     long subscriberCount,
-    boolean subscribedByMe
+    Boolean subscribedByMe
 ) {
 
 }
