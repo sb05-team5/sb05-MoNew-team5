@@ -15,33 +15,33 @@ import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select c from Comment c where c.id = :id")
-    Optional<Comment> findForUpdate(@Param("id") UUID id);
-
-    @Query()
-    List<Comment> pageByDateDesc(@Param("articleId") UUID articleId,
-                                 @Param("createdAt") Instant createdAt,
-                                 @Param("id") UUID id,
-                                 @Param("page") Pageable page);
-
-    @Query()
-    List<Comment> pageByDateAsc(@Param("articleId") UUID articleId,
-                                @Param("createdAt") Instant createdAt,
-                                @Param("id") UUID id,
-                                @Param("page") Pageable page);
-
-    @Query()
-    List<Comment> pageByLikesDesc(@Param("articleId") UUID articleId,
-                                  @Param("likeCount") long likeCount,
-                                  @Param("id") UUID id,
-                                  @Param("page") Pageable page);
-
-    @Query()
-    List<Comment> pageByLikesAsc(@Param("articleId") UUID articleId,
-                                 @Param("likeCount") long likeCount,
-                                 @Param("id") UUID id,
-                                 @Param("page") Pageable page);
-
-    Optional<Comment> findByCommentId(UUID id);
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    @Query("select c from Comment c where c.id = :id")
+//    Optional<Comment> findForUpdate(@Param("id") UUID id);
+//
+//    @Query()
+//    List<Comment> pageByDateDesc(@Param("articleId") UUID articleId,
+//                                 @Param("createdAt") Instant createdAt,
+//                                 @Param("id") UUID id,
+//                                 @Param("page") Pageable page);
+//
+//    @Query()
+//    List<Comment> pageByDateAsc(@Param("articleId") UUID articleId,
+//                                @Param("createdAt") Instant createdAt,
+//                                @Param("id") UUID id,
+//                                @Param("page") Pageable page);
+//
+//    @Query()
+//    List<Comment> pageByLikesDesc(@Param("articleId") UUID articleId,
+//                                  @Param("likeCount") long likeCount,
+//                                  @Param("id") UUID id,
+//                                  @Param("page") Pageable page);
+//
+//    @Query()
+//    List<Comment> pageByLikesAsc(@Param("articleId") UUID articleId,
+//                                 @Param("likeCount") long likeCount,
+//                                 @Param("id") UUID id,
+//                                 @Param("page") Pageable page);
+//
+//    Optional<Comment> findByCommentId(UUID id);
 }
