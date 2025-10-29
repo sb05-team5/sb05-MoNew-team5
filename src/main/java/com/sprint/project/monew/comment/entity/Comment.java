@@ -28,7 +28,7 @@ public class Comment extends BaseEntity {
         private String content;
 
         @Column(nullable = false)
-        private int likeCount = 0;
+        private long likeCount = 0;
 
         @Column()
         private Instant deletedAt;

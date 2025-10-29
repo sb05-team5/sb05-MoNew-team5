@@ -6,6 +6,7 @@ INSERT INTO users (id, email, nickname, password, created_at, deleted_at) VALUES
 ('44444444-4444-4444-4444-444444444444', 'user4@example.com', 'user4', 'password4!', now(), NULL),
 ('55555555-5555-5555-5555-555555555555', 'user5@example.com', 'user5', 'password5!', now(), NULL);
 
+
 -- // interests
 INSERT INTO interests (id, created_at, name, subscriber_count, keyword) VALUES
 ('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1',now(), 'Technology', 100, '기술, ai, 프로그래밍'),
@@ -40,7 +41,6 @@ INSERT INTO articles (id, source, source_url, title, created_at, publish_date, s
 ('401e2557-dead-4ad2-b74b-8195f5ae2661', 'NAVER', 'https://www.gametoc.co.kr/news/articleView.html?idxno=103292', '트오세M, 3주년 맞이 감사 이벤트 진행', '2025-10-29 05:29:29.479703+00', 'Wed, 29 Oct 2025 14:28:00 +0900', '독특하고 감각적인 그래픽이 트리 오브 세이비어 M만의 고유한 매력으로, 수집욕을 자극하는 시크하고 귀여운 동료 캐릭터들과 함께 여신의 계시를 따르는 모험을 진행하게 된다.', 0, null, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5'),
 ('62f3f37a-23d3-402f-b7ff-7260b1af3b72', 'NAVER', 'http://www.newstomato.com/ReadNews.aspx?no=1279495&inflow=N', '역대급 적자에도 제주 호화 워크숍…김인 새마을금고 회장 연임 발목', '2025-10-29 05:29:30.672629+00', 'Wed, 29 Oct 2025 14:28:00 +0900', '다수의 제주도 워크숍을 진행한 여행사는 중앙회 C 지역 본부장의 배우자가 지난해 3월 설립한 신생 업체로 확인됐습니다. 해당 업체의 등기부등본을 확인한 결과 대표가 해당 본부장의 아내로 등재돼 있으며, 워크숍...', 0, null, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5');
 
--- // comments
 INSERT INTO comments (id, created_at, deleted_at, content, article_id, user_id) VALUES
 ('ccccccc1-cccc-cccc-cccc-ccccccccccc1', now(), NULL, 'Great article!', 'bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '11111111-1111-1111-1111-111111111111'),
 ('ccccccc2-cccc-cccc-cccc-ccccccccccc2', now(), NULL, 'Interesting read', 'bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', '22222222-2222-2222-2222-222222222222'),

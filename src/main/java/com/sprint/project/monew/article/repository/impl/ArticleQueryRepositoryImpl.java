@@ -419,6 +419,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         if (!contents.isEmpty()) {
             ArticleDto last = articleDtos.get(articleDtos.size() - 1);
             nextAfter = last.createdAt().toString() + "|" + last.id(); // "|"로 구분
+            log.info("nextAfter->{}", nextAfter);
 //            Instant lastPublishDate = contents.get(contents.size() - 1).createdAt();
 //            nextAfter = lastPublishDate.toString();
         }

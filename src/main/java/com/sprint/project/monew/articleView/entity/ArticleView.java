@@ -35,6 +35,7 @@ public class ArticleView extends BaseEntity {
     @JoinColumn(name = "viewed_by", nullable = false, unique = true)
     private User user;
 
+
     @Column(nullable = true)
     private Instant deleted_at;
 
