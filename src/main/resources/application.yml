@@ -10,9 +10,9 @@ spring:
   # batch 시간 job1 = backup시간 , job2 = article등록 시간  (초 분 시 일 월 요일)
   backup:
     job1:
-      cron: "20 30 * * * *"
+      cron: "20 21 * * * *"
     job2:
-      cron: "0 30 * * * *"
+      cron: "0 21 * * * *"
 
   sql:
     init:
