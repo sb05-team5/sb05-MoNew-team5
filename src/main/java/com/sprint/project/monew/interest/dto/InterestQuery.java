@@ -11,7 +11,7 @@ public record InterestQuery(
 ) {
   public InterestQuery {
     if (size == null) {
-      size = 50;
+      size = 10;
     }
     if (sortField == null) {
       sortField = "name";
