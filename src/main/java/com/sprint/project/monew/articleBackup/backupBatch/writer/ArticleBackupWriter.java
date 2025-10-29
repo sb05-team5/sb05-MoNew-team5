@@ -25,10 +25,9 @@ public class ArticleBackupWriter implements ItemWriter<ArticleBackup> {
     public void write(Chunk<? extends ArticleBackup> chunk) throws Exception {
         log.info("backupWriter --> {}", chunk.size());
         Set<ArticleBackup> uniqueArticles = new HashSet<>(chunk.getItems());
-        for (ArticleBackup articleBackup : uniqueArticles) {
+        for(ArticleBackup articleBackup : uniqueArticles){
             articleBackupRepository.save(articleBackup);
         }
-
 
     }
 }

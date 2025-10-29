@@ -2,14 +2,13 @@ package com.sprint.project.monew.articleBackup.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sprint.project.monew.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -28,7 +27,7 @@ public class ArticleBackup extends BaseEntity {
     private UUID article_id;
 
     @Column(nullable = false)
-    private Instant publishDate;
+    private String publishDate;
 
     @Column(nullable = false, length = 255)
     private String source;
