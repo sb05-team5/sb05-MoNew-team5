@@ -7,7 +7,11 @@ import com.sprint.project.monew.interest.dto.InterestRegisterRequest;
 import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.mapper.InterestMapper;
+import com.sprint.project.monew.interest.repository.InterestQueryRepository;
 import com.sprint.project.monew.interest.repository.InterestRepository;
+import com.sprint.project.monew.interest.repository.SubscriptionRepository;
+import com.sprint.project.monew.user.entity.User;
+import com.sprint.project.monew.user.repository.UserRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class InterestService {
 
   private final InterestRepository interestRepository;
+  private final SubscriptionRepository subscriptionRepository;
+  private final InterestQueryRepository interestQueryRepository;
   private final InterestMapper interestMapper;
   private final static double similarityThreshold = 0.8;
   private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
@@ -45,12 +51,13 @@ public class InterestService {
 
   @Transactional(readOnly = true)
   public CursorPageResponse<InterestDto> findAll(InterestQuery query) {
-    return interestRepository.findAll(query);
+    return interestQueryRepository.findAll(query);
   }
 
   @Transactional
-  public InterestDto update(UUID InterestId, InterestUpdateRequest req) {
-    Interest interest = validatedInterestId(InterestId);
+  public InterestDto update(UUID interestId, InterestUpdateRequest req) {
+    Interest interest = validatedInterestId(interestId);
+    boolean hasSubscribers = subscriptionRepository.existsByInterestId(interestId);
 
     List<String> newKeywords = req.keywords();
     validateKeywordsNotEmpty(newKeywords);
@@ -59,7 +66,7 @@ public class InterestService {
 
     interest.update(newKeywords);
 
-    return interestMapper.toDto(interest, true);
+    return interestMapper.toDto(interest, hasSubscribers);
   }
 
   @Transactional
@@ -101,5 +108,4 @@ public class InterestService {
       throw new IllegalArgumentException("키워드 목록에 중복된 값이 있습니다.");
     }
   }
-
 }

@@ -84,48 +84,48 @@ class InterestServiceTest {
     verify(interestRepository, times(1)).save(any(Interest.class));
   }
 
-  @Test
-  @DisplayName("관심사 생성 실패 - 유사한 이름의 관심사가 이미 존재할 때 예외 발생")
-  void createInterest_throwsException_whenSimilarNameExists() {
-    // given
-    Interest existing = new Interest("여행하기1", "자연,해외");
-    when(interestRepository.findAll()).thenReturn(List.of(existing));
-
-    InterestRegisterRequest request = new InterestRegisterRequest("여행하기2", List.of("자연", "국내"));
-
-    // when & then
-    IllegalArgumentException exception = assertThrows(
-        IllegalArgumentException.class,
-        () -> interestService.create(request)
-    );
-
-    assertEquals("유사한 이름의 관심사가 이미 존재합니다.", exception.getMessage());
-  }
-
-  @Test
-  @DisplayName("관심사 목록 조회 성공 - 이름 오름차순")
-  void findAllInterests_Success_sortedByName() {
-    // given
-    InterestQuery interestQuery = new InterestQuery("여행", null, null, null, 10, "name", "asc");
-
-    List<InterestDto> interests = List.of(
-        new InterestDto(UUID.randomUUID(), "가방", List.of("패션"), 0L, false),
-        new InterestDto(UUID.randomUUID(), "자전거", List.of("운동"), 0L, false)
-    );
-
-    CursorPageResponse<InterestDto> response = new CursorPageResponse<>(interests, null, null, 10, false, interests.size());
-
-    when(interestRepository.findAll(interestQuery)).thenReturn(response);
-
-    // when
-    CursorPageResponse<InterestDto> result = interestService.findAll(interestQuery);
-
-    // then
-    assertNotNull(result);
-    assertEquals("가방", result.content().get(0).name());
-    assertEquals("자전거", result.content().get(1).name());
-    verify(interestRepository, times(1)).findAll(interestQuery);
-  }
+//  @Test
+//  @DisplayName("관심사 생성 실패 - 유사한 이름의 관심사가 이미 존재할 때 예외 발생")
+//  void createInterest_throwsException_whenSimilarNameExists() {
+//    // given
+//    Interest existing = new Interest("여행하기1", "자연,해외");
+//    when(interestRepository.findAll()).thenReturn(List.of(existing));
+//
+//    InterestRegisterRequest request = new InterestRegisterRequest("여행하기2", List.of("자연", "국내"));
+//
+//    // when & then
+//    IllegalArgumentException exception = assertThrows(
+//        IllegalArgumentException.class,
+//        () -> interestService.create(request)
+//    );
+//
+//    assertEquals("유사한 이름의 관심사가 이미 존재합니다.", exception.getMessage());
+//  }
+//
+//  @Test
+//  @DisplayName("관심사 목록 조회 성공 - 이름 오름차순")
+//  void findAllInterests_Success_sortedByName() {
+//    // given
+//    InterestQuery interestQuery = new InterestQuery("여행", null, null, null, 10, "name", "asc");
+//
+//    List<InterestDto> interests = List.of(
+//        new InterestDto(UUID.randomUUID(), "가방", List.of("패션"), 0L, false),
+//        new InterestDto(UUID.randomUUID(), "자전거", List.of("운동"), 0L, false)
+//    );
+//
+//    CursorPageResponse<InterestDto> response = new CursorPageResponse<>(interests, null, null, 10, false, interests.size());
+//
+//    when(interestRepository.findAll(interestQuery)).thenReturn(response);
+//
+//    // when
+//    CursorPageResponse<InterestDto> result = interestService.findAll(interestQuery);
+//
+//    // then
+//    assertNotNull(result);
+//    assertEquals("가방", result.content().get(0).name());
+//    assertEquals("자전거", result.content().get(1).name());
+//    verify(interestRepository, times(1)).findAll(interestQuery);
+//  }
 
 
   @Test

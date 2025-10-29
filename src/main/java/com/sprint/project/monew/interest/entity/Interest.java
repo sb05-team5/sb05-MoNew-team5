@@ -24,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Interest extends BaseEntity {
 
-  @Column(nullable = false, updatable = false)
+  @Column(nullable = false)
   private String name;
 
   @Column(name = "subscriber_Count", nullable = false)

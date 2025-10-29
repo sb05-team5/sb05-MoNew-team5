@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class InterestController {
   }
 
   @PostMapping("{interestId}/subscriptions")
-  public ResponseEntity<SubscriptionDto> createSubscription(@PathVariable UUID interestId, @RequestParam UUID userId) {
+  public ResponseEntity<SubscriptionDto> createSubscription(@PathVariable UUID interestId, @RequestHeader("MoNew-Request-User-ID") UUID userId) {
     SubscriptionDto created = subscriptionService.create(userId, interestId);
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
@@ -51,10 +51,9 @@ public class InterestController {
   }
 
   @PatchMapping("{interestId}")
-  public ResponseEntity<InterestDto> update(
-      @PathVariable UUID interestId, @Valid @RequestBody InterestUpdateRequest req) {
+  public ResponseEntity<InterestDto> update(@PathVariable UUID interestId, @Valid @RequestBody InterestUpdateRequest req) {
     InterestDto updated = interestService.update(interestId, req);
-    return ResponseEntity.ok(updated);
+    return ResponseEntity.status(HttpStatus.OK).body(updated);
   }
 
   @DeleteMapping("{interestId}")
@@ -64,7 +63,7 @@ public class InterestController {
   }
 
   @DeleteMapping("{interestId}/subscriptions")
-  public ResponseEntity<Void> deleteSubscription(@PathVariable UUID interestId, @RequestParam UUID userId) {
+  public ResponseEntity<Void> deleteSubscription(@PathVariable UUID interestId, @RequestHeader("MoNew-Request-User-ID") UUID userId) {
     subscriptionService.delete(userId, interestId);
     return ResponseEntity.noContent().build();
   }
