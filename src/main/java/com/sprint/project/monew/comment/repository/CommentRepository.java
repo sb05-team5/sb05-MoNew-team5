@@ -5,6 +5,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,29 +21,29 @@ public interface CommentRepository
     @Query("select c from Comment c where c.id = : id")
     Optional<Comment> findForUpdate(@Param("id") UUID id);
 
-    @Query()
-    List<Comment> pageByDateDesc(@Param("articleId") UUID articleId,
-                                 @Param("createdAt") Instant createdAt,
-                                 @Param("id") UUID id,
-                                 Pageable page);
-
-    @Query()
-    List<Comment> pageByDateAsc(@Param("articleId") UUID articleId,
-                                @Param("createdAt") Instant createdAt,
-                                @Param("id") UUID id,
-                                Pageable page);
-
-    @Query()
-    List<Comment> pageByLikesDesc(@Param("articleId") UUID articleId,
-                                  @Param("likeCount") long likeCount,
-                                  @Param("id") UUID id,
-                                  Pageable page);
-
-    @Query()
-    List<Comment> pageByLikesAsc(@Param("articleId") UUID articleId,
-                                 @Param("likeCount") long likeCount,
-                                 @Param("id") UUID id,
-                                 Pageable page);
+//    @Query()
+//    List<Comment> pageByDateDesc(@Param("articleId") UUID articleId,
+//                                 @Param("createdAt") Instant createdAt,
+//                                 @Param("id") UUID id,
+//                                 Pageable page);
+//
+//    @Query()
+//    List<Comment> pageByDateAsc(@Param("articleId") UUID articleId,
+//                                @Param("createdAt") Instant createdAt,
+//                                @Param("id") UUID id,
+//                                Pageable page);
+//
+//    @Query()
+//    List<Comment> pageByLikesDesc(@Param("articleId") UUID articleId,
+//                                  @Param("likeCount") long likeCount,
+//                                  @Param("id") UUID id,
+//                                  Pageable page);
+//
+//    @Query()
+//    List<Comment> pageByLikesAsc(@Param("articleId") UUID articleId,
+//                                 @Param("likeCount") long likeCount,
+//                                 @Param("id") UUID id,
+//                                 Pageable page);
 
     @Query("""
         select count(c)
@@ -52,5 +53,7 @@ public interface CommentRepository
     """)
     long countByArticleId(@Param("articleId") UUID articleId);
 
-    Optional<Comment> findByCommentId(UUID id);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Comment c where c.userId in :userIds")
+    void deleteAllByUserIds(List<UUID> userIds);
 }
