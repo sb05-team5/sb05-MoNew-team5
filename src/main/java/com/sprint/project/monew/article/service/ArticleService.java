@@ -36,6 +36,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -154,13 +158,14 @@ public class ArticleService {
 
             );
         }
+        log.info("Serviceback-->{}",backups);
 
         List<ArticleDto> articleDtos = articleRepository.searchForRestore(from,to);
         List<Article> article =  new ArrayList<>();
         for (ArticleDto a : articleDtos) {
             article.add(
                     Article.builder()
-                            .id(a.id())
+                            .id(UUID.fromString(a.id()))
                             .createdAt(a.createdAt())
                             .deleted_at(a.deleted_at())
                             .viewCount(a.viewCount())
@@ -178,6 +183,12 @@ public class ArticleService {
         for(Article a : article){
             articleIds.add(a.getId());
         }
+        log.info("Serviceback-->{}",articleIds);
+
+        // 공통 Zone과 Formatter
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
+
 
         List<Article> targets= new ArrayList<>();
         List<String> targetIds = new ArrayList<>();
@@ -268,6 +279,19 @@ public class ArticleService {
         });
     }
 
+    private Instant parseToInstant(String text, ZoneId zone, DateTimeFormatter formatter) {
+        if (text == null || text.isBlank()) return null;
+        try {
+            if (text.endsWith("Z")) {
+                return Instant.parse(text);
+            } else {
+                LocalDateTime ldt = LocalDateTime.parse(text, formatter);
+                return ldt.atZone(zone).toInstant();
+            }
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
 
 
 
@@ -307,12 +331,17 @@ public class ArticleService {
                         JsonNode items = root.path("items");
                         int count = 0;
 
+                        // 공통 Zone과 Formatter
+                        ZoneId zone = ZoneId.of("Asia/Seoul");
+                        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
+
+
                         for (JsonNode item : items) {
                             UUID interestId = interest.getId();
 
                             ArticleDto articleDto = ArticleDto.builder()
                                     .id(null) // 새로 생성
-                                    .createdAt(null)
+                                    .createdAt(parseToInstant(Instant.now().toString(), zone, dateTimeFormatter))
                                     .source(Source.NAVER.getSource())
                                     .sourceUrl(item.path("link").asText())
                                     .title(item.path("title").asText().replaceAll("<.*?>", ""))
@@ -334,7 +363,7 @@ public class ArticleService {
                                 log.error("API->save부분에서 중복 또는 오류 발생",e);
                                 continue;
                             }
-                            Thread.sleep(700);
+                            Thread.sleep(1100);
 
                         }
 

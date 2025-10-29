@@ -58,11 +58,11 @@ public class ArticleController {
                                                          @RequestParam(required = false) String sourceIn,   //콤마스플릿이 맞음.
                                                          @RequestParam(required = false) String publishDateFrom,
                                                          @RequestParam(required = false) String publishDateTo,
-                                                         @RequestParam(required = true,defaultValue = "publishDate") String orderBy,
+                                                         @RequestParam(required = true,defaultValue = "createdAt") String orderBy,
                                                          @RequestParam(required = true,defaultValue = "ASC") String direction,
-                                                         @RequestParam(required = true) String cursor,
-                                                         @RequestParam(required = true) String after,
-                                                         @RequestParam(required = true,defaultValue = "50") int limit,
+                                                         @RequestParam(required = false) String cursor,
+                                                         @RequestParam(required = false) String after,
+                                                         @RequestParam(required = true,defaultValue = "10") int limit,
                                                          @RequestHeader("Monew-Request-User-ID") UUID userId
                                                          ){
       log.info("keyword={}, interestId={}, sourceIn={}, publishDateFrom={}, publishDateTo={}, orderBy={}, direction={}, cursor={}, after={}, limit={}, userId={}",
