@@ -1,15 +1,19 @@
 package com.sprint.project.monew.comment.controller;
 
+import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
 import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.service.CommentService;
+import com.sprint.project.monew.common.CursorPageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,19 +22,30 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class CommentController {
 
+    private static final int DEFAULT_SIZE = 20;
+    private static final int MAX_SIZE = 100;
+
     private final CommentService commentService;
     private final CommentMapper commentMapper;
 
     // 댓글 목록 조회
     @GetMapping("/articles/{articleId}/comments")
-    public ResponseEntity<Map<String,Object>> listByArticle(
+    public ResponseEntity<CursorPageResponse<CommentDto>> listByArticle(
             @PathVariable UUID articleId,
             @RequestParam(defaultValue = "date") String sort,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "" + DEFAULT_SIZE) int size
     ) {
-        return null; // 관련 미완성...
+        SortKey sortKey = SortKey.from(sort);
+        SortDir sortDir = SortDir.from(order);
+
+        int pageSize = normalizedSize(size);
+
+        CursorPageResponse<CommentDto> page =
+                commentService.pageByArticle(articleId, sortKey.value, sortDir.value, cursor, pageSize);
+
+        return ResponseEntity.ok(page);
     }
 
     // 댓글 등록
@@ -72,5 +87,55 @@ public class CommentController {
     ) {
         commentService.hardDelete(commentId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    private int normalizedSize(int size) {
+        if (size <= 0) return DEFAULT_SIZE;
+        return Math.min(size, MAX_SIZE);
+    }
+
+    public enum SortKey {
+        DATE("date"),
+        LIKES("likes");
+
+        public final String value;
+
+        SortKey(String value) {
+            this.value = value;
+        }
+
+        static SortKey from(String raw) {
+            if (raw == null) {
+                return DATE;
+            }
+
+            return switch (raw.toLowerCase()) {
+                case "date" -> DATE;
+                case "likes", "like", "likecount" -> LIKES;
+                default -> throw new IllegalArgumentException("잘못된 기준입니다." + raw);
+            };
+        }
+    }
+
+    public enum SortDir {
+        ASC("asc"),
+        DESC("desc");
+
+        public final String value;
+
+        SortDir(String value) {
+            this.value = value;
+        }
+
+        static SortDir from(String raw) {
+            if (raw == null) {
+                return DESC;
+            }
+            return switch (raw.toLowerCase()) {
+                case "asc" -> ASC;
+                case "desc" -> DESC;
+                default -> throw new IllegalArgumentException("잘못된 기준입니다." + raw);
+            };
+        }
     }
 }
