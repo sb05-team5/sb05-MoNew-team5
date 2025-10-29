@@ -37,7 +37,7 @@ public class NotificationEntity extends BaseEntity {
     // updated_at TIMESTAMP WITH TIME ZONE NULL
     @LastModifiedDate
     @Column(name = "updated_at", columnDefinition = "timestamp with time zone")
-    private Instant updated_at;
+    private Instant updatedAt;
 
 
     @Column(name = "confirmed", nullable = false)
@@ -48,16 +48,16 @@ public class NotificationEntity extends BaseEntity {
     private String content;
 
     @Column(name = "resource_type", nullable = false, length = 10)
-    private String resource_type;
+    private String resourceType;
 
 
     @JdbcTypeCode(SqlTypes.UUID)
     @Column(name = "resource_id", nullable = false)
-    private UUID resource_id;
+    private UUID resourceId;
 
     @JdbcTypeCode(SqlTypes.UUID)
     @Column(name = "user_id", nullable = false)
-    private UUID user_id;
+    private UUID userId;
 
 
 }
