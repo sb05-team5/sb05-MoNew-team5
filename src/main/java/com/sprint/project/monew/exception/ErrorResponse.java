@@ -1,29 +1,29 @@
 package com.sprint.project.monew.exception;
 
-import lombok.*;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@RequiredArgsConstructor
 public class ErrorResponse {
-    private int status;
-    private String message;
-    private String exceptionType;
-    private String path;
-    @Builder.Default
-    private Instant timestamp = Instant.now();
 
-    public static ErrorResponse of(int status, String message, String type, String path) {
-        return ErrorResponse.builder()
-                .status(status)
-                .message(message)
-                .exceptionType(type)
-                .path(path)
-                .build();
-    }
+  private final Instant timestamp;
+  private final String code;
+  private final String message;
+  private final Map<String, Object> details;
+  private final String exceptionType;
+  private final int status;
+
+  public ErrorResponse(BusinessException exception, int status) {
+    this(Instant.now(), exception.getErrorCode().name(), exception.getMessage(),
+        exception.getDetails(), exception.getClass().getSimpleName(), status);
+  }
+
+  public ErrorResponse(Exception exception, int status) {
+    this(Instant.now(), exception.getClass().getSimpleName(), exception.getMessage(),
+        new HashMap<>(), exception.getClass().getSimpleName(), status);
+  }
 }
