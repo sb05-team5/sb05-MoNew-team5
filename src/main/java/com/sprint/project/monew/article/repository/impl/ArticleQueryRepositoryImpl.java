@@ -1,7 +1,6 @@
 package com.sprint.project.monew.article.repository.impl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.CollectionExpression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -10,42 +9,34 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.project.monew.article.dto.ArticleDto;
 import com.sprint.project.monew.article.dto.ArticleDtoUUID;
-import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
 import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.article.entity.QArticle;
 import com.sprint.project.monew.article.entity.Source;
 import com.sprint.project.monew.article.mapper.ArticleMapper;
 import com.sprint.project.monew.article.repository.ArticleQueryRepository;
-import com.sprint.project.monew.article.repository.ArticleRepository;
-import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
 import com.sprint.project.monew.articleView.entity.QArticleView;
 import com.sprint.project.monew.comment.entity.QComment;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.entity.QInterest;
 import com.sprint.project.monew.user.entity.QUser;
-import jakarta.persistence.Column;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Repository;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     private final JPAQueryFactory queryFactory;
-    private static final QArticle a =QArticle.article;
+    private static final QArticle a = QArticle.article;
     private static final QInterest i = QInterest.interest;
     private static final QComment c = QComment.comment;
     private static final QArticleView v = QArticleView.articleView;
@@ -84,7 +75,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                                 viewedByMeExpr
                         ))
                 .from(a)
-                .leftJoin(c).on(c.articleId.eq(a.id))
+                .leftJoin(c).on(c.article.id.eq(a.id))
                 .where(builder)
                 .fetchOne();
     }
@@ -228,31 +219,84 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                                                                   String orderBy, String direction, String cursor,
                                                                   String after, Integer limit , UUID userId) {
 
-        if( orderBy.equals("publishDate") ){
-            orderBy = "createdAt";
-        }
+//        if( orderBy.equals("publishDate") ){
+//            orderBy = "createdAt";
+//        }
 
-        log.info("repositosy --> keyword={}, interestId={}, sourceIn={}, publishDateFrom={}, publishDateTo={}, orderBy={}, direction={}, cursor={}, after={}, limit={}, userId={}",
+        log.info("repository --> keyword={}, interestId={}, sourceIn={}, publishDateFrom={}, publishDateTo={}, orderBy={}, direction={}, cursor={}, after={}, limit={}, userId={}",
                 keyword, interestId, sourceIn,
                 publishDateFrom, publishDateTo, orderBy, direction, cursor, after, limit, userId);
-        // 페이징 처리 기본 코드
-        //int page = (cursor != null && cursor > 0) ? cursor : 0; // null, 음수 방지
-        int page=0;
-        if (cursor != null && !cursor.isBlank()) {
-            try {
-                page = Math.max(Integer.parseInt(cursor), 0); // 음수 방지
-            } catch (NumberFormatException e) {
-                // 잘못된 cursor 형식일 경우 기본값 유지
-                page = 0;
-            }
-        }
-
-        int size = (limit != null && limit > 0) ? limit : 10;
+        // 공통 Zone과 Formatter
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
 
 
         BooleanBuilder builder = new BooleanBuilder();
         // soft delete 처리
         builder.and(a.deleted_at.isNull());
+        // 페이징 처리 기본 코드
+        //int page = (cursor != null && cursor > 0) ? cursor : 0; // null, 음수 방지
+        int page=0;
+        if (cursor != null && !cursor.isBlank()) {
+            if (orderBy.equals("viewCount")) {
+                // 커서 파싱: viewCount|UUID
+                String[] parts = cursor.split("\\|");
+                Integer cursorView = Integer.parseInt(parts[0]);
+                UUID cursorId = (parts.length > 1) ? UUID.fromString(parts[1]) : null;
+
+                if (direction.equals("ASC")) {
+                    if (cursorId != null) {
+                        builder.and(
+                                a.viewCount.gt(cursorView)
+                                        .or(a.viewCount.eq(cursorView)
+                                                .and(a.id.gt(cursorId)))
+                        );
+                    } else {
+                        builder.and(a.viewCount.gt(cursorView));
+                    }
+                } else { // DESC
+                    if (cursorId != null) {
+                        builder.and(
+                                a.viewCount.lt(cursorView)
+                                        .or(a.viewCount.eq(cursorView)
+                                                .and(a.id.lt(cursorId)))
+                        );
+                    } else {
+                        builder.and(a.viewCount.lt(cursorView));
+                    }
+                }
+            } else if (orderBy.equals("publishDate")) {
+                // 기존 publishDate 커서 처리 유지
+                Instant cursorInstant = parseToInstant(cursor, zone, dateTimeFormatter);
+                if (cursorInstant != null) {
+                    if (direction.equals("ASC")) {
+                        builder.and(a.createdAt.gt(cursorInstant));
+                    } else {
+                        builder.and(a.createdAt.lt(cursorInstant));
+                    }
+                }
+            }
+        }
+//            if(direction.equals("ASC")){
+//                switch( orderBy){
+//                    case "viewCount":
+//                        builder.and(a.viewCount.gt( (Integer.parseInt(cursor))) );
+//                        break;
+//                    case "publishDate":
+//                        builder.and(a.createdAt.gt(parseToInstant(cursor,zone,dateTimeFormatter)));
+//                        break;
+//                }
+//            }else {
+//                switch( orderBy){
+//                    case "viewCount":
+//                        builder.and(a.viewCount.lt( (Integer.parseInt(cursor))));
+//                        break;
+//                    case "publishDate":
+//                        builder.and(a.createdAt.lt(parseToInstant(cursor,zone,dateTimeFormatter)));
+//                        break;
+//                }
+//            }
+
 
         //조건 시작 정리해야 됨.
         // ✅ 기본 검색 조건
@@ -275,9 +319,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
             }
         }
 
-        // 공통 Zone과 Formatter
-        ZoneId zone = ZoneId.of("Asia/Seoul");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
+
 
 // ✅ 날짜 범위 필터
         if (publishDateFrom != null && !publishDateFrom.isBlank()) {
@@ -294,73 +336,41 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
             }
         }
 
-        // after 커서 처리 (tie-breaker 포함)
-        Instant afterCreatedAt = null;
-        UUID afterId = null;
-        if (after != null && !after.isBlank()) {
-            String[] parts = after.split("\\|");
-            if (parts.length == 2) {
-                afterCreatedAt = Instant.parse(parts[0]);
-                afterId = UUID.fromString(parts[1]);
-
-                // 새 BooleanBuilder에 커서 조건만 담기
-                BooleanBuilder afterBuilder = new BooleanBuilder();
-
-                if (direction.equals("ASC")) {
-                    afterBuilder.and(
-                            a.createdAt.gt(afterCreatedAt)
-                                    .or(a.createdAt.eq(afterCreatedAt).and(a.id.gt(afterId)))
-                    );
-                } else {
-                    afterBuilder.and(
-                            a.createdAt.lt(afterCreatedAt)
-                                    .or(a.createdAt.eq(afterCreatedAt).and(a.id.lt(afterId)))
-                    );
-                }
-
-                // 기존 builder와 AND로 합침
-                builder.and(afterBuilder);
-            }
-        }
-
-//// ✅ 커서 처리 (after → 다음 페이지 기준점)
-//        if (after != null && !after.isBlank()) {
-//            Instant cursorInstant = parseToInstant(after, zone, dateTimeFormatter);
-//            if (cursorInstant != null) {
-//                if (direction.equals("ASC")) {
-//                    builder.and(a.createdAt.goe(cursorInstant));
-//                } else {
-//                    builder.and(a.createdAt.loe(cursorInstant));
-//                }
-//            } else {
-//                log.warn("Invalid 'after' parameter: {}", after);
-//            }
-//        }
 
 
+        // ✅ 정렬 기준 (viewCount일 때만 tie-breaker 추가)
+        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
-        // ✅ 정렬 기준  -일단은 해보자
-        OrderSpecifier<?> orderSpecifier;
-        OrderSpecifier<?> orderSpecifierId;
         switch (orderBy != null ? orderBy : "createdAt") {
             case "viewCount":
-                orderSpecifier = direction.equals("ASC") ? a.viewCount.asc() : a.viewCount.desc();
+                if ("ASC".equals(direction)) {
+                    orderSpecifiers.add(a.viewCount.asc());
+                    orderSpecifiers.add(a.id.asc());   // tie-breaker
+                } else {
+                    orderSpecifiers.add(a.viewCount.desc());
+                    orderSpecifiers.add(a.id.desc());  // tie-breaker
+                }
                 break;
-            case "title":
-                orderSpecifier = direction.equals("ASC") ? a.title.asc() : a.title.desc();
-                break;
-            case "source":
-                orderSpecifier = direction.equals("ASC") ? a.source.asc() : a.source.desc();
+            case "publishDate":
+                orderSpecifiers.add("ASC".equals(direction) ? a.createdAt.asc() : a.createdAt.desc());
                 break;
             default:
-                orderSpecifier = direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc();
-        }
-        if(direction.equals("ASC")){
-            orderSpecifierId=a.id.asc();
-        }else{
-            orderSpecifierId=a.id.desc();
+                orderSpecifiers.add("ASC".equals(direction) ? a.createdAt.asc() : a.createdAt.desc());
         }
 
+
+//        // ✅ 정렬 기준  -일단은 해보자
+//        OrderSpecifier<?> orderSpecifier;
+//        switch (orderBy != null ? orderBy : "createdAt") {
+//            case "viewCount":
+//                orderSpecifier = direction.equals("ASC") ? a.viewCount.asc() : a.viewCount.desc();
+//                break;
+//            case "publishDate":
+//                orderSpecifier = direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc();
+//                break;
+//            default:
+//                orderSpecifier = direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc();
+//        }
 
 
 
@@ -370,7 +380,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 .from(v)
                 .where(v.article.eq(a).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
                 .exists();
-
 
         // ✅ 실제 데이터 조회 (limit + 1)
         List<ArticleDtoUUID> articleUDtos = queryFactory
@@ -389,48 +398,71 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                         viewedByMeExpr
                 ))
                 .from(a)
-                .leftJoin(c).on(c.articleId.eq(a.id))
+                .leftJoin(c).on(c.article.id.eq(a.id))
                 .where(builder)
                 .groupBy(
                         a.id,
                         a.createdAt,
-                        a.source,
-                        a.sourceUrl,
-                        a.title,
-                        a.publishDate,
-                        a.summary,
-                        a.viewCount,
-                        a.deleted_at
-                        // H2에서는 select에 있는 컬럼은 모두 group by에 넣어야 함
+                        a.viewCount
                 )
-                .orderBy(orderSpecifier,orderSpecifierId)
-                .limit(size + 1)
+                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
+                .limit(limit + 1)
                 .fetch();
 
         List<ArticleDto> articleDtos= articleUDtos.stream()
                 .map(articleMapper::toDto)
                 .collect(Collectors.toList());
-        log.info("dtos->{}", articleDtos);
+        log.info("dtos->{}, size->{}", articleDtos,articleDtos.size());
         // Slice로 감싸기
-        boolean hasNext = articleDtos.size() > size;
-        List<ArticleDto> contents = hasNext ? articleDtos.subList(0, size) : articleDtos;
+        boolean hasNext = articleDtos.size() > limit;
+        List<ArticleDto> contents = hasNext ? articleDtos.subList(0, limit) : articleDtos;
 
-        String nextAfter = null;
-        if (!contents.isEmpty()) {
-            ArticleDto last = articleDtos.get(articleDtos.size() - 1);
-            nextAfter = last.createdAt().toString() + "|" + last.id(); // "|"로 구분
-            log.info("nextAfter->{}", nextAfter);
-//            Instant lastPublishDate = contents.get(contents.size() - 1).createdAt();
-//            nextAfter = lastPublishDate.toString();
+// ✅ nextAfter: 다음 페이지가 있을 때만 마지막 createdAt 사용
+        String nextCursor = null;
+        if (hasNext && !contents.isEmpty()) {
+            ArticleDto last = contents.get(contents.size() - 1);
+            switch (orderBy) {
+                case "viewCount":
+                    nextCursor = last.viewCount() + "|" + last.id().toString();
+                    break;
+                case "publishDate":
+                    nextCursor = last.createdAt().toString();
+                    break;
+            }
+            log.info("nextCursor -> {}", nextCursor);
         }
+
+//        if (hasNext && !contents.isEmpty()) {
+//            ArticleDto last = contents.get(contents.size() - 1);
+//            switch(orderBy) {
+//                case "viewCount":
+//                    nextCursor = last.viewCount().toString();
+//                    break;
+//                case "publishDate":
+//                    nextCursor = last.createdAt().toString();
+//                    break;
+//            }
+//
+//            log.info("nextCursor -> {}", nextCursor);
+//        }
+
+
+//                List<T> content,
+//                String nextCursor,
+//                String nextAfter,
+//                Integer size,
+//                Boolean hasNext,
+//                Integer totalElements
+//
 
         return new CursorPageResponse<>(
                 contents,
-                null, // nextCursor는 null
-                nextAfter,
-                size,
+                nextCursor,
+                after,
+                limit,
                 hasNext,
                 contents.size()
+
         );
     }
 
