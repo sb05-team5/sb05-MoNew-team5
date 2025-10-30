@@ -6,8 +6,11 @@ import com.sprint.project.monew.interest.dto.SubscriptionDto;
 import com.sprint.project.monew.interest.entity.Subscription;
 import com.sprint.project.monew.interest.mapper.SubscriptionMapper;
 import com.sprint.project.monew.interest.repository.SubscriptionRepository;
+import com.sprint.project.monew.log.document.SubscriptionActivity;
+import com.sprint.project.monew.log.repository.SubscriptionActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
+
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -24,12 +27,31 @@ public class SubscriptionService {
   private final UserRepository userRepository;
   private final InterestRepository interestRepository;
   private final SubscriptionMapper subscriptionMapper;
+  private final SubscriptionActivityRepository subscriptionActivityRepository;
 
   @Transactional
   public SubscriptionDto create(UUID userId, UUID interestId) {
     User user = validatedUserId(userId);
     Interest interest = validatedInterest(interestId);
     isSubscribed(user, interest);
+
+    //    private UUID id;
+//    private Instant createdAt;
+//    private UUID interestId;
+//    private String interestName;
+//    private List<String> interestKeywords;
+//    private Integer interestSubscripberCount;
+//    private UUID userId; //보고 보류
+    SubscriptionActivity doc = SubscriptionActivity.builder()
+            .id(null)
+            .createdAt(Instant.now())
+            .interestId(interestId.toString())
+            .interestName(interest.getName())
+            .interestKeywords(interest.getKeywords())
+            .interestSubscripberCount((int) interest.getSubscriberCount())
+            .userId(userId.toString())
+            .build();
+    subscriptionActivityRepository.save(doc);
 
     Subscription subscription = new Subscription(interest, user);
     subscriptionRepository.save(subscription);
