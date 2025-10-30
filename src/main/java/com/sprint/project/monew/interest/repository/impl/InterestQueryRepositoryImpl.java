@@ -1,126 +1,160 @@
 package com.sprint.project.monew.interest.repository.impl;
 
 import static com.sprint.project.monew.interest.entity.QInterest.interest;
+import static com.sprint.project.monew.interest.entity.QSubscription.subscription;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.dto.InterestDto;
-import com.sprint.project.monew.interest.dto.InterestQuery;
 import com.sprint.project.monew.interest.entity.Interest;
-import com.sprint.project.monew.interest.mapper.InterestMapper;
 import com.sprint.project.monew.interest.repository.InterestQueryRepository;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
+import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
-@Service
-@RequiredArgsConstructor
+@Repository
 public class InterestQueryRepositoryImpl implements InterestQueryRepository {
 
   private final JPAQueryFactory queryFactory;
-  private final InterestMapper interestMapper;
 
-  @Override
-  public CursorPageResponse<InterestDto> findAll(InterestQuery query) {
-    Long totalElementsLong = queryFactory
-        .select(interest.count())
-        .from(interest)
-        .where(
-            query.name() != null ? interest.name.containsIgnoreCase(query.name()) : null,
-            query.keyword() != null ? interest.keyword.containsIgnoreCase(query.keyword()) : null
-        )
-        .fetchOne();
-
-    Integer totalElements = totalElementsLong != null ? totalElementsLong.intValue() : 0;
-
-    List<Interest> interests = queryFactory.selectFrom(interest)
-        .where(
-            query.name() != null ? interest.name.containsIgnoreCase(query.name()) : null,
-            query.keyword() != null ? interest.keyword.containsIgnoreCase(query.keyword()) : null,
-            buildCursorCondition(query)
-        )
-        .orderBy(sortResolve(query.sortField(), query.sortDirection()))
-        .limit(query.size() + 1)
-        .fetch();
-
-    boolean hasNext = interests.size() > query.size();
-    if (hasNext) {
-      interests = interests.subList(0, query.size());
-    }
-
-    String nextCursor = null;
-    String nextAfter = null;
-
-    if (!interests.isEmpty()) {
-      Interest last =  interests.get(interests.size() - 1);
-      nextCursor = "name".equalsIgnoreCase(query.sortField())
-          ? last.getName() : String.valueOf(last.getSubscriberCount());
-      nextAfter = last.getId().toString();
-    }
-
-    List<InterestDto> interestDtos = interests.stream()
-        .map(interest -> interestMapper.toDto(interest, false))
-        .toList();
-
-    return new CursorPageResponse<>(
-        interestDtos,
-        nextCursor,
-        nextAfter,
-        query.size(),
-        hasNext,
-        totalElements
-
-    );
+  public InterestQueryRepositoryImpl(EntityManager em) {
+    this.queryFactory = new JPAQueryFactory(em);
   }
 
-  private BooleanExpression buildCursorCondition(InterestQuery query) {
-    if (query.cursor() == null || query.idAfter() == null) {
+  private OrderSpecifier<?> getOrderSpecifier(String orderBy, String direction) {
+    Order order = "DESC".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
+
+    ComparableExpressionBase<?> orderTarget;
+    if ("subscriberCount".equalsIgnoreCase(orderBy)) {
+      orderTarget = interest.subscriberCount;
+    } else {
+      orderTarget = interest.name;
+    }
+
+    return new OrderSpecifier(order, orderTarget);
+  }
+
+  private BooleanExpression keywordContains(String keyword) {
+    if (!StringUtils.hasText(keyword)) {
+      return null;
+    }
+    String searchKeyword = "%" + keyword.toLowerCase() + "%";
+
+    return interest.name.toLowerCase().like(searchKeyword)
+        .or(interest.keyword.toLowerCase().like(searchKeyword));
+  }
+
+  private BooleanExpression cursorAndAfterFilter(String cursor, Instant after, String orderBy, String direction) {
+    if (!StringUtils.hasText(cursor) || after == null) {
       return null;
     }
 
-    boolean isDesc = "desc".equalsIgnoreCase(query.sortDirection());
-
-    if ("name".equalsIgnoreCase(query.sortField())) {
-      return isDesc ? interest.name.lt(query.cursor())
-          .or(interest.name.eq(query.cursor()).and(interest.id.lt(UUID.fromString(query.idAfter()))))
-          : interest.name.gt(query.cursor())
-              .or(interest.name.eq(query.cursor()).and(interest.id.gt(UUID.fromString(query.idAfter()))));
-    } else if ("subscriberCount".equalsIgnoreCase(query.sortField())) {
-      Long cursorValue = Long.valueOf(query.cursor());
-      return isDesc
-          ? interest.subscriberCount.lt(cursorValue)
-          .or(interest.subscriberCount.eq(cursorValue)
-              .and(interest.id.lt(UUID.fromString(query.idAfter()))))
-          : interest.subscriberCount.gt(cursorValue)
-          .or(interest.subscriberCount.eq(cursorValue)
-              .and(interest.id.gt(UUID.fromString(query.idAfter()))));
+    ComparableExpressionBase<?> orderTarget;
+    if ("subscriberCount".equalsIgnoreCase(orderBy)) {
+      orderTarget = interest.subscriberCount;
+    } else {
+      orderTarget = interest.name;
     }
-    return null;
+
+    BooleanExpression mainCondition;
+    if ("ASC".equalsIgnoreCase(direction)) {
+      mainCondition = Expressions.stringTemplate("STR({0})", orderTarget).gt(cursor);
+      BooleanExpression tieCondition = Expressions.stringTemplate("STR({0})", orderTarget).eq(cursor)
+          .and(interest.createdAt.gt(after));
+      return mainCondition.or(tieCondition);
+    } else {
+      mainCondition = Expressions.stringTemplate("STR({0})", orderTarget).lt(cursor);
+      BooleanExpression tieCondition = Expressions.stringTemplate("STR({0})", orderTarget).eq(cursor)
+          .and(interest.createdAt.lt(after));
+      return mainCondition.or(tieCondition);
+    }
   }
 
-  private OrderSpecifier<?>[] sortResolve(String sortField, String sortDirection) {
-    Order order = "desc".equalsIgnoreCase(sortDirection) ? Order.DESC : Order.ASC;
+  @Override
+  public CursorPageResponse<InterestDto> findAll(
+      String keyword,
+      String orderBy,
+      String direction,
+      String cursor,
+      Instant after,
+      int size,
+      UUID userId) {
 
-    if ("name".equalsIgnoreCase(sortField)) {
-      return new OrderSpecifier[]{
-          new OrderSpecifier<>(order, interest.name),
-          new OrderSpecifier<>(order, interest.id)
-      };
-    } else if ("subscriberCount".equalsIgnoreCase(sortField)) {
-      return new OrderSpecifier[]{
-          new OrderSpecifier<>(order, interest.subscriberCount),
-          new OrderSpecifier<>(order, interest.id)
-      };
+    BooleanBuilder whereCondition = new BooleanBuilder();
+    whereCondition.and(keywordContains(keyword));
+    whereCondition.and(cursorAndAfterFilter(cursor, after, orderBy, direction));
+
+    OrderSpecifier<?> mainOrder = getOrderSpecifier(orderBy, direction);
+    OrderSpecifier<?> secondaryOrder = "DESC".equalsIgnoreCase(direction)
+        ? interest.createdAt.desc()
+        : interest.createdAt.asc();
+
+    List<Interest> results = queryFactory
+        .selectFrom(interest)
+        .where(whereCondition)
+        .orderBy(mainOrder, secondaryOrder)
+        .limit(size + 1)
+        .fetch();
+
+    boolean hasNext = results.size() > size;
+    if (hasNext) {
+      results.remove(size);
     }
-    return new OrderSpecifier[]{
-        new OrderSpecifier<>(order, interest.name),
-        new OrderSpecifier<>(order, interest.id)
-    };
+
+    List<InterestDto> content = results.stream()
+        .map(i -> new InterestDto(
+            i.getId(),
+            i.getName(),
+            i.getKeywords(),
+            i.getSubscriberCount(),
+            isSubscribed(i.getId(), userId)
+        ))
+        .toList();
+
+    String nextCursor = null;
+    Instant nextAfter = null;
+    if (hasNext) {
+      Interest lastInterest = results.get(results.size() - 1);
+
+      if ("subscriberCount".equalsIgnoreCase(orderBy)) {
+        nextCursor = String.valueOf(lastInterest.getSubscriberCount());
+      } else {
+        nextCursor = lastInterest.getName();
+      }
+      nextAfter = lastInterest.getCreatedAt();
+    }
+
+    return new CursorPageResponse<>(
+        content,
+        nextCursor,
+        nextAfter != null ? nextAfter.toString() : null,
+        size,
+        hasNext,
+        null
+    );
+  }
+
+  private Boolean isSubscribed(UUID interestId, UUID userId) {
+    if (userId == null) {
+      return false;
+    }
+
+    Integer count = queryFactory
+        .selectOne()
+        .from(subscription)
+        .where(subscription.interest.id.eq(interestId)
+            .and(subscription.user.id.eq(userId)))
+        .fetchFirst();
+
+    return count != null;
   }
 }
