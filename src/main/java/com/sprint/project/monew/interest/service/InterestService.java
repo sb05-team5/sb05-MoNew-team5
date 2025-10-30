@@ -2,16 +2,15 @@ package com.sprint.project.monew.interest.service;
 
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.dto.InterestDto;
-import com.sprint.project.monew.interest.dto.InterestQuery;
 import com.sprint.project.monew.interest.dto.InterestRegisterRequest;
 import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.mapper.InterestMapper;
-import com.sprint.project.monew.interest.repository.InterestQueryRepository;
 import com.sprint.project.monew.interest.repository.InterestRepository;
-import com.sprint.project.monew.interest.repository.SubscriptionRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
+import java.text.Normalizer;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class InterestService {
 
   private final InterestRepository interestRepository;
-  private final SubscriptionRepository subscriptionRepository;
   private final UserRepository userRepository;
-  private final InterestQueryRepository interestQueryRepository;
   private final InterestMapper interestMapper;
   private final static double similarityThreshold = 0.8;
   private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
@@ -51,8 +48,15 @@ public class InterestService {
   }
 
   @Transactional(readOnly = true)
-  public CursorPageResponse<InterestDto> findAll(InterestQuery query) {
-    return interestQueryRepository.findAll(query);
+  public CursorPageResponse<InterestDto> findAll(
+      String keyword,
+      String orderBy,
+      String direction,
+      String cursor,
+      Instant after,
+      int size,
+      UUID userId) {
+    return interestRepository.findAll(keyword, orderBy, direction, cursor, after, size, userId);
   }
 
   @Transactional
@@ -103,8 +107,18 @@ public class InterestService {
   }
 
   private void validateDuplicateKeywords(List<String> newKeywords) {
-    Set<String> combined = new HashSet<>(newKeywords);
-    if (combined.size() < newKeywords.size()) {
+    Set<String> normalized = new HashSet<>();
+
+    for (String keyword : newKeywords) {
+      if (keyword == null) continue;
+      String cleaned = keyword.replaceAll("\\s+", "");
+      String normalizedKeyword = Normalizer.normalize(cleaned, Normalizer.Form.NFC);
+      normalizedKeyword = normalizedKeyword.toLowerCase();
+
+      normalized.add(normalizedKeyword);
+    }
+
+    if (normalized.size() < newKeywords.size()) {
       throw new IllegalArgumentException("키워드 목록에 중복된 값이 있습니다.");
     }
   }
