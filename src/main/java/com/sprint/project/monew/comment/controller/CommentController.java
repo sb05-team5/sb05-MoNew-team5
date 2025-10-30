@@ -3,7 +3,6 @@ package com.sprint.project.monew.comment.controller;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
-import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.service.CommentService;
 import com.sprint.project.monew.common.CursorPageResponse;
 import jakarta.validation.Valid;
@@ -23,12 +22,11 @@ public class CommentController {
     private static final int MAX_SIZE = 100;
 
     private final CommentService commentService;
-    private final CommentMapper commentMapper;
 
     // 댓글 목록 조회
-    @GetMapping("/articles/{articleId}/comments")
+    @GetMapping("/comments")
     public ResponseEntity<CursorPageResponse<CommentDto>> listByArticle(
-            @PathVariable UUID articleId,
+            @RequestParam UUID articleId,
             @RequestParam(defaultValue = "date") String sort,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) String cursor,
