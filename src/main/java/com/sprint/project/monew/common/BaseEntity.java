@@ -31,7 +31,8 @@ public abstract class BaseEntity {
   @Column(columnDefinition = "uuid", updatable = false, nullable = false)
   private UUID id;
 
-  @CreatedDate
+
+
   @Column(columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
   private Instant createdAt;
 }

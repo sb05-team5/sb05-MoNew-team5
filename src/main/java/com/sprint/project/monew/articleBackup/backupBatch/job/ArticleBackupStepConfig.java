@@ -13,7 +13,10 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,6 +35,12 @@ public class ArticleBackupStepConfig {
                 .reader(articleBackupReader)
                 .processor(articleBackupProcessor)
                 .writer(articleBackupWriter)
+                .faultTolerant()
+                .skip(DataIntegrityViolationException.class) // 중복 예외 스킵
+                .skipLimit(5000) // 최대 1000개까지 스킵 허용
+                .transactionAttribute(
+                        new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED)
+                ) // ✅ chunk 트랜잭션 비활성화
                 .build();
     }
 

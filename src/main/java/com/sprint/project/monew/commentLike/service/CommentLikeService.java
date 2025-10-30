@@ -1,12 +1,16 @@
 package com.sprint.project.monew.commentLike.service;
 
+import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
+import com.sprint.project.monew.user.entity.User;
+import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -16,46 +20,46 @@ public class CommentLikeService {
 
 //    private final CommentLikeRepository commentLikeRepository;
 //    private final CommentRepository commentRepository;
+//    private final UserRepository userRepository;
 //
 //    @Transactional
-//    public long commentLike(UUID commentId,UUID userId) {
+//    public int commentLike(UUID commentId,UUID userId) {
 //
-//        var comment = commentRepository.findForUpdate(commentId)
-//                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+//        if (commentLikeRepository.existsByComment_IdAndUser_Id(commentId, userId)) {
+//            return commentLikeRepository.countByComment_Id(commentId);
+//        }
+//
+//        Comment comment = commentRepository.findForUpdate(commentId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
 //
 //        if (comment.getDeletedAt() != null) {
-//            throw new IllegalStateException("삭제된 댓글입니다.");
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제된 댓글입니다.");
 //        }
 //
-//        if (commentLikeRepository.existsByCommentIdAndUserId(commentId, userId)) {
-//            return comment.getLikeCount();
-//        }
+//        User userRef = userRepository.getReferenceById(userId);
 //
-//        try {
-//            commentLikeRepository.save(CommentLike.create(commentId, userId));
-//        } catch (DataIntegrityViolationException e) {
-//            return comment.getLikeCount();
-//        }
+//        commentLikeRepository.save(CommentLike.create(comment, userRef));
+//
 //        comment.increaseLike();
+//
 //        return comment.getLikeCount();
 //    }
 //
 //    @Transactional
-//    public long uncommentLike(UUID commentId, UUID userId) {
-//        var comment = commentRepository.findForUpdate(commentId)
-//                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
-//
-//        commentLikeRepository.deleteByCommentIdAndUserId(commentId, userId);
-//        comment.decreaseLike();
-//        return comment.getLikeCount();
-//    }
-//
-//    @Transactional
-//    public void toggleCommentLike(UUID commentId, UUID userId) {
-//        if (commentLikeRepository.existsByCommentIdAndUserId(commentId, userId)) {
-//            uncommentLike(commentId, userId);
-//        } else {
-//            commentLike(commentId, userId);
+//    public int uncommentLike(UUID commentId, UUID userId) {
+//        if (!commentLikeRepository.existsByComment_IdAndUser_Id(commentId, userId)) {
+//            return commentLikeRepository.countByComment_Id(commentId);
 //        }
+//
+//        Comment comment = commentRepository.findForUpdate(commentId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
+//        if (comment.getDeletedAt() != null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제된 댓글입니다.");
+//        }
+//
+//        commentLikeRepository.deleteByComment_IdAndUser_Id(commentId, userId);
+//        comment.decreaseLike();
+//
+//        return comment.getLikeCount();
 //    }
 }

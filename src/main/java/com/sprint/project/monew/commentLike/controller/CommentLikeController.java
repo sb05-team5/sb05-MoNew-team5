@@ -15,20 +15,20 @@ public class CommentLikeController {
 //    private final CommentLikeService commentLikeService;
 //
 //    @PostMapping
-//    public ResponseEntity<Long> like(
+//    public ResponseEntity<Integer> like(
 //            @PathVariable UUID commentId,
 //            @RequestHeader("User-Id") UUID userId
 //    ) {
-//        long likeCount = commentLikeService.commentLike(commentId, userId);
+//        int likeCount = commentLikeService.commentLike(commentId, userId);
 //        return ResponseEntity.ok(likeCount);
 //    }
 //
 //    @DeleteMapping
-//    public ResponseEntity<Long> unlike(
+//    public ResponseEntity<Integer> unlike(
 //            @PathVariable UUID commentId,
 //            @RequestHeader("User-Id") UUID userId
 //    ) {
-//        long likeCount = commentLikeService.uncommentLike(commentId, userId);
+//        int likeCount = commentLikeService.uncommentLike(commentId, userId);
 //        return ResponseEntity.ok(likeCount);
 //    }
 

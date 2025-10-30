@@ -4,11 +4,19 @@ import com.sprint.project.monew.articleView.dto.ArticleViewDto;
 import com.sprint.project.monew.articleView.entity.ArticleView;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.UUID;
 
 @Mapper(componentModel = "spring", uses = {ReferenceMapper.class})
 public interface ArticleViewMapper {
 
+    @Named("stringToUUID")
+    default UUID stringToUUID(String id) {
+        return id != null ? UUID.fromString(id) : null;
+    }
 
+    @Mapping(target = "id", source = "id", qualifiedByName = "stringToUUID")
     @Mapping(target = "article", source = "articleId" )
     @Mapping(target = "user", source = "viewedBy" )
     ArticleView toEntity(ArticleViewDto articleViewDto);

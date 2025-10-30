@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public interface CommentLikeRepository extends JpaRepository<CommentLike, UUID> {
 
-//    boolean existsByCommentIdAndUserId(UUID commentId, UUID userId);
+//    boolean existsByComment_IdAndUser_Id(UUID commentId, UUID userId);
 //
-//    Optional<CommentLike> findByCommentIdAndUserId(UUID commentId, UUID userId);
+//    Optional<CommentLike> findByComment_IdAndUser_Id(UUID commentId, UUID userId);
 //
-//    long countByCommentId(UUID commentId);
+//    int countByComment_Id(UUID commentId);
 //
-//    void deleteByCommentIdAndUserId(UUID commentId, UUID userId);
+//    void deleteByComment_IdAndUser_Id(UUID commentId, UUID userId);
 }
