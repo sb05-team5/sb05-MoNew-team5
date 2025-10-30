@@ -1,4 +1,4 @@
-package com.sprint.project.monew.log.document;
+package com.sprint.project.monew.log.dto;
 
 import lombok.Builder;
 
