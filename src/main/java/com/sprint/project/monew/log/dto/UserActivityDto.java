@@ -5,5 +5,4 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 public record UserActivityDto(
 
-) {
-}
+) { }

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public interface  NotificationRepository extends JpaRepository<NotificationEntity, UUID> {
 
-  @Modifying(clearAutomatically = true, flushAutomatically = true)
-  @Query("delete NotificationEntity n where n.user_id in :userIds")
-  void deleteAllByUserIds(List<UUID> userIds);
+//  @Modifying(clearAutomatically = true, flushAutomatically = true)
+//  @Query("delete NotificationEntity n where n.user_id in :userIds")
+//  void deleteAllByUserIds(List<UUID> userIds);
 }

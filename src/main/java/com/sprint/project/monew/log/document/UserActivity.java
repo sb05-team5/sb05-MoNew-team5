@@ -1,5 +1,6 @@
 package com.sprint.project.monew.log.document;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -17,6 +18,7 @@ public class UserActivity {
   private UUID id;
   private List<SubscriptionActivity> subscriptions;
   private List<ArticleViewActivity> articleViews;
+  private Instant createdAt;
 
 
 
