@@ -9,11 +9,11 @@ INSERT INTO users (id, email, nickname, password, created_at, deleted_at) VALUES
 
 -- // interests
 INSERT INTO interests (id, created_at, name, subscriber_count, keyword) VALUES
-('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1',now(), 'Technology', 100, '기술, ai, 프로그래밍'),
-('aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaa2',now(), 'Sports', 200, '축구, 농구, 올림픽'),
-('aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaa3',now(), 'Finance', 150, '암호화폐, 경제'),
-('aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaa4',now(), 'Health', 80, '운동, 영양, 건강'),
-('aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',now(), 'Travel', 120, '관광, 모험, 여행');
+('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1',now(), 'Technology', 100, '기술,ai,프로그래밍'),
+('aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaa2',now(), 'Sports', 200, '축구,농구,올림픽'),
+('aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaa3',now(), 'Finance', 150, '암호화폐,경제'),
+('aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaa4',now(), 'Health', 80, '운동,영양,건강'),
+('aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',now(), 'Travel', 120, '관광,모험,여행');
 
 -- // articles
 INSERT INTO articles (id, source, source_url, title, created_at, publish_date, summary, view_count, deleted_at, interest_id) VALUES
