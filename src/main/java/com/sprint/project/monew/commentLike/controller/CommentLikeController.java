@@ -12,24 +12,24 @@ import java.util.UUID;
 @RequestMapping("/api/comments/{commentId}/likes")
 public class CommentLikeController {
 
-    private final CommentLikeService commentLikeService;
-
-    @PostMapping
-    public ResponseEntity<Integer> like(
-            @PathVariable UUID commentId,
-            @RequestHeader("User-Id") UUID userId
-    ) {
-        int likeCount = commentLikeService.commentLike(commentId, userId);
-        return ResponseEntity.ok(likeCount);
-    }
-
-    @DeleteMapping
-    public ResponseEntity<Integer> unlike(
-            @PathVariable UUID commentId,
-            @RequestHeader("User-Id") UUID userId
-    ) {
-        int likeCount = commentLikeService.uncommentLike(commentId, userId);
-        return ResponseEntity.ok(likeCount);
-    }
+//    private final CommentLikeService commentLikeService;
+//
+//    @PostMapping
+//    public ResponseEntity<Integer> like(
+//            @PathVariable UUID commentId,
+//            @RequestHeader("User-Id") UUID userId
+//    ) {
+//        int likeCount = commentLikeService.commentLike(commentId, userId);
+//        return ResponseEntity.ok(likeCount);
+//    }
+//
+//    @DeleteMapping
+//    public ResponseEntity<Integer> unlike(
+//            @PathVariable UUID commentId,
+//            @RequestHeader("User-Id") UUID userId
+//    ) {
+//        int likeCount = commentLikeService.uncommentLike(commentId, userId);
+//        return ResponseEntity.ok(likeCount);
+//    }
 
 }

@@ -19,6 +19,6 @@ public class SubscriptionActivity {
   private UUID id;
   private Instant createdAt;
   private Interest interest;
-  private User user;
+  private User user; //보고 보류
 
 }

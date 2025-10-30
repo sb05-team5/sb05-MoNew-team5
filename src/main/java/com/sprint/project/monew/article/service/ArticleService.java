@@ -44,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.sprint.project.monew.article.entity.QArticle.article;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
