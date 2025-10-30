@@ -13,5 +13,6 @@ public interface InterestMapper {
   InterestDto toDto(Interest interest, Boolean subscribedByMe);
 
   @Mapping(target = "keyword", expression = "java(String.join(\",\", req.keywords()))")
+  @Mapping(target = "createdAt", expression = "java(java.time.Instant.now())") //
   Interest toEntity(InterestRegisterRequest req);
 }
