@@ -38,7 +38,7 @@ CREATE TABLE articles (
                           source VARCHAR(255) NOT NULL,
                           source_url VARCHAR(255) NOT NULL UNIQUE,
                           title VARCHAR(255) NOT NULL,
-                          created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                          created_at TIMESTAMP WITH TIME ZONE,
                           publish_date VARCHAR(255) NOT NULL,
                           summary TEXT NOT NULL,
                           view_count INT NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE articles (
 -- // 기사 백업 - 단순 백업을 위한 테이블이라 제약조건 최소화
 CREATE TABLE article_backup (
                           id UUID ,
-                          article_id UUID,
+                          article_id UUID UNIQUE,
                           source VARCHAR(255) ,
                           source_url VARCHAR(255),
                           title VARCHAR(255),

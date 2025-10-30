@@ -1,6 +1,7 @@
 package com.sprint.project.monew.article.mapper;
 
 import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleDtoUUID;
 import com.sprint.project.monew.article.entity.Article;
 import jakarta.persistence.Column;
 import org.mapstruct.Mapper;
@@ -17,16 +18,33 @@ import java.util.UUID;
 public interface ArticleMapper {
 
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+
+    @Named("stringToUUID")
+    default UUID stringToUUID(String id) {
+        return id != null ? UUID.fromString(id) : null;
+    }
+
+    // ✅ UUID → String 변환
+    @Named("uuidToString")
+    default String uuidToString(UUID id) {
+        return id != null ? id.toString() : null;
+    }
+
+    @Mapping(target = "id", source = "id", qualifiedByName = "stringToUUID")
     @Mapping(target = "interest_id", ignore = true)
     Article toEntity(ArticleDto articleDto);
 
 
+    @Mapping(target = "id", source = "id", qualifiedByName = "uuidToString")
     @Mapping(target = "commentCount", ignore = true)
     @Mapping(target = "viewedByBme", ignore = true)
     @Mapping(target = "publishDate", source = "publishDate", qualifiedByName = "instantToString")
     ArticleDto toDto(Article article);
+
+
+    @Mapping(target = "id", source = "id", qualifiedByName = "uuidToString")
+    ArticleDto toDto(ArticleDtoUUID articleDtoUUID);
+
 
     @Named("instantToString")
     default String instantToString(Instant instant) {
