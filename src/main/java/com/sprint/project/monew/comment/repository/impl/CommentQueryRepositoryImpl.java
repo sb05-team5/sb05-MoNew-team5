@@ -1,132 +1,151 @@
 package com.sprint.project.monew.comment.repository.impl;
 
+
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.repository.CommentQueryRepository;
+import com.sprint.project.monew.common.CursorPageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static com.sprint.project.monew.comment.entity.QComment.comment;
-
 @Repository
 @RequiredArgsConstructor
 public class CommentQueryRepositoryImpl implements CommentQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    // 동일 기사와 논리삭제 된 기사 제외
-    private static BooleanBuilder filter(UUID articleId) {
-        return new BooleanBuilder()
-                .and(comment.articleId.eq(articleId))
-                .and(comment.deletedAt.isNull());
-    }
-
     @Override
-    public long countByArticleId(UUID articleId) {
+    public int countByArticleId(UUID articleId) {
         Long count = queryFactory
                 .select(comment.count())
                 .from(comment)
                 .where(
-                        comment.articleId.eq(articleId),
+                        comment.article.id.eq(articleId),
                         comment.deletedAt.isNull()
                 )
                 .fetchOne();
 
-        return count == null ? 0L : count;
+        return count != null ? count.intValue() : 0;
     }
 
     @Override
-    public List<Comment> pageByDateDesc(UUID articleId, Instant createdAtCursor, UUID idCursor, int size) {
-        BooleanBuilder where = filter(articleId);
+    public CursorPageResponse<Comment> pageByArticleSorted(UUID articleId,
+                                                           String orderBy,
+                                                           String direction,
+                                                           String after,
+                                                           Integer limit) {
 
-        if (createdAtCursor != null && idCursor != null) {
-            where.and(
-                    comment.createdAt.lt(createdAtCursor)
-                            .or(comment.createdAt.eq(createdAtCursor).and(comment.id.lt(idCursor)))
-            );
+        String sortKey = (orderBy == null || orderBy.isBlank()) ? "date" : orderBy.toLowerCase();
+        String dir     = (direction == null || direction.isBlank()) ? "desc" : direction.toLowerCase();
+        int size       = (limit == null || limit <= 0) ? 20 : Math.min(limit, 100);
+
+        BooleanBuilder where = new  BooleanBuilder()
+                .and(comment.article.id.eq(articleId))
+                .and(comment.deletedAt.isNull());
+
+        if (after != null && !after.isBlank()) {
+            String[] parts = after.split("\\|", 2);
+            if (parts.length == 2) {
+                try {
+                    UUID cursorId = UUID.fromString(parts[1]);
+                    if("likes".equals(sortKey)) {
+                        int likes = Integer.parseInt(parts[0]);
+                        applyLikesKeyset(where, dir, likes, cursorId);
+                    } else {
+                        long epochMs = Long.parseLong(parts[0]);
+                        Instant createdAt = Instant.ofEpochMilli(epochMs);
+                        applyDateKeySet(where, dir, createdAt, cursorId);
+                    }
+                } catch (Exception ignored) {
+
+                }
+            }
         }
 
-        return queryFactory
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+
+        if("likes".equals(sortKey)) {
+            orders.add(new OrderSpecifier<>(toOrder(dir), comment.likeCount));
+        } else {
+            orders.add(new OrderSpecifier<>(toOrder(dir), comment.createdAt));
+        }
+
+        orders.add(new OrderSpecifier<>(toOrder(dir), comment.id));
+
+        List<Comment> rows = queryFactory
                 .selectFrom(comment)
                 .where(where)
-                .orderBy(
-                        new OrderSpecifier<>(Order.DESC, comment.createdAt),
-                        new OrderSpecifier<>(Order.DESC, comment.id)
-                )
-                .limit(size)
+                .orderBy(orders.toArray(OrderSpecifier[]::new))
+                .limit(size + 1L)
                 .fetch();
+
+        boolean hasNext = rows.size() > size;
+
+        List<Comment> contents = hasNext ? rows.subList(0, size) : rows;
+
+        String nextAfter = null;
+        if (!contents.isEmpty()) {
+            Comment last = contents.get(contents.size() - 1);
+            if ("likes".equals(sortKey)) {
+                nextAfter = last.getLikeCount() + "|" + last.getId();
+            } else {
+                nextAfter = last.getCreatedAt().toEpochMilli() + "|" + last.getId();
+            }
+        }
+
+        int totalCount = countByArticleId(articleId);
+
+        return new CursorPageResponse<>(
+                contents,
+                null,
+                nextAfter,
+                contents.size(),
+                hasNext,
+                totalCount
+        );
     }
 
-    @Override
-    public List<Comment> pageByDateAsc(UUID articleId, Instant createdAtCursor, UUID idCursor, int size) {
-        BooleanBuilder where = filter(articleId);
-
-        if (createdAtCursor != null && idCursor != null) {
-            where.and(
-                    comment.createdAt.gt(createdAtCursor)
-                            .or(comment.createdAt.eq(createdAtCursor).and(comment.id.gt(idCursor)))
-            );
-        }
-
-        return queryFactory
-                .selectFrom(comment)
-                .where(where)
-                .orderBy(
-                        new OrderSpecifier<>(Order.ASC, comment.createdAt),
-                        new OrderSpecifier<>(Order.ASC, comment.id)
-                )
-                .limit(size)
-                .fetch();
+    private static Order toOrder(String direction) {
+        return ("asc".equalsIgnoreCase(direction)) ? Order.ASC : Order.DESC;
     }
 
-    @Override
-    public List<Comment> pageByLikesDesc(UUID articleId, int likeCountCursor, UUID idCursor, int size) {
-        BooleanBuilder where = filter(articleId);
+    private static void applyDateKeySet(BooleanBuilder where, String dir, Instant createdAt, UUID id) {
+        if (createdAt == null || id == null) return;
 
-        if (idCursor != null) {
+        if("asc".equalsIgnoreCase(dir)) {
             where.and(
-                    comment.likeCount.lt(likeCountCursor)
-                            .or(comment.likeCount.eq(likeCountCursor).and(comment.id.lt(idCursor)))
+                    comment.createdAt.gt(createdAt)
+                            .or(comment.createdAt.eq(createdAt).and(comment.id.gt(id)))
+            );
+        } else {
+            where.and(
+                    comment.createdAt.lt(createdAt)
+                            .or(comment.createdAt.eq(createdAt).and(comment.id.lt(id)))
             );
         }
-
-        return queryFactory
-                .selectFrom(comment)
-                .where(where)
-                .orderBy(
-                        new OrderSpecifier<>(Order.DESC, comment.likeCount),
-                        new OrderSpecifier<>(Order.DESC, comment.id)
-                )
-                .limit(size)
-                .fetch();
     }
 
-    @Override
-    public List<Comment> pageByLikesAsc(UUID articleId, int likeCountCursor, UUID idCursor, int size) {
-        BooleanBuilder where = filter(articleId);
-
-        if (idCursor != null) {
+    private static void applyLikesKeyset(BooleanBuilder where, String dir, Integer likeCount, UUID id) {
+        if (likeCount == null || id == null) return;
+        if ("asc".equalsIgnoreCase(dir)) {
             where.and(
-                    comment.likeCount.gt(likeCountCursor)
-                            .or(comment.likeCount.eq(likeCountCursor).and(comment.id.gt(idCursor)))
+                    comment.likeCount.gt(likeCount)
+                            .or(comment.likeCount.eq(likeCount).and(comment.id.gt(id)))
+            );
+        } else {
+            where.and(
+                    comment.likeCount.lt(likeCount)
+                            .or(comment.likeCount.eq(likeCount).and(comment.id.lt(id)))
             );
         }
-
-        return queryFactory
-                .selectFrom(comment)
-                .where(where)
-                .orderBy(
-                        new OrderSpecifier<>(Order.ASC, comment.likeCount),
-                        new OrderSpecifier<>(Order.ASC, comment.id)
-                )
-                .limit(size)
-                .fetch();
     }
 }
