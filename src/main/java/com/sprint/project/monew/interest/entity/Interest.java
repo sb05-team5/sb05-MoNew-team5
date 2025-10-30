@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,7 @@ public class Interest extends BaseEntity {
   public Interest(String name, String keyword) {
     this.name = name;
     this.keyword = keyword;
+    this.createdAt = Instant.now();
   }
 
   public List<String> getKeywords() {

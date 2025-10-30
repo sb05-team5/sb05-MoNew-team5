@@ -34,5 +34,5 @@ public abstract class BaseEntity {
 
 
   @Column(columnDefinition = "timestamp with time zone", updatable = false, nullable = false)
-  private Instant createdAt;
+  protected Instant createdAt;
 }
