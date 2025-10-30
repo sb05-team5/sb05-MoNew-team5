@@ -21,6 +21,6 @@ public interface CommentQueryRepository {
 //
 //    // 좋아요 오름차순
 //    List<Comment> pageByLikesAsc(UUID articleId, int likeCountCursor, UUID idCursor, int size);
-
+//
 
 }
