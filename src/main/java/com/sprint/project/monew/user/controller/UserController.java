@@ -23,11 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
+
   private final UserService userService;
   private final AuthService authService;
 
   @PostMapping
-  public ResponseEntity<UserDto> create(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
+  public ResponseEntity<UserDto> create(
+      @RequestBody @Valid UserRegisterRequest userRegisterRequest) {
     UserDto userDto = userService.create(userRegisterRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
   }
@@ -44,7 +46,7 @@ public class UserController {
 
   @PatchMapping(path = "{userId}")
   public ResponseEntity<UserDto> update(@PathVariable("userId") UUID userId,
-                                        @RequestBody @Valid UserUpdateRequest request) {
+      @RequestBody @Valid UserUpdateRequest request) {
     UserDto userDto = userService.update(userId, request);
     return ResponseEntity.status(HttpStatus.OK).body(userDto);
   }
