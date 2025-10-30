@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Interest extends BaseEntity {
 
-  @Column(nullable = false, updatable = false)
+  @Column(nullable = false)
   private String name;
 
   @Column(name = "subscriber_Count", nullable = false)
@@ -36,6 +37,7 @@ public class Interest extends BaseEntity {
   public Interest(String name, String keyword) {
     this.name = name;
     this.keyword = keyword;
+    this.createdAt = Instant.now();
   }
 
   public List<String> getKeywords() {
