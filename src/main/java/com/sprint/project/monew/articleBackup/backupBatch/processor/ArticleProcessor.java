@@ -86,7 +86,6 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
                     .title(firstItem.path("title").asText().replaceAll("<.*?>", ""))
                     .publishDate(firstItem.path("pubDate").asText().replaceAll("<.*?>",""))
                     .summary(firstItem.path("description").asText().replaceAll("<.*?>", ""))
-                    .commentCount(0L)
                     .viewCount(0)
                     .viewedByBme(false)
                     .build();
