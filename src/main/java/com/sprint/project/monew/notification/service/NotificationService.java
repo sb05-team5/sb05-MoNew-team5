@@ -7,10 +7,13 @@ import com.sprint.project.monew.notification.entity.NotificationEntity;
 import com.sprint.project.monew.notification.mapper.NotificationMapper;
 import com.sprint.project.monew.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,59 +34,78 @@ public class NotificationService {
 
 
 
-//    @Transactional
-//    public  void allCheckNotification(UUID userId) {
-//        List<NotificationEntity> notifications = notificationRepository.findAllByUserId(userId);
-//
-//        for (NotificationEntity notification : notifications) {
-//            notification.setConfirmed(true); // 확인 상태로 변경
-//            notification.setUpdatedAt(Instant.now());
-//        }
-//        notificationRepository.saveAll(notifications);
-//    }
-//    @Transactional
-//    public void oneCheckNotification(UUID userId , UUID notificationId){
-//
-//        List<NotificationEntity> list  = notificationRepository.findAllByUserIdAndResourceId(userId, notificationId);
-//        list.forEach(n ->{
-//            n.setConfirmed(true);
-//            n.setUpdatedAt(Instant.now());
-//        });
-//
-//        notificationRepository.saveAll(list);
-//
-//
-//    }
+    @Transactional
+    public  void allCheckNotification(UUID userId) {
+        List<NotificationEntity> notifications = notificationRepository.findAllByUserId(userId);
 
+        for (NotificationEntity notification : notifications) {
+            notification.setConfirmed(true); // 확인 상태로 변경
+            notification.setUpdatedAt(Instant.now());
+        }
+        notificationRepository.saveAll(notifications);
+    }
+    @Transactional
+    public void oneCheckNotification(UUID userId , UUID notificationId){
+
+        List<NotificationEntity> list  = notificationRepository.findAllByUserIdAndResourceId(userId, notificationId);
+        list.forEach(n ->{
+            n.setConfirmed(true);
+            n.setUpdatedAt(Instant.now());
+        });
+
+        notificationRepository.saveAll(list);
+
+
+    }
 
 
 
 
     @Transactional(readOnly = true)
     public CursorPageResponse<NotificationResponse> findAllWithMeta(int limit, String cursor, Instant after, UUID userId) {
+        // --- 1) 커서 디코딩 ---
+        Instant cursorUpdatedAt = null;
+        UUID cursorId = null;
+        if (cursor != null && !cursor.isBlank()) {
+            try {
+                String raw = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8);
+                String[] parts = raw.split(":");
+                cursorUpdatedAt = Instant.ofEpochMilli(Long.parseLong(parts[0]));
+                cursorId = UUID.fromString(parts[1]);
+            } catch (Exception ignored) {}
+        }
 
-        // 실제 데이터 조회
-        List<NotificationResponse> all = notificationMapper.toNotificationResponses(notificationRepository.findAll());
+        int pageSize = Math.min(Math.max(limit, 1), 100);
 
-        // 총 데이터 수
-        int total = all.size();
+        // --- 2) DB 조회 ---
+        List<NotificationEntity> list = notificationRepository.findUnreadByCursor(
+                userId, cursorUpdatedAt, cursorId, PageRequest.of(0, pageSize + 1));
 
-        // limit 만큼만 잘라내기
-        List<NotificationResponse> data = (total > limit) ? all.subList(0, limit) : all;
+        boolean hasNext = list.size() > pageSize;
+        if (hasNext) list = list.subList(0, pageSize);
 
-        // 커서 (다음 페이지용) — 마지막 ID를 nextCursor 로 예시
-        String nextCursor = (total > limit) ? data.get(data.size() - 1).getId().toString() : null;
+        // --- 3) nextCursor 생성 ---
+        String nextCursor = null;
+        if (hasNext && !list.isEmpty()) {
+            NotificationEntity last = list.get(list.size() - 1);
+            String raw = last.getUpdatedAt().toEpochMilli() + ":" + last.getId();
+            nextCursor = Base64.getUrlEncoder().withoutPadding()
+                    .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+        }
 
-        // hasNext 계산
-        boolean hasNext = total > limit;
+        // --- 4) 매핑 ---
+        List<NotificationResponse> responses = list.stream()
+                .map(notificationMapper::toNotificationRepose)
+                .toList();
 
+        // --- 5) 응답 빌드 ---
         return CursorPageResponse.<NotificationResponse>builder()
-                .content(data)
+                .content(responses)
                 .nextCursor(nextCursor)
                 .nextAfter(after != null ? after.toString() : null)
-                .size(data.size())
+                .size(responses.size())
                 .hasNext(hasNext)
-                .totalElements(total)
+                .totalElements(null)
                 .build();
     }
 
