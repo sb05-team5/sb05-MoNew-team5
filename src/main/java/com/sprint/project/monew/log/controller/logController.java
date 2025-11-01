@@ -34,6 +34,6 @@ public class logController {
                     .build();
             activitiesDto.add(dto);
         }
-        return activitiesDto;
+        return activitiesDto.subList(0, Math.min(10, activitiesDto.size()));
     }
 }
