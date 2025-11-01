@@ -7,9 +7,11 @@ import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
+import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final Pattern CURSOR_PATTERN =
             Pattern.compile("^(date|likes):([^#]+)#([0-9a-fA-F\\-]{36})$");
@@ -114,6 +117,9 @@ public class CommentService {
         User userRef = userRepository.getReferenceById(userId);
 
         Comment saved = commentRepository.save(Comment.create(articleRef, userRef, content));
+
+        eventPublisher.publishEvent(new CommentRegisterEvent(saved, articleRef, userRef));
+
         return saved.getId();
     }
 
