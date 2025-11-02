@@ -13,7 +13,7 @@ public record ArticleDtoUUID (
         String title,
         String publishDate,
         String summary,
-        Long commentCount,
+        Integer commentCount,
         Integer viewCount,
         Instant deleted_at,
         Boolean viewedByBme
@@ -28,7 +28,7 @@ public record ArticleDtoUUID (
             String title,
             String publishDate,
             String summary,
-            Long commentCount,
+            Integer commentCount,
             Integer viewCount,
             Instant deleted_at,
             Boolean viewedByBme
