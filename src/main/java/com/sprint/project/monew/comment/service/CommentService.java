@@ -32,6 +32,12 @@ public class CommentService {
     private static final Pattern CURSOR_PATTERN =
             Pattern.compile("^(date|likes):([^#]+)#([0-9a-fA-F\\-]{36})$");
 
+
+    public UUID getArticleId(UUID commentId) {
+        return commentRepository.findArticleId(commentId);
+    }
+
+
     @Transactional(readOnly = true)
     public CursorPageResponse<CommentDto> pageByArticle(
             UUID articleId,

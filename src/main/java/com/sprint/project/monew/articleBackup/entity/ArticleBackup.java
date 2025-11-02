@@ -50,4 +50,8 @@ public class ArticleBackup extends BaseEntity {
     @Column(nullable = true)
     private Instant deleted_at;
 
+    @Column(nullable = false)
+    private Long commentCount = 0L;
+
+
 }

@@ -28,6 +28,7 @@ public class ArticleBackupProcessor implements ItemProcessor<Article, ArticleBac
                 .title(item.getTitle())
                 .publishDate(item.getPublishDate())
                 .summary(item.getSummary())
+                .commentCount((long) item.getCommentCount())
                 .viewCount(item.getViewCount())
                 .interest_id(item.getInterest_id())
                 .deleted_at(item.getDeleted_at())

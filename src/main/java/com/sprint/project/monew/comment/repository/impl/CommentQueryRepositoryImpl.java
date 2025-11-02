@@ -4,7 +4,11 @@ package com.sprint.project.monew.comment.repository.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleDtoUUID;
+import com.sprint.project.monew.article.entity.QArticle;
 import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.repository.CommentQueryRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
@@ -22,6 +26,7 @@ import static com.sprint.project.monew.comment.entity.QComment.comment;
 public class CommentQueryRepositoryImpl implements CommentQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final QArticle a=QArticle.article;
 
     @Override
     public int countByArticleId(UUID articleId) {
@@ -112,6 +117,20 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
                 hasNext,
                 totalCount
         );
+    }
+
+    @Override
+    public UUID findArticleId(UUID commentId) {
+        BooleanBuilder where = new  BooleanBuilder();
+        where.and(comment.deletedAt.isNull());
+        where.and(comment.id.eq(commentId));
+
+        UUID dto = queryFactory
+                .select(comment.article.id)
+                .from(comment)
+                .where(where)
+                .fetchOne();
+        return dto;
     }
 
     private static Order toOrder(String direction) {
