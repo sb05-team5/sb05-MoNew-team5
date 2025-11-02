@@ -85,7 +85,6 @@ public class ArticleController {
                                                          @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
 
-
         return ResponseEntity.ok().body(new ArticleView());
     }
 

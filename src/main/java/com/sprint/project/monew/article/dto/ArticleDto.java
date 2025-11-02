@@ -17,7 +17,7 @@ public record ArticleDto(
     String title,
     String publishDate,
     String summary,
-    Long articleCommentCount,
+    Long commentCount,
     Integer viewCount,
     Instant deleted_at,
     Boolean viewedByBme
@@ -31,12 +31,12 @@ public record ArticleDto(
             String title,
             String publishDate,
             String summary,
-            Long articleCommentCount,
+            Long commentCount,
             Integer viewCount,
             Instant deleted_at,
             Boolean viewedByBme
     ) {
-        return new ArticleDto(id, createdAt,source, sourceUrl, title, publishDate, summary,articleCommentCount ,viewCount, deleted_at, viewedByBme);
+        return new ArticleDto(id, createdAt,source, sourceUrl, title, publishDate, summary,commentCount ,viewCount, deleted_at, viewedByBme);
     }
 
 }

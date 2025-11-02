@@ -76,6 +76,29 @@ public class ArticleService {
         });
 
     }
+    public void incrementCommentCount(UUID articleId) {
+        articleRepository.findByArticleId(articleId).ifPresent(article -> {
+            Article updatedArticle = article.toBuilder()
+                    .commentCount(article.getCommentCount() + 1)
+                    .build();
+            // DB에 저장
+            articleRepository.save(updatedArticle);
+        });
+
+    }
+
+    public void decremontCommentCount(UUID articleId) {
+        articleRepository.findByArticleId(articleId).ifPresent(article -> {
+            if(article.getCommentCount() > 0) {
+                Article updatedArticle = article.toBuilder()
+                        .commentCount(article.getCommentCount() - 1)
+                        .build();
+                // DB에 저장
+                articleRepository.save(updatedArticle);
+            }
+        });
+    }
+
 
 
 
@@ -155,6 +178,7 @@ public class ArticleService {
                             .publishDate(articleBackupDto.getPublishDate())
                             .summary(articleBackupDto.getSummary())
                             .viewCount(articleBackupDto.getViewCount())
+                            .commentCount((long) articleBackupDto.getCommentCount())
                             .build()
 
             );
@@ -280,10 +304,6 @@ public class ArticleService {
 
         });
 
-
-
-
-
     }
 
     private Instant parseToInstant(String text, ZoneId zone, DateTimeFormatter formatter) {
@@ -354,6 +374,7 @@ public class ArticleService {
                                     .title(item.path("title").asText().replaceAll("<.*?>", ""))
                                     .publishDate( item.path("pubDate").asText().replaceAll("<.*?>","") )
                                     .summary(item.path("description").asText().replaceAll("<.*?>", ""))
+                                    .commentCount(0L)
                                     .viewCount(0)
                                     .viewedByBme(false)
                                     .build();

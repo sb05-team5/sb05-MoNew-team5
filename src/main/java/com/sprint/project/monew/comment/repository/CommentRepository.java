@@ -1,5 +1,6 @@
 package com.sprint.project.monew.comment.repository;
 
+import com.sprint.project.monew.article.dto.ArticleDto;
 import com.sprint.project.monew.comment.entity.Comment;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface CommentRepository
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Comment c where c.id = :id")
     Optional<Comment> findForUpdate(@Param("id") UUID id);
+
+
 }

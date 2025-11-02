@@ -44,6 +44,7 @@ CREATE TABLE articles (
                           view_count INT NOT NULL,
                           deleted_at TIMESTAMP NULL,
                           interest_id UUID NOT NULL,
+                          comment_count INT NOT NULL,
                           CONSTRAINT pk_articles PRIMARY KEY (id)
 
 
@@ -58,6 +59,7 @@ CREATE TABLE article_backup (
                           created_at TIMESTAMP WITH TIME ZONE,
                           publish_date VARCHAR(255),
                           summary TEXT,
+                          comment_count INT,
                           view_count INT,
                           deleted_at TIMESTAMP,
                           interest_id UUID,
