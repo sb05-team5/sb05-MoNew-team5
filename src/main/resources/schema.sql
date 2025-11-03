@@ -75,6 +75,8 @@ CREATE TABLE comments (
                           content VARCHAR(1000) NOT NULL,
                           article_id UUID NOT NULL,
                           user_id UUID NOT NULL,
+                          like_count INTEGER NOT NULL DEFAULT 0,
+
                           CONSTRAINT pk_comments PRIMARY KEY (id),
                           CONSTRAINT fk_comments_articles FOREIGN KEY (article_id)
                               REFERENCES articles (id) ON DELETE CASCADE,
