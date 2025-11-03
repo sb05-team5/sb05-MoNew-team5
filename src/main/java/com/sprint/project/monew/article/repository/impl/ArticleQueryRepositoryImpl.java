@@ -45,7 +45,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
 
 
     @Override
-    public ArticleDto searchOne(UUID articleId,UUID  userId) {
+    public ArticleDtoUUID searchOne(UUID articleId,UUID  userId) {
 
         BooleanBuilder builder = new BooleanBuilder();
         // soft delete 처리
@@ -56,28 +56,47 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         BooleanExpression viewedByMeExpr = JPAExpressions
                 .selectOne()
                 .from(v)
-                .where(v.article.eq(a).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
+                .where(v.article.id.eq(articleId).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
                 .exists();
 
         builder.and(viewedByMeExpr);
 
         return queryFactory
                 .select(Projections.constructor(
-                                ArticleDto.class,
+                                ArticleDtoUUID.class,
                                 a.id,
+                                a.createdAt,
                                 a.source,
                                 a.sourceUrl,
                                 a.title,
                                 a.publishDate,
                                 a.summary,
-                                c.id.countDistinct(),
+                                a.commentCount,
                                 a.viewCount,
+                                a.deleted_at,
                                 viewedByMeExpr
                         ))
                 .from(a)
                 .leftJoin(c).on(c.article.id.eq(a.id))
                 .where(builder)
                 .fetchOne();
+    }
+
+    @Override
+    public Long getCommentCount(UUID articleId) {
+        BooleanBuilder builder = new BooleanBuilder();
+        // soft delete 처리
+        builder.and(c.deletedAt.isNull());
+        builder.and(c.article.id.eq(articleId));
+
+        Long countResult = queryFactory
+                .select(c.id.countDistinct())
+                .from(c)
+                .where(builder)
+                .fetchOne();
+
+        // null이면 0으로 대체
+        return countResult == null ? 0 : countResult;
     }
 
 
@@ -134,7 +153,7 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                         a.title,                        // String
                         a.publishDate,                  // String
                         a.summary,                      // String
-                        Expressions.constant(0L),       // Long commentCount
+                        a.commentCount,       // Long commentCount
                         a.viewCount,                    // Integer
                         a.deleted_at,                   // Instant
                         Expressions.constant(false)     // Boolean viewedByBme
@@ -146,7 +165,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         return articleUDtos.stream()
                 .map(articleMapper::toDto)
                 .collect(Collectors.toList());
-
     }
 
 
@@ -213,15 +231,14 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
     }
 
 
+
+
+    //댓글인 상황만 추가하면 끝
     @Override
     public CursorPageResponse<ArticleDto> searchPageSortedArticle(String keyword, String interestId, String sourceIn,
                                                                   String publishDateFrom, String publishDateTo,
                                                                   String orderBy, String direction, String cursor,
                                                                   String after, Integer limit , UUID userId) {
-
-//        if( orderBy.equals("publishDate") ){
-//            orderBy = "createdAt";
-//        }
 
         log.info("repository --> keyword={}, interestId={}, sourceIn={}, publishDateFrom={}, publishDateTo={}, orderBy={}, direction={}, cursor={}, after={}, limit={}, userId={}",
                 keyword, interestId, sourceIn,
@@ -229,16 +246,48 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         // 공통 Zone과 Formatter
         ZoneId zone = ZoneId.of("Asia/Seoul");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
-
+        // viewedByMe 서브쿼리: articleView에 내가 본 기록이 존재하는지 여부
+        BooleanExpression viewedByMeExpr = JPAExpressions
+                .selectOne()
+                .from(v)
+                .where(v.article.eq(a).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
+                .exists();
 
         BooleanBuilder builder = new BooleanBuilder();
         // soft delete 처리
         builder.and(a.deleted_at.isNull());
         // 페이징 처리 기본 코드
         //int page = (cursor != null && cursor > 0) ? cursor : 0; // null, 음수 방지
+
+
         int page=0;
         if (cursor != null && !cursor.isBlank()) {
-            if (orderBy.equals("viewCount")) {
+            if (orderBy.equals("commentCount")) {
+                String[] parts = cursor.split("\\|");
+                Integer cursorCount = Integer.parseInt(parts[0]);
+                UUID cursorId = (parts.length > 1) ? UUID.fromString(parts[1]) : null;
+                if (direction.equals("ASC")) {
+                    if (cursorId != null) {
+                        builder.and(
+                                a.commentCount.gt(cursorCount)
+                                        .or(a.commentCount.eq(cursorCount)
+                                                .and(a.id.gt(cursorId)))
+                        );
+                    } else {
+                        builder.and(a.commentCount.gt(cursorCount));
+                    }
+                } else { // DESC
+                    if (cursorId != null) {
+                        builder.and(
+                                a.commentCount.lt(cursorCount)
+                                        .or(a.commentCount.eq(cursorCount)
+                                                .and(a.id.lt(cursorId)))
+                        );
+                    } else {
+                        builder.and(a.commentCount.lt(cursorCount));
+                    }
+                }
+            }else if (orderBy.equals("viewCount")) {
                 // 커서 파싱: viewCount|UUID
                 String[] parts = cursor.split("\\|");
                 Integer cursorView = Integer.parseInt(parts[0]);
@@ -277,25 +326,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 }
             }
         }
-//            if(direction.equals("ASC")){
-//                switch( orderBy){
-//                    case "viewCount":
-//                        builder.and(a.viewCount.gt( (Integer.parseInt(cursor))) );
-//                        break;
-//                    case "publishDate":
-//                        builder.and(a.createdAt.gt(parseToInstant(cursor,zone,dateTimeFormatter)));
-//                        break;
-//                }
-//            }else {
-//                switch( orderBy){
-//                    case "viewCount":
-//                        builder.and(a.viewCount.lt( (Integer.parseInt(cursor))));
-//                        break;
-//                    case "publishDate":
-//                        builder.and(a.createdAt.lt(parseToInstant(cursor,zone,dateTimeFormatter)));
-//                        break;
-//                }
-//            }
 
 
         //조건 시작 정리해야 됨.
@@ -342,8 +372,17 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
         switch (orderBy != null ? orderBy : "createdAt") {
+            case "commentCount":
+                if (direction.equals("ASC")) {
+                    orderSpecifiers.add(a.commentCount.asc());
+                    orderSpecifiers.add(a.id.asc());   // tie-breaker
+                } else {
+                    orderSpecifiers.add(a.commentCount.desc());
+                    orderSpecifiers.add(a.id.desc());  // tie-breaker
+                }
+                break;
             case "viewCount":
-                if ("ASC".equals(direction)) {
+                if (direction.equals("ASC")) {
                     orderSpecifiers.add(a.viewCount.asc());
                     orderSpecifiers.add(a.id.asc());   // tie-breaker
                 } else {
@@ -352,34 +391,13 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                 }
                 break;
             case "publishDate":
-                orderSpecifiers.add("ASC".equals(direction) ? a.createdAt.asc() : a.createdAt.desc());
+                orderSpecifiers.add(direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc());
                 break;
             default:
-                orderSpecifiers.add("ASC".equals(direction) ? a.createdAt.asc() : a.createdAt.desc());
+                orderSpecifiers.add(direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc());
         }
 
 
-//        // ✅ 정렬 기준  -일단은 해보자
-//        OrderSpecifier<?> orderSpecifier;
-//        switch (orderBy != null ? orderBy : "createdAt") {
-//            case "viewCount":
-//                orderSpecifier = direction.equals("ASC") ? a.viewCount.asc() : a.viewCount.desc();
-//                break;
-//            case "publishDate":
-//                orderSpecifier = direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc();
-//                break;
-//            default:
-//                orderSpecifier = direction.equals("ASC") ? a.createdAt.asc() : a.createdAt.desc();
-//        }
-
-
-
-        // viewedByMe 서브쿼리: articleView에 내가 본 기록이 존재하는지 여부
-        BooleanExpression viewedByMeExpr = JPAExpressions
-                .selectOne()
-                .from(v)
-                .where(v.article.eq(a).and(v.user.id.eq(userId)).and(v.deleted_at.isNull()))
-                .exists();
 
         // ✅ 실제 데이터 조회 (limit + 1)
         List<ArticleDtoUUID> articleUDtos = queryFactory
@@ -392,22 +410,23 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                         a.title,
                         a.publishDate,
                         a.summary,
-                        c.id.countDistinct(),
+                        a.commentCount,
                         a.viewCount,
                         a.deleted_at,
                         viewedByMeExpr
                 ))
                 .from(a)
                 .leftJoin(c).on(c.article.id.eq(a.id))
+                .fetchJoin()
                 .where(builder)
                 .groupBy(
                         a.id,
-                        a.createdAt,
-                        a.viewCount
+                        a.createdAt
                 )
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
                 .limit(limit + 1)
                 .fetch();
+
 
         List<ArticleDto> articleDtos= articleUDtos.stream()
                 .map(articleMapper::toDto)
@@ -422,6 +441,9 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         if (hasNext && !contents.isEmpty()) {
             ArticleDto last = contents.get(contents.size() - 1);
             switch (orderBy) {
+                case "commentCount":
+                    nextCursor = last.commentCount() + "|" + last.id().toString();
+                    break;
                 case "viewCount":
                     nextCursor = last.viewCount() + "|" + last.id().toString();
                     break;
@@ -431,20 +453,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
             }
             log.info("nextCursor -> {}", nextCursor);
         }
-
-//        if (hasNext && !contents.isEmpty()) {
-//            ArticleDto last = contents.get(contents.size() - 1);
-//            switch(orderBy) {
-//                case "viewCount":
-//                    nextCursor = last.viewCount().toString();
-//                    break;
-//                case "publishDate":
-//                    nextCursor = last.createdAt().toString();
-//                    break;
-//            }
-//
-//            log.info("nextCursor -> {}", nextCursor);
-//        }
 
 
 //                List<T> content,

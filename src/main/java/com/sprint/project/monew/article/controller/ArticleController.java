@@ -30,13 +30,13 @@ public class ArticleController {
     }
 
 
-//    @GetMapping("/{articleId}")
-//    public ArticleDto searchOne(@PathVariable("articleId") UUID articleId,
-//                                @RequestHeader("Monew-Request-User-ID") UUID userId
-//                                ) throws InterruptedException {
-//
-//        return articleService.searchOne(articleId,userId);
-//    }
+    @GetMapping("/{articleId}")
+    public ArticleDto searchOne(@PathVariable("articleId") UUID articleId,
+                                @RequestHeader("Monew-Request-User-ID") UUID userId
+                                ) throws InterruptedException {
+
+        return articleService.searchOne(articleId,userId);
+    }
 
 
 
@@ -84,7 +84,6 @@ public class ArticleController {
     public ResponseEntity<ArticleView> fetchArticleViews(@PathVariable UUID articleId ,
                                                          @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
-
 
         return ResponseEntity.ok().body(new ArticleView());
     }

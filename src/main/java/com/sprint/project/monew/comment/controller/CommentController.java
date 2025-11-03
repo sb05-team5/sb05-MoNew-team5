@@ -1,5 +1,6 @@
 package com.sprint.project.monew.comment.controller;
 
+import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
@@ -22,6 +23,8 @@ public class CommentController {
     private static final int MAX_SIZE = 100;
 
     private final CommentService commentService;
+    private final CommentMapper commentMapper;
+    private final ArticleService articleService;
 
     // 댓글 목록 조회
     @GetMapping("/comments")
@@ -50,6 +53,10 @@ public class CommentController {
             @Valid @RequestBody CommentRegisterRequest req
     ) {
         UUID id = commentService.create(req.articleId(), userId, req.content());
+        if(id != null) {
+            articleService.incrementCommentCount(req.articleId());
+        }
+
         return ResponseEntity.created(URI.create("/api/comments/" + id)).build();
     }
 
@@ -71,6 +78,8 @@ public class CommentController {
             @RequestHeader("MoNew-Request-User-ID") UUID userId
     ) {
         commentService.softDelete(commentId, userId);
+        UUID articleId=commentService.getArticleId(commentId);
+        articleService.decremontCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
@@ -81,6 +90,8 @@ public class CommentController {
             @RequestHeader("MoNew-Request-User-ID") UUID userId
     ) {
         commentService.hardDelete(commentId, userId);
+        UUID articleId=commentService.getArticleId(commentId);
+        articleService.decremontCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 

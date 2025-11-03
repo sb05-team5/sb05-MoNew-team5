@@ -47,6 +47,8 @@ public class Article extends BaseEntity {
     @Column(nullable = true)
     private Instant deleted_at;
 
+    @Column(nullable = false)
+    private int commentCount = 0;
 
 
 }

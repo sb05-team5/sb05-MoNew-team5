@@ -25,13 +25,6 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationEntity extends BaseEntity {
-//
-//    updated_at TIMESTAMP NULL,
-//    confirmed BOOLEAN NOT NULL DEFAULT FALSE,
-//    content VARCHAR(255) NOT NULL,
-//    resource_type VARCHAR(10) NOT NULL,
-//    resource_id UUID NOT NULL,
-//    user_id UUID NOT NULL,
 
 
     // updated_at TIMESTAMP WITH TIME ZONE NULL

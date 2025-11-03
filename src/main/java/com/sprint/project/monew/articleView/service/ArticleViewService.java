@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -33,9 +34,8 @@ public class ArticleViewService {
         ArticleView articleView = ArticleView.builder()
                 .article(article)
                 .user(user)
+                .createdAt(Instant.now())
                 .build();
-
-//        articleService.incrementViewCount(article.getId()); articleService에서 직접하기
 
         return articleViewRepository.save(articleView);
     }

@@ -27,6 +27,8 @@ public class ArticleBackupDto {
 
     private String summary;
 
+    private int commentCount;
+
     private int viewCount;
 
     private UUID interest_id;
