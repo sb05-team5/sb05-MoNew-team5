@@ -75,6 +75,8 @@ CREATE TABLE comments (
                           content VARCHAR(1000) NOT NULL,
                           article_id UUID NOT NULL,
                           user_id UUID NOT NULL,
+                          like_count INTEGER NOT NULL DEFAULT 0,
+
                           CONSTRAINT pk_comments PRIMARY KEY (id),
                           CONSTRAINT fk_comments_articles FOREIGN KEY (article_id)
                               REFERENCES articles (id) ON DELETE CASCADE,
@@ -84,14 +86,20 @@ CREATE TABLE comments (
 
 -- // 댓글 좋아요
 CREATE TABLE comment_likes (
-                               id UUID NOT NULL,
-                               created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-                               deleted_at TIMESTAMP WITH TIME ZONE NULL,
-                               comment_id UUID NOT NULL,
-                               CONSTRAINT pk_comment_likes PRIMARY KEY (id),
-                               CONSTRAINT fk_comment_likes_comments FOREIGN KEY (comment_id)
-                                   REFERENCES comments (id) ON DELETE CASCADE
+                            id UUID NOT NULL,
+                            created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                            deleted_at TIMESTAMP WITH TIME ZONE NULL,
+                            comment_id UUID NOT NULL,
+                            user_id UUID NOT NULL,
+
+                            CONSTRAINT pk_comment_likes PRIMARY KEY (id),
+
+                            CONSTRAINT fk_comment_likes_comments FOREIGN KEY (comment_id)
+                                REFERENCES comments (id) ON DELETE CASCADE,
+                             CONSTRAINT fk_comment_likes_users FOREIGN KEY (user_id)
+                                REFERENCES users (id) ON DELETE CASCADE
 );
+
 
 -- // 조회수
 CREATE TABLE article_views (
