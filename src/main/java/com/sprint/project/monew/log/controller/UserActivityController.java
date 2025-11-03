@@ -1,6 +1,7 @@
 package com.sprint.project.monew.log.controller;
 
 import com.sprint.project.monew.log.dto.CommentActivityDto;
+import com.sprint.project.monew.log.dto.CommentLikeActivityDto;
 import com.sprint.project.monew.log.service.UserActivityService;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,11 @@ public class UserActivityController {
   @GetMapping("{userId}")
   public ResponseEntity<Map<String, Object>> getUserActivity(@PathVariable UUID userId) {
     List<CommentActivityDto> commentsActivity = userActivityService.getComments(userId);
+    List<CommentLikeActivityDto>  commentLikesActivity = userActivityService.getCommentLikes(userId);
 
     Map<String, Object> response = new HashMap<>();
     response.put("comments", commentsActivity);
+    response.put("commentLikes", commentLikesActivity);
 
     return ResponseEntity.ok(response);
   }

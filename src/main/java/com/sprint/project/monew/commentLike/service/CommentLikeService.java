@@ -4,9 +4,11 @@ import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
+import com.sprint.project.monew.log.event.CommentLikeRegisterEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class CommentLikeService {
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public int commentLike(UUID commentId,UUID userId) {
@@ -41,6 +44,8 @@ public class CommentLikeService {
         commentLikeRepository.save(CommentLike.create(comment, userRef));
 
         comment.increaseLike();
+
+        eventPublisher.publishEvent(new CommentLikeRegisterEvent(comment.getArticle(), comment, userRef));
 
         return comment.getLikeCount();
     }
