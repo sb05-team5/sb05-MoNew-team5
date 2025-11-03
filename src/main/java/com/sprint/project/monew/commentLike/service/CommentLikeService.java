@@ -5,9 +5,11 @@ import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
 import com.sprint.project.monew.notification.service.NotificationService;
+import com.sprint.project.monew.log.event.CommentLikeRegisterEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public int commentLike(UUID commentId, UUID userId) {
@@ -44,9 +47,10 @@ public class CommentLikeService {
 
         comment.increaseLike();
 
-
         // 좋아요 알림 ㅇ생성
         notificationService.notifyCommentLiked(commentId, userId, userRef.getNickname());
+        
+        eventPublisher.publishEvent(new CommentLikeRegisterEvent(comment.getArticle(), comment, userRef));
 
         return comment.getLikeCount();
     }
@@ -67,6 +71,7 @@ public class CommentLikeService {
         comment.decreaseLike();
 
         return comment.getLikeCount();
+
     }
 
     @Transactional

@@ -41,12 +41,12 @@ INSERT INTO articles (id, source, source_url, title, created_at, publish_date, s
 ('401e2557-dead-4ad2-b74b-8195f5ae2661', 'NAVER', 'https://www.gametoc.co.kr/news/articleView.html?idxno=103292', '트오세M, 3주년 맞이 감사 이벤트 진행', '2025-10-29 05:29:29.479703+00', 'Wed, 29 Oct 2025 14:28:00 +0900', '독특하고 감각적인 그래픽이 트리 오브 세이비어 M만의 고유한 매력으로, 수집욕을 자극하는 시크하고 귀여운 동료 캐릭터들과 함께 여신의 계시를 따르는 모험을 진행하게 된다.', 0, null, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',0),
 ('62f3f37a-23d3-402f-b7ff-7260b1af3b72', 'NAVER', 'http://www.newstomato.com/ReadNews.aspx?no=1279495&inflow=N', '역대급 적자에도 제주 호화 워크숍…김인 새마을금고 회장 연임 발목', '2025-10-29 05:29:30.672629+00', 'Wed, 29 Oct 2025 14:28:00 +0900', '다수의 제주도 워크숍을 진행한 여행사는 중앙회 C 지역 본부장의 배우자가 지난해 3월 설립한 신생 업체로 확인됐습니다. 해당 업체의 등기부등본을 확인한 결과 대표가 해당 본부장의 아내로 등재돼 있으며, 워크숍...', 0, null, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',0);
 
-INSERT INTO comments (id, created_at, deleted_at, content, article_id, user_id) VALUES
-('ccccccc1-cccc-cccc-cccc-ccccccccccc1', now(), NULL, 'Great article!', 'bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '11111111-1111-1111-1111-111111111111'),
-('ccccccc2-cccc-cccc-cccc-ccccccccccc2', now(), NULL, 'Interesting read', 'bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', '22222222-2222-2222-2222-222222222222'),
-('ccccccc3-cccc-cccc-cccc-ccccccccccc3', now(), NULL, 'Helpful information', 'bbbbbbb3-bbbb-bbbb-bbbb-bbbbbbbbbbb3', '33333333-3333-3333-3333-333333333333'),
-('ccccccc4-cccc-cccc-cccc-ccccccccccc4', now(), NULL, 'I learned a lot', 'bbbbbbb4-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '44444444-4444-4444-4444-444444444444'),
-('ccccccc5-cccc-cccc-cccc-ccccccccccc5', now(), NULL, 'Nice tips', 'bbbbbbb5-bbbb-bbbb-bbbb-bbbbbbbbbbb5', '55555555-5555-5555-5555-555555555555');
+INSERT INTO comments (id, created_at, deleted_at, content, article_id, user_id, like_count) VALUES
+('ccccccc1-cccc-cccc-cccc-ccccccccccc1', now(), NULL, 'Great article!', 'bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '11111111-1111-1111-1111-111111111111',2),
+('ccccccc2-cccc-cccc-cccc-ccccccccccc2', now(), NULL, 'Interesting read', 'bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', '22222222-2222-2222-2222-222222222222', 5),
+('ccccccc3-cccc-cccc-cccc-ccccccccccc3', now(), NULL, 'Helpful information', 'bbbbbbb3-bbbb-bbbb-bbbb-bbbbbbbbbbb3', '33333333-3333-3333-3333-333333333333', 6),
+('ccccccc4-cccc-cccc-cccc-ccccccccccc4', now(), NULL, 'I learned a lot', 'bbbbbbb4-bbbb-bbbb-bbbb-bbbbbbbbbbb4', '44444444-4444-4444-4444-444444444444', 8),
+('ccccccc5-cccc-cccc-cccc-ccccccccccc5', now(), NULL, 'Nice tips', 'bbbbbbb5-bbbb-bbbb-bbbb-bbbbbbbbbbb5', '55555555-5555-5555-5555-555555555555', 1);
 
 
 
@@ -77,12 +77,12 @@ INSERT INTO article_backup(id, article_id , source, source_url, title, created_a
 ('91867c2f-92b2-46e3-a9fd-d08ef9d4c81f','62f3f37a-23d3-402f-b7ff-7260b1af3b72', 'NAVER', 'http://www.newstomato.com/ReadNews.aspx?no=1279495&inflow=N', '역대급 적자에도 제주 호화 워크숍…김인 새마을금고 회장 연임 발목', '2025-10-29 05:29:30.672629+00', 'Wed, 29 Oct 2025 14:28:00 +0900', '다수의 제주도 워크숍을 진행한 여행사는 중앙회 C 지역 본부장의 배우자가 지난해 3월 설립한 신생 업체로 확인됐습니다. 해당 업체의 등기부등본을 확인한 결과 대표가 해당 본부장의 아내로 등재돼 있으며, 워크숍...', 0, null, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',0);
 
 -- // comment_likes
-INSERT INTO COMMENT_LIKES (ID, CREATED_AT, DELETED_AT, COMMENT_ID) VALUES
-(CAST('a1111111-aaaa-aaaa-aaaa-aaaaaaaaaaa1' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID)),
-(CAST('a2222222-aaaa-aaaa-aaaa-aaaaaaaaaaa2' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID)),
-(CAST('a3333333-aaaa-aaaa-aaaa-aaaaaaaaaaa3' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc2-cccc-cccc-cccc-ccccccccccc2' AS UUID)),
-(CAST('a4444444-aaaa-aaaa-aaaa-aaaaaaaaaaa4' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc3-cccc-cccc-cccc-ccccccccccc3' AS UUID)),
-(CAST('a5555555-aaaa-aaaa-aaaa-aaaaaaaaaaa5' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc4-cccc-cccc-cccc-ccccccccccc4' AS UUID));
+INSERT INTO COMMENT_LIKES (ID, CREATED_AT, DELETED_AT, COMMENT_ID, USER_ID) VALUES
+(CAST('a1111111-aaaa-aaaa-aaaa-aaaaaaaaaaa1' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID), CAST('11111111-1111-1111-1111-111111111111' AS UUID)),
+(CAST('a2222222-aaaa-aaaa-aaaa-aaaaaaaaaaa2' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID), CAST('11111111-1111-1111-1111-111111111111' AS UUID)),
+(CAST('a3333333-aaaa-aaaa-aaaa-aaaaaaaaaaa3' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc2-cccc-cccc-cccc-ccccccccccc2' AS UUID), CAST('11111111-1111-1111-1111-111111111111' AS UUID)),
+(CAST('a4444444-aaaa-aaaa-aaaa-aaaaaaaaaaa4' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc3-cccc-cccc-cccc-ccccccccccc3' AS UUID), CAST('11111111-1111-1111-1111-111111111111' AS UUID)),
+(CAST('a5555555-aaaa-aaaa-aaaa-aaaaaaaaaaa5' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc4-cccc-cccc-cccc-ccccccccccc4' AS UUID), CAST('11111111-1111-1111-1111-111111111111' AS UUID));
 
 -- // article_views
 INSERT INTO article_views (id, created_at, article_id, viewed_by, deleted_at) VALUES
