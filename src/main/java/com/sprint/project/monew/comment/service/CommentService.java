@@ -8,6 +8,7 @@ import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.log.event.CommentRegisterEvent;
+import com.sprint.project.monew.log.event.CommentUpdateEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -139,6 +140,8 @@ public class CommentService {
         }
 
         comment.update(content);
+
+        eventPublisher.publishEvent(new CommentUpdateEvent(this, comment));
     }
 
     @Transactional
