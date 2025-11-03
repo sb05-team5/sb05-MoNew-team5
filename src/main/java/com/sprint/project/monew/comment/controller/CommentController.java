@@ -4,8 +4,8 @@ import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
-import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.service.CommentService;
+import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.common.CursorPageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +28,9 @@ public class CommentController {
     private final ArticleService articleService;
 
     // 댓글 목록 조회
-    @GetMapping("/articles/{articleId}/comments")
+    @GetMapping("/comments")
     public ResponseEntity<CursorPageResponse<CommentDto>> listByArticle(
-            @PathVariable UUID articleId,
+            @RequestParam UUID articleId,
             @RequestParam(defaultValue = "date") String sort,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(required = false) String cursor,
@@ -50,10 +50,10 @@ public class CommentController {
     // 댓글 등록
     @PostMapping("/comments")
     public ResponseEntity<Void> register(
-            @RequestHeader("User-Id") UUID userId,
+            // @RequestHeader("MoNew-Request-User-ID") UUID userId,
             @Valid @RequestBody CommentRegisterRequest req
     ) {
-        UUID id = commentService.create(req.articleId(), userId, req.content());
+        UUID id = commentService.create(req.articleId(), req.userId(), req.content());
         if(id != null) {
             articleService.incrementCommentCount(req.articleId());
         }
@@ -65,7 +65,7 @@ public class CommentController {
     @PatchMapping("/comments/{commentId}")
     public ResponseEntity<Void> update(
             @PathVariable UUID commentId,
-            @RequestHeader("User-Id") UUID userId,
+            @RequestHeader("MoNew-Request-User-ID") UUID userId,
             @Valid @RequestBody CommentUpdateRequest req
     ) {
         commentService.update(commentId, userId, req.content());
@@ -75,22 +75,20 @@ public class CommentController {
     // 댓글 논리삭제
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> softDelete(
-            @PathVariable UUID commentId,
-            @RequestHeader("User-Id") UUID userId
+            @PathVariable UUID commentId
     ) {
-        commentService.softDelete(commentId, userId);
-        UUID articleId=commentService.getArticleId(commentId);
-        articleService.decrementCommentCount(articleId);
+        commentService.softDelete(commentId);
+//        UUID articleId=commentService.getArticleId(commentId);
+//        articleService.decremontCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
     // 댓글 물리삭제
     @DeleteMapping("/comments/{commentId}/hard")
     public ResponseEntity<Void> hardDelete(
-            @PathVariable UUID commentId,
-            @RequestHeader("User-Id") UUID userId
+            @PathVariable UUID commentId
     ) {
-        commentService.hardDelete(commentId, userId);
+        commentService.hardDelete(commentId);
         UUID articleId=commentService.getArticleId(commentId);
         articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
