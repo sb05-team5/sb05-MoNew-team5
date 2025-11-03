@@ -39,8 +39,8 @@ public class Comment extends BaseEntity {
         @Column(name = "deleted_at")
         private Instant deletedAt;
 
-        @Version
-        private Long version;
+//        @Version
+//        private Long version;
 
         public static Comment create(Article article, User user, String content) {
                 Comment comment = new Comment();
@@ -49,6 +49,7 @@ public class Comment extends BaseEntity {
                 comment.setContentInternal(content);
                 comment.deletedAt = null;
                 comment.likeCount = 0;
+                comment.createdAt = Instant.now();
                 return comment;
         }
 
