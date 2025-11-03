@@ -80,7 +80,7 @@ public class CommentController {
     ) {
         commentService.softDelete(commentId, userId);
         UUID articleId=commentService.getArticleId(commentId);
-        articleService.decremontCommentCount(articleId);
+        articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
@@ -92,7 +92,7 @@ public class CommentController {
     ) {
         commentService.hardDelete(commentId, userId);
         UUID articleId=commentService.getArticleId(commentId);
-        articleService.decremontCommentCount(articleId);
+        articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
