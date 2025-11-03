@@ -36,7 +36,6 @@ public interface ArticleMapper {
 
 
     @Mapping(target = "id", source = "id", qualifiedByName = "uuidToString")
-    @Mapping(target = "commentCount", ignore = true)
     @Mapping(target = "viewedByBme", ignore = true)
     @Mapping(target = "publishDate", source = "publishDate", qualifiedByName = "instantToString")
     ArticleDto toDto(Article article);

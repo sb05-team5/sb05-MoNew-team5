@@ -1,8 +1,10 @@
 package com.sprint.project.monew.article.repository;
 
 import com.sprint.project.monew.article.dto.ArticleDto;
+import com.sprint.project.monew.article.dto.ArticleDtoUUID;
 import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
 import com.sprint.project.monew.article.entity.Article;
+import com.sprint.project.monew.articleView.dto.ArticleViewDto;
 import com.sprint.project.monew.common.CursorPageResponse;
 import org.springframework.data.domain.Slice;
 
@@ -21,7 +23,7 @@ public interface ArticleQueryRepository {
 
     List<String> searchSource();
 
-    ArticleDto searchOne(UUID articleId,UUID userId);
+    ArticleDtoUUID searchOne(UUID articleId, UUID userId);
 
     List<ArticleDto> searchForRestore(String from, String to);
 
@@ -31,6 +33,7 @@ public interface ArticleQueryRepository {
 
     List<Article> findTodayArticle(Instant day);
 
+    Long getCommentCount(UUID articleId);
 
 
 }

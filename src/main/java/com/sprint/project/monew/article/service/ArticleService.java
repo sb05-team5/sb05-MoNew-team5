@@ -52,6 +52,9 @@ public class ArticleService {
     private final InterestRepository interestRepository;
     private final ArticleBackupRepository articleBackupRepository;
     private final ArticleMapper articleMapper;
+    private final UserRepository userRepository;
+    private final ArticleViewService articleViewService;
+    private final ArticleViewRepository articleViewRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     //네이버 API를 위한 키값
@@ -73,57 +76,80 @@ public class ArticleService {
         });
 
     }
+    public void incrementCommentCount(UUID articleId) {
+        articleRepository.findByArticleId(articleId).ifPresent(article -> {
+            Article updatedArticle = article.toBuilder()
+                    .commentCount(article.getCommentCount() + 1)
+                    .build();
+            // DB에 저장
+            articleRepository.save(updatedArticle);
+        });
+
+    }
+
+    public void decremontCommentCount(UUID articleId) {
+        articleRepository.findByArticleId(articleId).ifPresent(article -> {
+            if(article.getCommentCount() > 0) {
+                Article updatedArticle = article.toBuilder()
+                        .commentCount(article.getCommentCount() - 1)
+                        .build();
+                // DB에 저장
+                articleRepository.save(updatedArticle);
+            }
+        });
+    }
 
 
 
-//    public ArticleViewDto articleViewCreate(UUID articleId, UUID userId) {
-//        Article article = articleRepository.findByArticleId(articleId)
-//                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
-//
-//        User user =userRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
-//
-//        ArticleView view=articleViewService.createArticleView(article,user);
-//
-//        // article에 달린 댓글 수 조회하는 부분 넣고 commentCount에 넣기
-//
-//
-//
-//        return ArticleViewDto.builder()
-//                .id(view.getId())
-//                .viewedBy(userId)
-//                .createdAt(view.getCreatedAt())
-//                .articleId(articleId)
-//                .source(article.getSource())
-//                .sourceUrl(article.getSourceUrl())
-//                .articleTitle(article.getTitle())
-//                .articlePublishedDate(article.getPublishDate())
-//                .articleSummary(article.getSummary())
-//                .articleCommentCount(article.)
-//                .articleViewCount(article.getViewCount())
-//                .build();
-//
-//    }
+
+    public ArticleViewDto articleViewCreate(UUID articleId, UUID userId) {
+        Article article = articleRepository.findByArticleId(articleId)
+                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
+
+        User user =userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+
+        ArticleView view=articleViewService.createArticleView(article,user);
+        Long viewCount= articleRepository.getCommentCount(articleId);
+
+        if(view != null){
+            incrementViewCount(articleId);
+        }
+        // article에 달린 댓글 수 조회하는 부분 넣고 commentCount에 넣기
 
 
-//    public ArticleDto searchOne(UUID articleId,UUID userId) {
-//        Article article = articleRepository.findByArticleId(articleId)
-//                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
-//
-//        User user =userRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
-//
-//        //ArticleView view = articleViewCreate(article, user);
-//
-//        article = article.toBuilder()
-//                .viewCount(article.getViewCount()+1)
-//                .build();
-//        articleRepository.save(article);
-//
-//
-//        return articleRepository.searchOne(articleId,userId);
-//
-//    }
+
+        return ArticleViewDto.builder()
+                .id(String.valueOf(view.getId()))
+                .viewedBy(userId)
+                .createdAt(view.getCreatedAt())
+                .articleId(articleId)
+                .source(article.getSource())
+                .sourceUrl(article.getSourceUrl())
+                .articleTitle(article.getTitle())
+                .articlePublishedDate(article.getPublishDate())
+                .articleSummary(article.getSummary())
+                .articleCommentCount(viewCount)
+                .articleViewCount(article.getViewCount())
+                .build();
+
+    }
+
+
+    public ArticleDto searchOne(UUID articleId,UUID userId) {
+        Article article = articleRepository.findByArticleId(articleId)
+                .orElseThrow(() -> new EntityNotFoundException("Article not found: " + articleId));
+
+        User user =userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
+
+        if( !articleViewRepository.existsById(articleId,userId) ) {
+            ArticleViewDto view = articleViewCreate(articleId, userId);
+        }
+
+        return articleMapper.toDto(articleRepository.searchOne(articleId,userId));
+
+    }
 
 
 
@@ -152,6 +178,7 @@ public class ArticleService {
                             .publishDate(articleBackupDto.getPublishDate())
                             .summary(articleBackupDto.getSummary())
                             .viewCount(articleBackupDto.getViewCount())
+                            .commentCount((long) articleBackupDto.getCommentCount())
                             .build()
 
             );
@@ -262,7 +289,7 @@ public class ArticleService {
             //comments 삭제 - 앞에서 찾아놨던 comments들 지우기
 
             //전체 구현이 되어 있지 않으면 오류가 발생하기 때문에 일단은 주석처리
-            // articleRepository.deleteById(articleId);
+             articleRepository.deleteById(articleId);
         });
 
     }
@@ -274,7 +301,9 @@ public class ArticleService {
                 Article updated = article.toBuilder().deleted_at(Instant.now()).build();
                 articleRepository.save(updated);
             }
+
         });
+
     }
 
     private Instant parseToInstant(String text, ZoneId zone, DateTimeFormatter formatter) {

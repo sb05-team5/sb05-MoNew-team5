@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
-
+@Builder
 public record ArticleDto(
     String id,
     Instant createdAt,
@@ -22,22 +22,6 @@ public record ArticleDto(
     Instant deleted_at,
     Boolean viewedByBme
 ){
-//    @Builder(toBuilder = true)
-//    public static ArticleDto of(
-//            UUID id,
-//            Instant createdAt,
-//            String source,
-//            String sourceUrl,
-//            String title,
-//            String publishDate,
-//            String summary,
-//            Long commentCount,
-//            Integer viewCount,
-//            Boolean viewedByBme
-//    ) {
-//        return new ArticleDto(id, createdAt,source, sourceUrl, title, publishDate, summary, commentCount, viewCount, viewedByBme);
-//    }
-
     @Builder(toBuilder = true)
     public static ArticleDto of(
             String id,
@@ -52,7 +36,7 @@ public record ArticleDto(
             Instant deleted_at,
             Boolean viewedByBme
     ) {
-        return new ArticleDto(id, createdAt,source, sourceUrl, title, publishDate, summary, commentCount, viewCount, deleted_at, viewedByBme);
+        return new ArticleDto(id, createdAt,source, sourceUrl, title, publishDate, summary,commentCount ,viewCount, deleted_at, viewedByBme);
     }
 
 }
