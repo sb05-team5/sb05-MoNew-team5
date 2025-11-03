@@ -25,7 +25,7 @@ public class UserActivityController {
     List<CommentActivityDto> commentsActivity = userActivityService.getComments(userId);
 
     Map<String, Object> response = new HashMap<>();
-    response.put("commentsActivity", commentsActivity);
+    response.put("comments", commentsActivity);
 
     return ResponseEntity.ok(response);
   }

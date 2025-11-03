@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class CommentActivity {
 
   @Id
@@ -35,7 +35,12 @@ public class CommentActivity {
   private String content;
   private int likeCount;
 
-
+  public CommentActivity updateContentAndLike(String newContent, int newLikeCount) {
+    return this.toBuilder()
+        .content(newContent)
+        .likeCount(newLikeCount)
+        .build();
+  }
 
 
 

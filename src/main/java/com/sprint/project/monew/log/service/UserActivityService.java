@@ -19,10 +19,10 @@ public class UserActivityService {
   private final UserRepository userRepository;
 
   public List<CommentActivityDto> getComments(UUID userId) {
-    String user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException("Not found user")).toString();
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("Not found user"));
 
-    return commentActivityRepository.findTop10ByUserIdOrderByCreatedAtDesc(user).stream()
+    return commentActivityRepository.findTop10ByUserIdOrderByCreatedAtDesc(user.getId().toString()).stream()
         .map(c -> CommentActivityDto.builder()
             .id(c.getId())
             .createdAt(c.getCreatedAt())
@@ -34,7 +34,8 @@ public class UserActivityService {
             .likeCount(c.getLikeCount())
             .build())
         .toList();
-
   }
+
+
 
 }
