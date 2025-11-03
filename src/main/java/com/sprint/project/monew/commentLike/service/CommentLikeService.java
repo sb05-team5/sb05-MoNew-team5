@@ -68,4 +68,17 @@ public class CommentLikeService {
 
         return comment.getLikeCount();
     }
+
+    @Transactional
+    public int getLikeCount(UUID commentId) {
+        return commentLikeRepository.countByComment_Id(commentId);
+    }
+
+    @Transactional
+    public boolean isLikedByUser(UUID commentId, UUID userId) {
+        if (userId == null) {
+            return false;
+        }
+        return commentLikeRepository.existsByComment_IdAndUser_Id(commentId, userId);
+    }
 }
