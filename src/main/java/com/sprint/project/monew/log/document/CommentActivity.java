@@ -19,7 +19,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class CommentActivity {
 
   @Id
-  private String id = UUID.randomUUID().toString();
+  private String id;
 
   @Field("created_at")
   private Instant createdAt;
@@ -35,10 +35,9 @@ public class CommentActivity {
   private String content;
   private int likeCount;
 
-  public CommentActivity updateContentAndLike(String newContent, int newLikeCount) {
+  public CommentActivity update(String newContent) {
     return this.toBuilder()
         .content(newContent)
-        .likeCount(newLikeCount)
         .build();
   }
 

@@ -2,6 +2,7 @@ package com.sprint.project.monew.log.listener;
 
 import com.sprint.project.monew.log.document.CommentActivity;
 import com.sprint.project.monew.log.document.CommentLikeActivity;
+import com.sprint.project.monew.log.event.CommentDeleteEvent;
 import com.sprint.project.monew.log.event.CommentLikeRegisterEvent;
 import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.log.event.CommentUpdateEvent;
@@ -23,6 +24,7 @@ public class CommentActivityListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleCommentRegister(CommentRegisterEvent event) {
     CommentActivity commentActivity = CommentActivity.builder()
+        .id(event.comment().getId().toString())
         .createdAt(Instant.now())
         .articleId(event.article().getId().toString())
         .articleTitle(event.article().getTitle())
@@ -41,13 +43,22 @@ public class CommentActivityListener {
 
     commentActivityRepository.findById(commentId)
         .ifPresent(existing -> {
-          CommentActivity updated = existing.updateContentAndLike(
-              event.getComment().getContent(),
-              event.getComment().getLikeCount()
+          CommentActivity updated = existing.update(
+              event.getComment().getContent()
           );
           commentActivityRepository.save(updated);
         });
   }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void handleCommentDelete(CommentDeleteEvent event) {
+    String commentId = event.getComment().getId().toString();
+
+    commentActivityRepository.deleteById(commentId);
+
+    System.out.println("[INFO] Deleted CommentActivity for commentId = " + commentId);
+  }
+
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleCommentLikeRegister(CommentLikeRegisterEvent event) {

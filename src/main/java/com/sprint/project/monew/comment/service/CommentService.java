@@ -8,6 +8,7 @@ import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
+import com.sprint.project.monew.log.event.CommentDeleteEvent;
 import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.log.event.CommentUpdateEvent;
 import com.sprint.project.monew.user.entity.User;
@@ -156,6 +157,8 @@ public class CommentService {
         UUID articleId = commentRepository.findArticleId(commentId);
         articleService.decremontCommentCount(articleId);
 
+        eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
+
 
         comment.softDelete();
     }
@@ -164,6 +167,8 @@ public class CommentService {
     public void hardDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
+
+        eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
 
         commentRepository.delete(comment);
     }

@@ -1,7 +1,7 @@
 package com.sprint.project.monew.log.service;
 
-import com.sprint.project.monew.log.document.CommentActivity;
-import com.sprint.project.monew.log.document.CommentLikeActivity;
+import com.sprint.project.monew.comment.entity.Comment;
+import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.log.dto.CommentActivityDto;
 import com.sprint.project.monew.log.dto.CommentLikeActivityDto;
 import com.sprint.project.monew.log.repository.CommentActivityRepository;
@@ -22,22 +22,31 @@ public class UserActivityService {
   private final CommentLikeActivityRepository commentLikeActivityRepository;
   private final UserRepository userRepository;
 
+  private final CommentRepository commentRepository;
+
   public List<CommentActivityDto> getComments(UUID userId) {
     User user = validatedUserId(userId);
 
     return commentActivityRepository.findTop10ByUserIdOrderByCreatedAtDesc(user.getId().toString()).stream()
-        .map(c -> CommentActivityDto.builder()
-            .id(c.getId())
-            .createdAt(c.getCreatedAt())
-            .articleId(c.getArticleId())
-            .articleTitle(c.getArticleTitle())
-            .userId(c.getUserId())
-            .userName(c.getUserName())
-            .content(c.getContent())
-            .likeCount(c.getLikeCount())
-            .build())
+        .map(c -> {
+          int latestLikeCount = commentRepository.findById(UUID.fromString(c.getId()))
+              .map(Comment::getLikeCount)
+              .orElse(c.getLikeCount());
+
+           return CommentActivityDto.builder()
+              .id(c.getId())
+              .createdAt(c.getCreatedAt())
+              .articleId(c.getArticleId())
+              .articleTitle(c.getArticleTitle())
+              .userId(c.getUserId())
+              .userName(c.getUserName())
+              .content(c.getContent())
+              .likeCount(latestLikeCount)
+              .build();
+        })
         .toList();
   }
+
 
   public List<CommentLikeActivityDto> getCommentLikes(UUID userId) {
     User user = validatedUserId(userId);
