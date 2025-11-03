@@ -15,9 +15,9 @@ import java.util.UUID;
 
 public interface  NotificationRepository extends JpaRepository<NotificationEntity, UUID> {
 
-//  @Modifying(clearAutomatically = true, flushAutomatically = true)
-//  @Query("delete NotificationEntity n where n.user_id in :userIds")
-//  void deleteAllByUserIds(List<UUID> userIds);
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query("delete NotificationEntity n where n.userId in :userIds")
+  void deleteAllByUserIds(List<UUID> userIds);
 
     long deleteByConfirmedIsTrueAndUpdatedAtBefore(Instant threshold);
 
@@ -44,4 +44,5 @@ public interface  NotificationRepository extends JpaRepository<NotificationEntit
                                                 Instant cursorUpdatedAt,
                                                 UUID cursorId,
                                                 org.springframework.data.domain.Pageable pageable);
+
 }

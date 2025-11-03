@@ -1,10 +1,11 @@
 package com.sprint.project.monew.comment.repository;
 
-import com.sprint.project.monew.article.dto.ArticleDto;
 import com.sprint.project.monew.comment.entity.Comment;
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,5 +19,7 @@ public interface CommentRepository
     @Query("select c from Comment c where c.id = :id")
     Optional<Comment> findForUpdate(@Param("id") UUID id);
 
-
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query("delete Comment c where c.user.id in :userIds")
+  void deleteAllByUserIds(List<UUID> userIds);
 }
