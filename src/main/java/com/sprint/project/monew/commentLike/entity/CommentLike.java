@@ -4,6 +4,7 @@ import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.common.BaseEntity;
 import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.*;
 
 import java.util.UUID;
@@ -33,6 +34,9 @@ public class CommentLike extends BaseEntity {
     private User user;
 
     public static CommentLike create(Comment comment, User user) {
-        return CommentLike.builder().comment(comment).user(user).build();
+        CommentLike like = CommentLike.builder().comment(comment).user(user).build();
+        like.createdAt = Instant.now();
+
+        return like;
     }
 }

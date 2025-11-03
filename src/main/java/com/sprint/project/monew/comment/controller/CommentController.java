@@ -50,10 +50,10 @@ public class CommentController {
     // 댓글 등록
     @PostMapping("/comments")
     public ResponseEntity<Void> register(
-            @RequestHeader("MoNew-Request-User-ID") UUID userId,
+            // @RequestHeader("MoNew-Request-User-ID") UUID userId,
             @Valid @RequestBody CommentRegisterRequest req
     ) {
-        UUID id = commentService.create(req.articleId(), userId, req.content());
+        UUID id = commentService.create(req.articleId(), req.userId(), req.content());
         if(id != null) {
             articleService.incrementCommentCount(req.articleId());
         }
@@ -75,22 +75,20 @@ public class CommentController {
     // 댓글 논리삭제
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> softDelete(
-            @PathVariable UUID commentId,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
+            @PathVariable UUID commentId
     ) {
-        commentService.softDelete(commentId, userId);
-        UUID articleId=commentService.getArticleId(commentId);
-        articleService.decremontCommentCount(articleId);
+        commentService.softDelete(commentId);
+//        UUID articleId=commentService.getArticleId(commentId);
+//        articleService.decremontCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
     // 댓글 물리삭제
     @DeleteMapping("/comments/{commentId}/hard")
     public ResponseEntity<Void> hardDelete(
-            @PathVariable UUID commentId,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
+            @PathVariable UUID commentId
     ) {
-        commentService.hardDelete(commentId, userId);
+        commentService.hardDelete(commentId);
         UUID articleId=commentService.getArticleId(commentId);
         articleService.decremontCommentCount(articleId);
         return ResponseEntity.noContent().build();
