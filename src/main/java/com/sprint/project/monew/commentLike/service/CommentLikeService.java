@@ -4,6 +4,7 @@ import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
+import com.sprint.project.monew.notification.service.NotificationService;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ public class CommentLikeService {
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
-    public int commentLike(UUID commentId,UUID userId) {
+    public int commentLike(UUID commentId, UUID userId) {
 
         if (commentLikeRepository.existsByComment_IdAndUser_Id(commentId, userId)) {
             return commentLikeRepository.countByComment_Id(commentId);
@@ -41,6 +43,10 @@ public class CommentLikeService {
         commentLikeRepository.save(CommentLike.create(comment, userRef));
 
         comment.increaseLike();
+
+
+        // 좋아요 알림 ㅇ생성
+        notificationService.notifyCommentLiked(commentId, userId, userRef.getNickname());
 
         return comment.getLikeCount();
     }

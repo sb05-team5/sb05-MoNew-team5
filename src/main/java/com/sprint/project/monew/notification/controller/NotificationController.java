@@ -45,7 +45,7 @@ public class NotificationController {
 
     }
 
-    @PatchMapping("/{notificationId}")
+    @PatchMapping("{notificationId}")
     public  ResponseEntity<Void> oneCheckNotification(
             @PathVariable UUID notificationId,
             @RequestHeader("Monew-Request-User-ID") UUID userId
