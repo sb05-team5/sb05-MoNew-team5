@@ -49,5 +49,3 @@ logging:
 
 # ddl-auto: none , defer-datasource~~ , sql: ~~ 전부 자동으로 schema.sql,data.sql 을 실행하기 위해 추가한 내용
 
-
-CLIENT_SECRET: "fAbkGxQVv7"

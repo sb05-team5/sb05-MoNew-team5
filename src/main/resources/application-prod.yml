@@ -17,9 +17,9 @@ spring:
   # batch 시간 job1 = backup시간 , job2 = article등록 시간  (초 분 시 일 월 요일)
   backup:
     job1:
-      cron: "00 27 14 * * *"
+      cron: "0 11 16 * * *"
     job2:
-      cron: "0 19 13 * * *"
+      cron: "0 10 16 * * *"
   servlet:
     multipart:
       max-file-size: 100MB
@@ -55,5 +55,6 @@ logging:
 # ddl-auto: none , defer-datasource~~ , sql: ~~ 전부 자동으로 schema.sql,data.sql 을 실행하기 위해 추가한 내용
 
 
-CLIENT_SECRET: "fAbkGxQVv7"
+CLIENT_SECRET: "W_H_UVJMlJ"
+
 

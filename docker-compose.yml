@@ -4,7 +4,7 @@ services:
     build: .
     container_name: sb05-monew-team5
     ports:
-      - "8081:8080"
+      - "8081:8080"  # 왼쪽이 노출포트, 오른쪽이 내부포트 spring은 기본이 8080이 맞는 것 같음.
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}

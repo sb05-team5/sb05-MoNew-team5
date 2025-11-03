@@ -15,12 +15,14 @@ import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionService {
 
   private final SubscriptionRepository subscriptionRepository;
@@ -51,7 +53,8 @@ public class SubscriptionService {
             .interestSubscripberCount((int) interest.getSubscriberCount())
             .userId(userId.toString())
             .build();
-    subscriptionActivityRepository.save(doc);
+    SubscriptionActivity saved = subscriptionActivityRepository.save(doc);
+    log.info("Saved doc:{}",saved);
 
     Subscription subscription = new Subscription(interest, user);
     subscriptionRepository.save(subscription);

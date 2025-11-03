@@ -25,6 +25,9 @@ import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.repository.InterestRepository;
+import com.sprint.project.monew.log.document.ArticleViewActivity;
+import com.sprint.project.monew.log.document.SubscriptionActivity;
+import com.sprint.project.monew.log.repository.ArticleViewActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import com.sprint.project.monew.user.service.UserService;
@@ -64,6 +67,7 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final ArticleViewService articleViewService;
     private final ArticleViewRepository articleViewRepository;
+    private final ArticleViewActivityRepository articleViewActivityRepository;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule()) // Instant 지원
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -74,7 +78,6 @@ public class ArticleService {
 
     //네이버 API를 위한 키값
     private final String clientId= "7UJkEH_tIBCmVEAY1HXl";
-
 
     @Value("${CLIENT_SECRET}")
     private String clientSecret;
@@ -160,6 +163,24 @@ public class ArticleService {
 
         if( !articleViewRepository.existsById(articleId,userId) ) {
             ArticleViewDto view = articleViewCreate(articleId, userId);
+            ArticleViewActivity doc =ArticleViewActivity.builder()
+                    .id(null)
+                    .viewedBy(userId)
+                    .createdAt(Instant.now())
+                    .articleId(articleId)
+                    .source(article.getSource())
+                    .sourceUrl(article.getSourceUrl())
+                    .articleTitle(article.getTitle())
+                    .articlePublishedDate(article.getPublishDate())
+                    .articleSummary(article.getSummary())
+                    .articleCommentCount((long) article.getCommentCount())
+                    .articleViewCount(article.getViewCount())
+                    .build();
+
+            ArticleViewActivity saved = articleViewActivityRepository.save(doc);
+            log.info("Saved doc:{}",saved);
+
+
         }
 
         return articleMapper.toDto(articleRepository.searchOne(articleId,userId));

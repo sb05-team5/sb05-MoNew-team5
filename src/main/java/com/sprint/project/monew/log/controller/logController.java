@@ -19,21 +19,21 @@ public class logController {
     private final SubscriptionActivityRepository subscriptionActivityRepository;
 
 
-    @GetMapping("")
-    public List<SubscriptionActivityDto> findAllByOrderByCreatedAtDesc() {
-        List<SubscriptionActivity> activities = subscriptionActivityRepository.findAllByOrderByCreatedAtDesc();
-        List<SubscriptionActivityDto> activitiesDto = new ArrayList<>();
-        for (SubscriptionActivity activity : activities) {
-            SubscriptionActivityDto dto = SubscriptionActivityDto.builder()
-                    .id(activity.getId())
-                    .interestId(activity.getInterestId())
-                    .interestName(activity.getInterestName())
-                    .interestKeywords(activity.getInterestKeywords())
-                    .interestSubscripberCount(activity.getInterestSubscripberCount())
-                    .createdAt(activity.getCreatedAt())
-                    .build();
-            activitiesDto.add(dto);
-        }
-        return activitiesDto.subList(0, Math.min(10, activitiesDto.size()));
-    }
+//    @GetMapping("")
+//    public List<SubscriptionActivityDto> findAllByOrderByCreatedAtDesc() {
+//        List<SubscriptionActivity> activities = subscriptionActivityRepository.findTop10ByUserIdOrderByCreatedAtDesc();
+//        List<SubscriptionActivityDto> activitiesDto = new ArrayList<>();
+//        for (SubscriptionActivity activity : activities) {
+//            SubscriptionActivityDto dto = SubscriptionActivityDto.builder()
+//                    .id(activity.getId())
+//                    .interestId(activity.getInterestId())
+//                    .interestName(activity.getInterestName())
+//                    .interestKeywords(activity.getInterestKeywords())
+//                    .interestSubscripberCount(activity.getInterestSubscripberCount())
+//                    .createdAt(activity.getCreatedAt())
+//                    .build();
+//            activitiesDto.add(dto);
+//        }
+//        return activitiesDto.subList(0, Math.min(10, activitiesDto.size()));
+//    }
 }
