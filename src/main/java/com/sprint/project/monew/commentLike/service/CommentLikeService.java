@@ -66,6 +66,7 @@ public class CommentLikeService {
         comment.decreaseLike();
 
         return comment.getLikeCount();
+
     }
 
     @Transactional

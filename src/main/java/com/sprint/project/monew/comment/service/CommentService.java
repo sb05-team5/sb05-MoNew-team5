@@ -2,6 +2,7 @@ package com.sprint.project.monew.comment.service;
 
 import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.article.repository.ArticleRepository;
+import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.mapper.CommentMapper;
@@ -11,6 +12,8 @@ import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.log.event.CommentUpdateEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -32,6 +35,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ArticleService articleService;
 
     private static final Pattern CURSOR_PATTERN =
             Pattern.compile("^(date|likes):([^#]+)#([0-9a-fA-F\\-]{36})$");
@@ -145,25 +149,22 @@ public class CommentService {
     }
 
     @Transactional
-    public void softDelete(UUID commentId, UUID userId) {
+    public void softDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
 
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
-        }
+        UUID articleId = commentRepository.findArticleId(commentId);
+        articleService.decremontCommentCount(articleId);
+
 
         comment.softDelete();
     }
 
     @Transactional
-    public void hardDelete(UUID commentId, UUID userId) {
+    public void hardDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
 
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
-        }
         commentRepository.delete(comment);
     }
 }
