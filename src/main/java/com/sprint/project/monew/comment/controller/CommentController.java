@@ -91,7 +91,7 @@ public class CommentController {
     ) {
         commentService.hardDelete(commentId);
         UUID articleId=commentService.getArticleId(commentId);
-        articleService.decremontCommentCount(articleId);
+        articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
