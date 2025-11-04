@@ -39,7 +39,7 @@ public class CommentController {
     ) {
         String externalCursor = (cursor != null && !cursor.isBlank()) ? cursor : after;
         CursorPageResponse<CommentDto> page =
-                commentService.pageByArticle(articleId, orderBy, direction, externalCursor, limit, requestUserId); // ★ 전달
+                commentService.pageByArticle(articleId, orderBy, direction, externalCursor, limit, requestUserId);
         return ResponseEntity.ok(page);
     }
 
