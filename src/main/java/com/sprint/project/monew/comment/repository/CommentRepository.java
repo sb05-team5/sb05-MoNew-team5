@@ -1,6 +1,5 @@
 package com.sprint.project.monew.comment.repository;
 
-import com.sprint.project.monew.article.dto.ArticleDto;
 import com.sprint.project.monew.comment.entity.Comment;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
