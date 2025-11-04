@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.*;
 
-import java.util.UUID;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,11 +19,6 @@ import java.util.UUID;
                 name = "comment_user",
                 columnNames = {"comment_id", "user_id"}))
 public class CommentLike extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(nullable = false, updatable = false)
-    private UUID id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", nullable = false)
