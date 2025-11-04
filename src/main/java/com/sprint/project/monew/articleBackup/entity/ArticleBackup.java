@@ -1,6 +1,8 @@
 package com.sprint.project.monew.articleBackup.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sprint.project.monew.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -47,6 +49,8 @@ public class ArticleBackup extends BaseEntity {
     @Column(nullable = true, length = 255)
     private UUID interest_id;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @Column(nullable = true)
     private Instant deleted_at;
 

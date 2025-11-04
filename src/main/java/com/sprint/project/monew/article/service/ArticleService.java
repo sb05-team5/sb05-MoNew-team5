@@ -1,7 +1,12 @@
 package com.sprint.project.monew.article.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sprint.project.monew.article.dto.ArticleDto;
 import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
 import com.sprint.project.monew.article.entity.Article;
@@ -11,6 +16,7 @@ import com.sprint.project.monew.article.repository.ArticleRepository;
 import com.sprint.project.monew.articleBackup.dto.ArticleBackupDto;
 import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
 import com.sprint.project.monew.articleBackup.repository.ArticleBackupRepository;
+import com.sprint.project.monew.articleBackup.service.S3BackupService;
 import com.sprint.project.monew.articleView.dto.ArticleViewDto;
 import com.sprint.project.monew.articleView.entity.ArticleView;
 import com.sprint.project.monew.articleView.repository.ArticleViewRepository;
@@ -28,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,7 +46,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.SignStyle;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -55,7 +65,13 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final ArticleViewService articleViewService;
     private final ArticleViewRepository articleViewRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule()) // Instant 지원
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) // unknown 필드 무시
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+
+    private final S3BackupService s3BackupService;
 
     //네이버 API를 위한 키값
     private final String clientId= "7UJkEH_tIBCmVEAY1HXl";
@@ -87,7 +103,7 @@ public class ArticleService {
 
     }
 
-    public void decremontCommentCount(UUID articleId) {
+    public void decrementCommentCount(UUID articleId) {
         articleRepository.findByArticleId(articleId).ifPresent(article -> {
             if(article.getCommentCount() > 0) {
                 Article updatedArticle = article.toBuilder()
@@ -155,35 +171,32 @@ public class ArticleService {
 
 
 
-    public ArticleRestoreResultDto restore(String from, String to){
+    public ArticleRestoreResultDto restore(String from, String to) throws JsonProcessingException {
         log.info("Controllerrestore -->{} {}", from, to);
         if( from.isEmpty() || to.isEmpty()){
             return new ArticleRestoreResultDto(null,null,null);
         }
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-")
+                .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE) // 1~2자리 처리
+                .appendPattern("'T'HH:mm[:ss]")
+                .toFormatter();
 
 
-        List<ArticleBackupDto> backupDtos = articleBackupRepository.searchForRestore(from,to);
-        List<ArticleBackup> backups =  new ArrayList<>();
-        for (ArticleBackupDto articleBackupDto : backupDtos) {
-            backups.add(
-                    ArticleBackup.builder()
-                            .id(articleBackupDto.getId())
-                            .article_id(articleBackupDto.getArticle_id())
-                            .createdAt(articleBackupDto.getCreatedAt())
-                            .deleted_at(articleBackupDto.getDeleted_at())
-                            .interest_id(articleBackupDto.getInterest_id())
-                            .source(articleBackupDto.getSource())
-                            .title(articleBackupDto.getTitle())
-                            .sourceUrl(articleBackupDto.getSourceUrl())
-                            .publishDate(articleBackupDto.getPublishDate())
-                            .summary(articleBackupDto.getSummary())
-                            .viewCount(articleBackupDto.getViewCount())
-                            .commentCount((long) articleBackupDto.getCommentCount())
-                            .build()
+        List<ArticleBackup> data=s3BackupService.restoreLatestBackup();
+        List<ArticleBackup> backups= new  ArrayList<>();
+        log.info("data->{}, size->{}", data, data.size());
 
-            );
+        Instant fromInstant = parseToInstant(from, zone, dateTimeFormatter);
+        Instant toInstant = parseToInstant(to, zone, dateTimeFormatter);
+        log.info("from{},to{}",fromInstant,toInstant);
+        for(ArticleBackup articleBackup:data){
+            if (!articleBackup.getCreatedAt().isBefore(fromInstant) && !articleBackup.getCreatedAt().isAfter(toInstant)) {
+                backups.add(articleBackup);
+            }
         }
         log.info("Serviceback-->{}",backups);
+
 
         List<ArticleDto> articleDtos = articleRepository.searchForRestore(from,to);
         List<Article> article =  new ArrayList<>();
@@ -197,6 +210,7 @@ public class ArticleService {
                             .source(a.source())
                             .title(a.title())
                             .sourceUrl(a.sourceUrl())
+                            .commentCount(Math.toIntExact(a.commentCount()))
                             .publishDate(a.publishDate())
                             .summary(a.summary())
                             .build()
@@ -209,11 +223,6 @@ public class ArticleService {
             articleIds.add(a.getId());
         }
         log.info("Serviceback-->{}",articleIds);
-
-        // 공통 Zone과 Formatter
-        ZoneId zone = ZoneId.of("Asia/Seoul");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]");
-
 
         List<Article> targets= new ArrayList<>();
         List<String> targetIds = new ArrayList<>();
@@ -231,6 +240,7 @@ public class ArticleService {
                         .title(backup.getTitle())
                         .summary(backup.getSummary())
                         .viewCount(0)
+                        .commentCount(0)
                         .deleted_at(backup.getDeleted_at())
                         .interest_id(backup.getInterest_id())
                         .build();

@@ -23,7 +23,7 @@ public class ArticleBackupReader implements ItemReader<Article> {
     @Override
     public Article read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
         if(iterator == null){
-            iterator = articleRepository.findTodayArticle(Instant.now()).iterator();
+            iterator = articleRepository.findAllArticle().iterator();
             log.info("backupReader --> {}", iterator);
         }
         return iterator.hasNext() ? iterator.next() : null;
