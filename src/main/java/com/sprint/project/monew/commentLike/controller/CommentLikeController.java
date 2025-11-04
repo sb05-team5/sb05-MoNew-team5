@@ -1,5 +1,6 @@
 package com.sprint.project.monew.commentLike.controller;
 
+import com.sprint.project.monew.commentLike.dto.CommentLikeDto;
 import com.sprint.project.monew.commentLike.service.CommentLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,38 +10,26 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comments/{commentId}/likes")
+@RequestMapping("/api/comments")
 public class CommentLikeController {
 
     private final CommentLikeService commentLikeService;
 
-    @GetMapping
-    public ResponseEntity<LikeStatusResponse> getStatus(
+    @PostMapping("/{commentId}/comment-likes")
+    public ResponseEntity<CommentLikeDto> like(
             @PathVariable UUID commentId,
-            @RequestHeader(value = "MoNew-Request-User-ID", required = false) UUID userId
+            @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
-        int likeCount = commentLikeService.getLikeCount(commentId);
-        boolean liked = (userId != null) && commentLikeService.isLikedByUser(commentId, userId);
-        return ResponseEntity.ok(new LikeStatusResponse(likeCount, liked));
+        CommentLikeDto dto = commentLikeService.commentLike(commentId, userId);
+        return ResponseEntity.ok(dto);
     }
 
-    @PostMapping
-    public ResponseEntity<Integer> like(
-            @PathVariable UUID commentId,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
-    ) {
-        int likeCount = commentLikeService.commentLike(commentId, userId);
-        return ResponseEntity.ok(likeCount);
-    }
-
-    @DeleteMapping
+    @DeleteMapping("/{commentId}/comment-likes")
     public ResponseEntity<Integer> unlike(
             @PathVariable UUID commentId,
-            @RequestHeader("MoNew-Request-User-ID") UUID userId
+            @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
-        int likeCount = commentLikeService.uncommentLike(commentId, userId);
-        return ResponseEntity.ok(likeCount);
+        commentLikeService.uncommentLike(commentId, userId);
+        return ResponseEntity.noContent().build();
     }
-
-    public record LikeStatusResponse(int likeCount, boolean liked) {}
 }

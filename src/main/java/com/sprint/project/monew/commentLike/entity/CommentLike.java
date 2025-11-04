@@ -6,7 +6,7 @@ import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.UUID;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,11 +19,6 @@ import java.util.UUID;
                 columnNames = {"comment_id", "user_id"}))
 public class CommentLike extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(nullable = false, updatable = false)
-    private UUID id;
-
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", nullable = false)
     private Comment comment;
@@ -33,6 +28,9 @@ public class CommentLike extends BaseEntity {
     private User user;
 
     public static CommentLike create(Comment comment, User user) {
-        return CommentLike.builder().comment(comment).user(user).build();
+        CommentLike like = CommentLike.builder().comment(comment).user(user).build();
+        like.createdAt = Instant.now();
+
+        return like;
     }
 }

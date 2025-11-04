@@ -1,7 +1,5 @@
 package com.sprint.project.monew.comment.repository;
 
-import com.sprint.project.monew.article.dto.ArticleDto;
-import com.sprint.project.monew.article.dto.ArticleDtoUUID;
 import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.common.CursorPageResponse;
 
