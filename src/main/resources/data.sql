@@ -77,12 +77,12 @@ INSERT INTO article_backup(id, article_id , source, source_url, title, created_a
 ('91867c2f-92b2-46e3-a9fd-d08ef9d4c81f','62f3f37a-23d3-402f-b7ff-7260b1af3b72', 'NAVER', 'http://www.newstomato.com/ReadNews.aspx?no=1279495&inflow=N', '역대급 적자에도 제주 호화 워크숍…김인 새마을금고 회장 연임 발목', '2025-10-29 05:29:30.672629+00', 'Wed, 29 Oct 2025 14:28:00 +0900', '다수의 제주도 워크숍을 진행한 여행사는 중앙회 C 지역 본부장의 배우자가 지난해 3월 설립한 신생 업체로 확인됐습니다. 해당 업체의 등기부등본을 확인한 결과 대표가 해당 본부장의 아내로 등재돼 있으며, 워크숍...', 0, null, 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaa5',0);
 
 -- // comment_likes
-INSERT INTO COMMENT_LIKES (ID, CREATED_AT, DELETED_AT, COMMENT_ID) VALUES
-(CAST('a1111111-aaaa-aaaa-aaaa-aaaaaaaaaaa1' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID)),
-(CAST('a2222222-aaaa-aaaa-aaaa-aaaaaaaaaaa2' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID)),
-(CAST('a3333333-aaaa-aaaa-aaaa-aaaaaaaaaaa3' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc2-cccc-cccc-cccc-ccccccccccc2' AS UUID)),
-(CAST('a4444444-aaaa-aaaa-aaaa-aaaaaaaaaaa4' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc3-cccc-cccc-cccc-ccccccccccc3' AS UUID)),
-(CAST('a5555555-aaaa-aaaa-aaaa-aaaaaaaaaaa5' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc4-cccc-cccc-cccc-ccccccccccc4' AS UUID));
+INSERT INTO comment_likes (ID, CREATED_AT, DELETED_AT, COMMENT_ID, user_id) VALUES
+(CAST('a1111111-aaaa-aaaa-aaaa-aaaaaaaaaaa1' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID), '11111111-1111-1111-1111-111111111111'),
+(CAST('a2222222-aaaa-aaaa-aaaa-aaaaaaaaaaa2' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc1-cccc-cccc-cccc-ccccccccccc1' AS UUID), '22222222-2222-2222-2222-222222222222'),
+(CAST('a3333333-aaaa-aaaa-aaaa-aaaaaaaaaaa3' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc2-cccc-cccc-cccc-ccccccccccc2' AS UUID), '33333333-3333-3333-3333-333333333333'),
+(CAST('a4444444-aaaa-aaaa-aaaa-aaaaaaaaaaa4' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc3-cccc-cccc-cccc-ccccccccccc3' AS UUID), '44444444-4444-4444-4444-444444444444'),
+(CAST('a5555555-aaaa-aaaa-aaaa-aaaaaaaaaaa5' AS UUID), CURRENT_TIMESTAMP, NULL, CAST('ccccccc4-cccc-cccc-cccc-ccccccccccc4' AS UUID), '55555555-5555-5555-5555-555555555555');
 
 -- // article_views
 INSERT INTO article_views (id, created_at, article_id, viewed_by, deleted_at) VALUES

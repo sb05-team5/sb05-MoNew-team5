@@ -104,23 +104,16 @@ public class CommentService {
     }
 
     @Transactional
-    public void softDelete(UUID commentId, UUID userId) {
+    public void softDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
-
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
-        }
         comment.softDelete();
     }
 
     @Transactional
-    public void hardDelete(UUID commentId, UUID userId) {
+    public void hardDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
-        if (!comment.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
-        }
         commentRepository.delete(comment);
     }
 
