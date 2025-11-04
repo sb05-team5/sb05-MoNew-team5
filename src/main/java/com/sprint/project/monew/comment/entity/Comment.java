@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,19 +20,33 @@ import java.time.Instant;
 @Entity
 public class Comment extends BaseEntity {
 
-        @Column(name = "deleted_at")
-        private Instant deletedAt;
+        @Id
+        @GeneratedValue(strategy = GenerationType.UUID)
+        @Column(name = "id", nullable = false, updatable = false)
+        private UUID id;
 
-        @Column(name = "content", nullable = false, length = 500)
-        private String content;
-
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
         @JoinColumn(name = "article_id", nullable = false)
         private Article article;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
         @JoinColumn(name = "user_id", nullable = false)
         private User user;
+
+        @Column(nullable = false, length = 1000)
+        private String content;
+
+        @Column(name = "like_count", nullable = false)
+        private int likeCount = 0;
+
+        @Column(name = "deleted_at")
+        private Instant deletedAt;
+
+        @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+        private List<CommentLike> likes = new ArrayList<>();
+
+//        @Version
+//        private Long version;
 
         public static Comment create(Article article, User user, String content) {
                 Comment comment = new Comment();
@@ -39,6 +54,7 @@ public class Comment extends BaseEntity {
                 comment.user = user;
                 comment.setContentInternal(content);
                 comment.deletedAt = null;
+                comment.likeCount = 0;
                 comment.createdAt = Instant.now();
                 return comment;
         }
@@ -57,9 +73,13 @@ public class Comment extends BaseEntity {
         // 논리삭제 : 복원
         // public void restore() {}
 
+        public void increaseLike() { this.likeCount++; }
+
+        public void decreaseLike() { this.likeCount = Math.max(0, this.likeCount - 1); }
+
         private void setContentInternal(String content) {
-                if (content == null || content.isBlank() || content.length() > 500) {
-                        throw new IllegalArgumentException("댓글은 500자 이내여야 합니다.");
+                if (content == null || content.isBlank() || content.length() > 1000) {
+                        throw new IllegalArgumentException("댓글은 1000자 이내여야 합니다.");
                 }
                 this.content = content;
         }

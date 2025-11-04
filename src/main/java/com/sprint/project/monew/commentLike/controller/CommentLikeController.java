@@ -1,6 +1,5 @@
 package com.sprint.project.monew.commentLike.controller;
 
-import com.sprint.project.monew.commentLike.dto.CommentLikeDto;
 import com.sprint.project.monew.commentLike.service.CommentLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,21 +14,33 @@ public class CommentLikeController {
 
     private final CommentLikeService commentLikeService;
 
+//    @GetMapping
+//    public ResponseEntity<LikeStatusResponse> getStatus(
+//            @PathVariable UUID commentId,
+//            @RequestHeader(value = "MoNew-Request-User-ID", required = false) UUID userId
+//    ) {
+//        int likeCount = commentLikeService.getLikeCount(commentId);
+//        boolean liked = (userId != null) && commentLikeService.isLikedByUser(commentId, userId);
+//        return ResponseEntity.ok(new LikeStatusResponse(likeCount, liked));
+//    }
+
     @PostMapping("/{commentId}/comment-likes")
-    public ResponseEntity<CommentLikeDto> like(
+    public ResponseEntity<Integer> like(
             @PathVariable UUID commentId,
-            @RequestHeader("Monew-Request-User-ID") UUID userId
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
     ) {
-        CommentLikeDto dto = commentLikeService.commentLike(commentId, userId);
-        return ResponseEntity.ok(dto);
+        int likeCount = commentLikeService.commentLike(commentId, userId);
+        return ResponseEntity.ok(likeCount);
     }
 
     @DeleteMapping("/{commentId}/comment-likes")
-    public ResponseEntity<Void> unlike(
+    public ResponseEntity<Integer> unlike(
             @PathVariable UUID commentId,
-            @RequestHeader("Monew-Request-User-ID") UUID userId
+            @RequestHeader("MoNew-Request-User-ID") UUID userId
     ) {
-        commentLikeService.uncommentLike(commentId, userId);
-        return ResponseEntity.noContent().build();
+        int likeCount = commentLikeService.uncommentLike(commentId, userId);
+        return ResponseEntity.ok(likeCount);
     }
+
+    public record LikeStatusResponse(int likeCount, boolean liked) {}
 }
