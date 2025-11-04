@@ -1,0 +1,131 @@
+package com.sprint.project.monew.interest.service;
+
+import com.sprint.project.monew.common.CursorPageResponse;
+import com.sprint.project.monew.interest.dto.InterestDto;
+import com.sprint.project.monew.interest.dto.InterestRegisterRequest;
+import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
+import com.sprint.project.monew.interest.entity.Interest;
+import com.sprint.project.monew.interest.mapper.InterestMapper;
+import com.sprint.project.monew.interest.repository.InterestRepository;
+import com.sprint.project.monew.user.entity.User;
+import com.sprint.project.monew.user.repository.UserRepository;
+import java.text.Normalizer;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+@RequiredArgsConstructor
+public class InterestService {
+
+  private final InterestRepository interestRepository;
+  private final UserRepository userRepository;
+  private final InterestMapper interestMapper;
+  private final static double similarityThreshold = 0.8;
+  private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+
+  @Transactional
+  public InterestDto create(InterestRegisterRequest req) {
+    String name = req.name();
+    validateSimiliarName(name);
+
+    List<String> newKeywords = req.keywords();
+    validateKeywordsNotEmpty(newKeywords);
+    validateDuplicateKeywords(newKeywords);
+
+    Interest interest = interestMapper.toEntity(req);
+    interestRepository.save(interest);
+
+    return interestMapper.toDto(interest, null);
+  }
+
+  @Transactional(readOnly = true)
+  public CursorPageResponse<InterestDto> findAll(
+      String keyword,
+      String orderBy,
+      String direction,
+      String cursor,
+      Instant after,
+      int size,
+      UUID userId) {
+    return interestRepository.findAll(keyword, orderBy, direction, cursor, after, size, userId);
+  }
+
+  @Transactional
+  public InterestDto update(UUID interestId, InterestUpdateRequest req) {
+    Interest interest = validatedInterestId(interestId);
+
+    List<String> newKeywords = req.keywords();
+    validateKeywordsNotEmpty(newKeywords);
+
+    validateDuplicateKeywords(newKeywords);
+
+    interest.update(newKeywords);
+
+    return interestMapper.toDto(interest, null);
+  }
+
+  @Transactional
+  public void delete(UUID interestId) {
+    Interest interest = validatedInterestId(interestId);
+    interestRepository.delete(interest);
+  }
+
+  private void validateSimiliarName(String name) {
+    List<Interest> existing = interestRepository.findAll();
+    double similarity = 0.0;
+
+    for (Interest existingInterest : existing) {
+      String existingName = existingInterest.getName();
+
+      int distance = levenshteinDistance.apply(existingName, name);
+      similarity = 1 - (double) distance / Math.max(existingName.length(), name.length());
+
+      if (similarity >= similarityThreshold) {
+        throw new IllegalArgumentException("유사한 이름의 관심사가 이미 존재합니다.");
+      }
+    }
+  }
+
+  private Interest validatedInterestId(UUID InterestId) {
+    return interestRepository.findById(InterestId)
+        .orElseThrow(() -> new NoSuchElementException("관심사가 존재하지 않습니다."));
+  }
+
+  private void validateKeywordsNotEmpty(List<String> newKeywords) {
+    if (newKeywords == null || newKeywords.isEmpty()) {
+      throw new IllegalArgumentException("키워드는 비어 있을 수 없습니다.");
+    }
+  }
+
+  private void validateDuplicateKeywords(List<String> newKeywords) {
+    Set<String> normalized = new HashSet<>();
+
+    for (String keyword : newKeywords) {
+      if (keyword == null) continue;
+      String cleaned = keyword.replaceAll("\\s+", "");
+      String normalizedKeyword = Normalizer.normalize(cleaned, Normalizer.Form.NFC);
+      normalizedKeyword = normalizedKeyword.toLowerCase();
+
+      normalized.add(normalizedKeyword);
+    }
+
+    if (normalized.size() < newKeywords.size()) {
+      throw new IllegalArgumentException("키워드 목록에 중복된 값이 있습니다.");
+    }
+  }
+
+  private User validatedUserId(UUID userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
+  }
+
+}

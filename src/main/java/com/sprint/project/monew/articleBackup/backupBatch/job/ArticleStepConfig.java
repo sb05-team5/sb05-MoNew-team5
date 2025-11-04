@@ -1,0 +1,49 @@
+package com.sprint.project.monew.articleBackup.backupBatch.job;
+
+import com.sprint.project.monew.article.entity.Article;
+import com.sprint.project.monew.articleBackup.backupBatch.dto.InterestKeywordDto;
+import com.sprint.project.monew.articleBackup.backupBatch.processor.ArticleBackupProcessor;
+import com.sprint.project.monew.articleBackup.backupBatch.processor.ArticleProcessor;
+import com.sprint.project.monew.articleBackup.backupBatch.reader.ArticleBackupReader;
+import com.sprint.project.monew.articleBackup.backupBatch.reader.ArticleReader;
+import com.sprint.project.monew.articleBackup.backupBatch.writer.ArticleBackupWriter;
+import com.sprint.project.monew.articleBackup.backupBatch.writer.ArticleWriter;
+import com.sprint.project.monew.articleBackup.entity.ArticleBackup;
+import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+
+@Configuration
+@RequiredArgsConstructor
+@EnableBatchProcessing
+public class ArticleStepConfig {
+    private final ArticleReader articleReader;
+    private final ArticleProcessor articleProcessor;
+    private final ArticleWriter articleWriter;
+
+
+    @Bean
+    public Step articleStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new StepBuilder("articleStep" , jobRepository)
+                .<InterestKeywordDto, Article> chunk(500,transactionManager)
+                .reader(articleReader)
+                .processor(articleProcessor)
+                .writer(articleWriter)
+                .faultTolerant()
+                .skip(DataIntegrityViolationException.class) // 중복 예외 스킵
+                .skipLimit(5000) // 최대 1000개까지 스킵 허용
+                .transactionAttribute(
+                        new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED)
+                ) // ✅ chunk 트랜잭션 비활성화
+                .build();
+    }
+
+}
