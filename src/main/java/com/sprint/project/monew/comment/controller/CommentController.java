@@ -64,34 +64,18 @@ public class CommentController {
 
     // 댓글 논리삭제
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<Void> softDelete(
-            @PathVariable UUID commentId,
-            @RequestHeader(value = "MoNew-Request-User-ID", required = false) UUID userIdHeader,
-            @RequestParam(value = "userId",required = false) UUID userIdParam
-    ) {
-        UUID userId = (userIdHeader != null) ? userIdHeader : userIdParam;
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId가 필요합니다.");
-        }
+    public ResponseEntity<Void> softDelete(@PathVariable UUID commentId) {
         UUID articleId = commentService.getArticleId(commentId);
-        commentService.softDelete(commentId, userId);
+        commentService.softDelete(commentId);
         articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
 
     // 댓글 물리삭제
     @DeleteMapping("/comments/{commentId}/hard")
-    public ResponseEntity<Void> hardDelete(
-            @PathVariable UUID commentId,
-            @RequestHeader(value = "Monew-Request-User-ID", required = false) UUID userIdHeader,
-            @RequestParam(value = "userId", required = false) UUID userIdParam
-    ) {
-        UUID userId = (userIdHeader != null) ? userIdHeader : userIdParam;
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId가 필요합니다. (header 또는 ?userId=)");
-        }
+    public ResponseEntity<Void> hardDelete(@PathVariable UUID commentId) {
         UUID articleId = commentService.getArticleId(commentId);
-        commentService.hardDelete(commentId, userId);
+        commentService.hardDelete(commentId);
         articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }
