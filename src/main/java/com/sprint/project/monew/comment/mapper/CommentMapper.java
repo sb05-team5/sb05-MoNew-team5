@@ -27,4 +27,17 @@ public interface CommentMapper {
                 comment.getCreatedAt()
         );
     }
+
+    default CommentDto toDtoWithCountsAndLiked(Comment comment, long likeCount, boolean likedByMe) {
+        return new CommentDto(
+                comment.getId(),
+                comment.getArticle().getId(),
+                comment.getUser().getId(),
+                comment.getUser().getNickname(),
+                comment.getContent(),
+                likeCount,
+                likedByMe,
+                comment.getCreatedAt()
+        );
+    }
 }

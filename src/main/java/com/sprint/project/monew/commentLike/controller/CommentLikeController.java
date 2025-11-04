@@ -20,15 +20,12 @@ public class CommentLikeController {
             @PathVariable UUID commentId,
             @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
-        org.slf4j.LoggerFactory.getLogger(getClass())
-                .info("LIKE request: commentId={}, userId={}", commentId, userId);
-
         CommentLikeDto dto = commentLikeService.commentLike(commentId, userId);
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{commentId}/comment-likes")
-    public ResponseEntity<Integer> unlike(
+    public ResponseEntity<Void> unlike(
             @PathVariable UUID commentId,
             @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
