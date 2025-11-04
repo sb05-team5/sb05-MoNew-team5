@@ -10,6 +10,6 @@ public record CommentRegisterRequest(
         @NotNull UUID articleId,
         UUID userId,
         @NotBlank
-        @Size(max = 500, message = "댓글은 500자까지만 입력 가능합니다.")
+        @Size(max = 1000, message = "댓글은 1000자까지만 입력 가능합니다.")
         String content
 ) {}
