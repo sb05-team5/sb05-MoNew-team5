@@ -1,9 +1,12 @@
 package com.sprint.project.monew.comment.entity;
 
 import com.sprint.project.monew.article.entity.Article;
+import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.common.BaseEntity;
 import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +42,11 @@ public class Comment extends BaseEntity {
         @Column(name = "deleted_at")
         private Instant deletedAt;
 
-        @Version
-        private Long version;
+        @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+        private List<CommentLike> likes = new ArrayList<>();
+
+//        @Version
+//        private Long version;
 
         public static Comment create(Article article, User user, String content) {
                 Comment comment = new Comment();
@@ -49,6 +55,7 @@ public class Comment extends BaseEntity {
                 comment.setContentInternal(content);
                 comment.deletedAt = null;
                 comment.likeCount = 0;
+                comment.createdAt = Instant.now();
                 return comment;
         }
 

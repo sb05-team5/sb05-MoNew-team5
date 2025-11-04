@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +28,60 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
 
 
+
+
+
     @Transactional
-    public NotificationResponse createNotification(NotificationRequest request){
-        NotificationEntity notification = notificationMapper.toNotification(request);
-        return notificationMapper.toNotificationRepose(notificationRepository.save(notification));
+    public List<NotificationResponse> notifyInterestArticlesRegistered(
+            UUID interestId,
+            String interestName,
+            int articleCount,
+            Collection<UUID> subscriberUserIds
+    ) {
+        if (subscriberUserIds == null || subscriberUserIds.isEmpty()) return List.of();
+
+        Instant now = Instant.now();
+        String content = "[%s]와 관련된 기사가 %d건 등록되었습니다.".formatted(interestName, articleCount);
+
+        List<NotificationEntity> toSave = subscriberUserIds.stream()
+                .map(uid -> NotificationEntity.builder()
+                        .userId(uid)
+                        .confirmed(false)
+                        .updatedAt(now)
+                        .content(content)
+                        .resourceType("INTEREST")
+                        .resourceId(interestId)
+                        .build()
+                )
+                .collect(Collectors.toList());
+        return notificationRepository.saveAll(toSave)
+                .stream()
+                .map(notificationMapper::toNotificationRepose)
+                .toList();
     }
 
+
+
+    @Transactional
+    public NotificationResponse notifyCommentLiked(
+            UUID commentId,
+            UUID commentOwnerUserId,
+            String likerDisplayName
+    ) {
+        Instant now = Instant.now();
+        String content = "[%s]님이 나의 댓글을 좋아합니다.".formatted(likerDisplayName);
+
+        NotificationEntity n = NotificationEntity.builder()
+                .userId(commentOwnerUserId)
+                .confirmed(false)
+                .updatedAt(now)
+                .content(content)
+                .resourceType("COMMENT")
+                .resourceId(commentId)
+                .build();
+
+        return notificationMapper.toNotificationRepose(notificationRepository.save(n));
+    }
 
 
     @Transactional

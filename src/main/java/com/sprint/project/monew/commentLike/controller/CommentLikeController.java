@@ -9,22 +9,22 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comments/{commentId}/likes")
+@RequestMapping("/api/comments")
 public class CommentLikeController {
 
     private final CommentLikeService commentLikeService;
 
-    @GetMapping
-    public ResponseEntity<LikeStatusResponse> getStatus(
-            @PathVariable UUID commentId,
-            @RequestHeader(value = "MoNew-Request-User-ID", required = false) UUID userId
-    ) {
-        int likeCount = commentLikeService.getLikeCount(commentId);
-        boolean liked = (userId != null) && commentLikeService.isLikedByUser(commentId, userId);
-        return ResponseEntity.ok(new LikeStatusResponse(likeCount, liked));
-    }
+//    @GetMapping
+//    public ResponseEntity<LikeStatusResponse> getStatus(
+//            @PathVariable UUID commentId,
+//            @RequestHeader(value = "MoNew-Request-User-ID", required = false) UUID userId
+//    ) {
+//        int likeCount = commentLikeService.getLikeCount(commentId);
+//        boolean liked = (userId != null) && commentLikeService.isLikedByUser(commentId, userId);
+//        return ResponseEntity.ok(new LikeStatusResponse(likeCount, liked));
+//    }
 
-    @PostMapping
+    @PostMapping("/{commentId}/comment-likes")
     public ResponseEntity<Integer> like(
             @PathVariable UUID commentId,
             @RequestHeader("MoNew-Request-User-ID") UUID userId
@@ -33,7 +33,7 @@ public class CommentLikeController {
         return ResponseEntity.ok(likeCount);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{commentId}/comment-likes")
     public ResponseEntity<Integer> unlike(
             @PathVariable UUID commentId,
             @RequestHeader("MoNew-Request-User-ID") UUID userId
