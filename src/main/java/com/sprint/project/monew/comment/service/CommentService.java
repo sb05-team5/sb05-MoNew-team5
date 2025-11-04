@@ -35,37 +35,46 @@ public class CommentService {
             String orderBy,
             String direction,
             String cursorOrAfter,
-            int limit
+            int limit,
+            UUID requestUserId
     ) {
-        String after = normalizeAfter(cursorOrAfter);
-
-        var page = commentRepository.pageByArticleSorted(
-                articleId, orderBy, direction, after, limit
+        CursorPageResponse<Comment> page = commentRepository.pageByArticleSorted(
+                articleId, orderBy, direction, cursorOrAfter, limit
         );
 
-        List<Comment> entities = page.content();
-        if (entities.isEmpty()) {
+        List<Comment> rows = page.content();
+        if (rows.isEmpty()) {
             return new CursorPageResponse<>(
-                    List.of(), null, null, 0, false, page.totalElements()
+                    List.of(), null, page.nextAfter(), 0, page.hasNext(), page.totalElements()
             );
         }
 
-        List<UUID> ids = entities.stream().map(Comment::getId).toList();
-        Map<UUID, Long> likeCountMap = commentLikeRepository.countByCommentIdsRaw(ids).stream()
+        List<UUID> ids = rows.stream().map(Comment::getId).toList();
+
+        Map<UUID, Long> likeCountMap = commentLikeRepository.countGroupByCommentIds(ids)
+                .stream()
                 .collect(Collectors.toMap(
-                        row -> (UUID) row[0],
-                        row -> (Long) row[1]
+                        arr -> (UUID) arr[0],
+                        arr -> (Long) arr[1]
                 ));
 
-        List<CommentDto> content = entities.stream()
-                .map(c -> commentMapper.toDtoWithCounts(c, likeCountMap.getOrDefault(c.getId(), 0L) ))
+        Set<UUID> likedByMeIds = (requestUserId == null)
+                ? Collections.emptySet()
+                : commentLikeRepository.findLikedCommentIds(requestUserId, ids);
+
+        List<CommentDto> content = rows.stream()
+                .map(c -> commentMapper.toDtoWithCountsAndLiked(
+                        c,
+                        likeCountMap.getOrDefault(c.getId(), 0L),
+                        likedByMeIds.contains(c.getId())
+                ))
                 .toList();
 
         return new CursorPageResponse<>(
                 content,
                 null,
                 page.nextAfter(),
-                page.size(),
+                content.size(),
                 page.hasNext(),
                 page.totalElements()
         );
@@ -100,7 +109,7 @@ public class CommentService {
         comment.update(content);
 
         long likeCount = commentLikeRepository.countByComment_Id(comment.getId());
-        return commentMapper.toDtoWithCounts(comment, likeCount);
+        return commentMapper.toDtoWithCountsAndLiked(comment, likeCount, false);
     }
 
     @Transactional
@@ -123,12 +132,6 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
         long likeCount = commentLikeRepository.countByComment_Id(c.getId());
         return commentMapper.toDtoWithCounts(c, likeCount);
-    }
-
-    private String normalizeAfter(String raw) {
-        if (raw == null) return null;
-        String s = raw.trim();
-        return s.isEmpty() ? null : s;
     }
 
     public UUID getArticleId(UUID commentID) {

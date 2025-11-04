@@ -32,11 +32,12 @@ public class CommentController {
             @RequestParam(defaultValue = "desc") String direction,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) String after,
-            @RequestParam(name = "limit", defaultValue = "20") int limit
+            @RequestParam(name = "limit", defaultValue = "20") int limit,
+            @RequestHeader(value = "Monew-Request-User-Id", required = false) UUID requestUserId
     ) {
+        String externalCursor = (cursor != null && !cursor.isBlank()) ? cursor : after;
         CursorPageResponse<CommentDto> page =
-                commentService.pageByArticle(articleId, orderBy, direction, cursor, limit);
-
+                commentService.pageByArticle(articleId, orderBy, direction, externalCursor, limit, requestUserId); // ★ 전달
         return ResponseEntity.ok(page);
     }
 
