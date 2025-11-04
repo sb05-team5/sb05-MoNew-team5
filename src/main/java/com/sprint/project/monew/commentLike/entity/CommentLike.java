@@ -4,6 +4,7 @@ import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.common.BaseEntity;
 import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.*;
 
 import java.time.Instant;

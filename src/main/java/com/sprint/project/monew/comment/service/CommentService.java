@@ -2,15 +2,22 @@ package com.sprint.project.monew.comment.service;
 
 import com.sprint.project.monew.article.entity.Article;
 import com.sprint.project.monew.article.repository.ArticleRepository;
+import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.entity.Comment;
 import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
+import com.sprint.project.monew.log.event.CommentDeleteEvent;
+import com.sprint.project.monew.log.event.CommentRegisterEvent;
+import com.sprint.project.monew.log.event.CommentUpdateEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,6 +101,9 @@ public class CommentService {
         User userRef = userRepository.getReferenceById(userId);
 
         Comment saved = commentRepository.save(Comment.create(articleRef, userRef, content));
+
+        eventPublisher.publishEvent(new CommentRegisterEvent(saved, articleRef, userRef));
+
         return saved.getId();
     }
 

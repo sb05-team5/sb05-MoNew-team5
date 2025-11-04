@@ -4,7 +4,9 @@ import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
+import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.service.CommentService;
+import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.common.CursorPageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +51,7 @@ public class CommentController {
         UUID id = commentService.create(req.articleId(), req.userId(), req.content());
         CommentDto dto = commentService.findDtoById(id);
 
+
         return ResponseEntity.created(URI.create("/api/comments/" + id)).body(dto);
     }
 
@@ -69,6 +72,7 @@ public class CommentController {
         UUID articleId = commentService.getArticleId(commentId);
         commentService.softDelete(commentId);
         articleService.decrementCommentCount(articleId);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -77,6 +81,7 @@ public class CommentController {
     public ResponseEntity<Void> hardDelete(@PathVariable UUID commentId) {
         UUID articleId = commentService.getArticleId(commentId);
         commentService.hardDelete(commentId);
+
         articleService.decrementCommentCount(articleId);
         return ResponseEntity.noContent().build();
     }

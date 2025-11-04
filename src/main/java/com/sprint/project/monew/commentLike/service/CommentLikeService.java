@@ -6,9 +6,12 @@ import com.sprint.project.monew.commentLike.dto.CommentLikeDto;
 import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.commentLike.mapper.CommentLikeMapper;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
+import com.sprint.project.monew.notification.service.NotificationService;
+import com.sprint.project.monew.log.event.CommentLikeRegisterEvent;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,8 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final CommentLikeMapper commentLikeMapper;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CommentLikeDto commentLike(UUID commentId, UUID userId) {

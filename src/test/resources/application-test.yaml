@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+    url: jdbc:h2:mem:monewdb;
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -11,9 +11,16 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    mongodb:
+      uri: mongodb://disabled:27017/test
+      auto-index-creation: false
+
+  batch:
+    jdbc:
+      initialize-schema: never
 
 logging:
   level:
-    com.codeit.blog: debug
-#    org.hibernate.SQL: debug
+    com.sprint.project.monew: debug
     org.hibernate.orm.jdbc.bind: trace

@@ -35,6 +35,7 @@ public class User extends BaseEntity {
     this.email = email;
     this.nickname = nickname;
     this.password = password;
+    this.createdAt = Instant.now();
   }
 
   public void changeNickname(String newNickname) {
