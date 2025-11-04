@@ -7,6 +7,8 @@ import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.mapper.InterestMapper;
 import com.sprint.project.monew.interest.repository.InterestRepository;
+import com.sprint.project.monew.log.document.SubscriptionActivity;
+import com.sprint.project.monew.log.repository.SubscriptionActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import java.text.Normalizer;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Service;
@@ -26,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class InterestService {
 
+
   private final InterestRepository interestRepository;
+  private final SubscriptionActivityRepository subscriptionActivityRepository;
   private final UserRepository userRepository;
   private final InterestMapper interestMapper;
   private final static double similarityThreshold = 0.8;
@@ -69,6 +75,13 @@ public class InterestService {
     validateDuplicateKeywords(newKeywords);
 
     interest.update(newKeywords);
+
+    List<SubscriptionActivity> tartget=subscriptionActivityRepository.findByInterestId(String.valueOf(interestId)).stream()
+            .map(activity->activity.update(newKeywords))
+            .toList();
+    for(SubscriptionActivity subscriptionActivity:tartget){
+      subscriptionActivityRepository.save(subscriptionActivity);
+    }
 
     return interestMapper.toDto(interest, null);
   }

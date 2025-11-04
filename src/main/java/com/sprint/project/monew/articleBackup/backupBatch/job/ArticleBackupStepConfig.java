@@ -27,7 +27,6 @@ public class ArticleBackupStepConfig {
     private final ArticleBackupWriter articleBackupWriter;
 
 
-
     @Bean
     public Step articleBackupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("articleBackupStep" , jobRepository)

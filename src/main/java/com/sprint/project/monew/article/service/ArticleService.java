@@ -140,15 +140,15 @@ public class ArticleService {
 
         return ArticleViewDto.builder()
                 .id(String.valueOf(view.getId()))
-                .viewedBy(userId)
+                .viewedBy(userId.toString())
                 .createdAt(view.getCreatedAt())
-                .articleId(articleId)
+                .articleId(articleId.toString())
                 .source(article.getSource())
                 .sourceUrl(article.getSourceUrl())
                 .articleTitle(article.getTitle())
                 .articlePublishedDate(article.getPublishDate())
                 .articleSummary(article.getSummary())
-                .articleCommentCount(viewCount)
+                .articleCommentCount(Math.toIntExact(viewCount))
                 .articleViewCount(article.getViewCount())
                 .build();
 
@@ -166,15 +166,15 @@ public class ArticleService {
             ArticleViewDto view = articleViewCreate(articleId, userId);
             ArticleViewActivity doc =ArticleViewActivity.builder()
                     .id(null)
-                    .viewedBy(userId)
+                    .viewedBy(userId.toString())
                     .createdAt(Instant.now())
-                    .articleId(articleId)
+                    .articleId(articleId.toString())
                     .source(article.getSource())
                     .sourceUrl(article.getSourceUrl())
                     .articleTitle(article.getTitle())
                     .articlePublishedDate(article.getPublishDate())
                     .articleSummary(article.getSummary())
-                    .articleCommentCount((long) article.getCommentCount())
+                    .articleCommentCount((int) article.getCommentCount())
                     .articleViewCount(article.getViewCount())
                     .build();
 

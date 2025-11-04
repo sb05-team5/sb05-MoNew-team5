@@ -11,14 +11,14 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 public record ArticleViewDto(
   String id,
-  UUID viewedBy,
+  String viewedBy,
   Instant createdAt,
-  UUID articleId,
+  String articleId,
   String source,
   String sourceUrl,
   String articleTitle,
   String articlePublishedDate,
   String articleSummary,
-  Long articleCommentCount,
+  Integer articleCommentCount,
   Integer articleViewCount
 ){}

@@ -155,7 +155,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
 
         UUID articleId = commentRepository.findArticleId(commentId);
-        articleService.decremontCommentCount(articleId);
+        articleService.decrementCommentCount(articleId);
 
         eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
 

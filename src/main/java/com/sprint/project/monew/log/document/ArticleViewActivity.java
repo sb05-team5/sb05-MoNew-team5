@@ -25,14 +25,14 @@ public class ArticleViewActivity {
   private Instant createdAt;
 
   @Field("user_id")
-  private UUID viewedBy;
+  private String viewedBy;
 
-  private UUID articleId;
+  private String articleId;
   private String source;
   private String sourceUrl;
   private String articleTitle;
   private String articlePublishedDate;
   private String articleSummary;
-  private Long articleCommentCount;
+  private Integer articleCommentCount;
   private Integer articleViewCount;
 }

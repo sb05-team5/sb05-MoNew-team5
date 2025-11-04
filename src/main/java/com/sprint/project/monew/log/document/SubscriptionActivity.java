@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class SubscriptionActivity {
 
     @Id
@@ -35,6 +35,13 @@ public class SubscriptionActivity {
 
     @Field("user_id")
     private String userId; //보고 보류
+
+
+    public SubscriptionActivity update(List<String> newContent) {
+        return this.toBuilder()
+                .interestKeywords(newContent)
+                .build();
+    }
 
 
 

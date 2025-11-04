@@ -9,5 +9,6 @@ import java.util.UUID;
 
 
 public interface SubscriptionActivityRepository extends MongoRepository<SubscriptionActivity,String> {
-    List<SubscriptionActivity> findTop10ByUserIdOrderByCreatedAtDesc(UUID userId);
+    List<SubscriptionActivity> findTop10ByUserIdOrderByCreatedAtDesc(String userId);
+    List<SubscriptionActivity> findByInterestId(String interestId);
 }

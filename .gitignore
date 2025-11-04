@@ -226,11 +226,11 @@ gradle-app.setting
 
 
 #개인 테스트를 위해 yml,en.yml
-application.yml
+
 application-h2.yml
 application-postgres.yml
 application-prod.yml
 application-rdss3.yml
-.yml
+
 .yaml
 .env
