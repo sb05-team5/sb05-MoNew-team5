@@ -1,5 +1,6 @@
 package com.sprint.project.monew.article.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sprint.project.monew.article.dto.ArticleDto;
 import com.sprint.project.monew.article.dto.ArticleRestoreResultDto;
 import com.sprint.project.monew.article.service.ArticleService;
@@ -44,7 +45,7 @@ public class ArticleController {
     public List<ArticleRestoreResultDto> restore(
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String to
-    ) throws InterruptedException {
+    ) throws InterruptedException, JsonProcessingException {
         log.info("Controllerrestore -->{} {}", from, to);
 
 
@@ -114,6 +115,14 @@ public class ArticleController {
         articleService.softDelete(articleId);
         return ResponseEntity.noContent().build();
     }
+
+
+
+
+
+
+
+
 
 
 
