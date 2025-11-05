@@ -7,7 +7,10 @@ import com.sprint.project.monew.notification.entity.NotificationEntity;
 import com.sprint.project.monew.notification.mapper.NotificationMapper;
 import com.sprint.project.monew.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,25 +98,15 @@ public class NotificationService {
         notificationRepository.saveAll(notifications);
     }
     @Transactional
-    public void oneCheckNotification(UUID userId , UUID notificationId){
-
-        List<NotificationEntity> list  = notificationRepository.findAllByUserIdAndResourceId(userId, notificationId);
-        list.forEach(n ->{
-            n.setConfirmed(true);
-            n.setUpdatedAt(Instant.now());
-        });
-
-        notificationRepository.saveAll(list);
-
-
+    public void oneCheckNotification(UUID userId, UUID notificationId) {
+            notificationRepository.markOneAsConfirmed(userId, notificationId, Instant.now());
     }
 
-
-
-
     @Transactional(readOnly = true)
-    public CursorPageResponse<NotificationResponse> findAllWithMeta(int limit, String cursor, Instant after, UUID userId) {
-        // --- 1) 커서 디코딩 ---
+    public CursorPageResponse<NotificationResponse> findAllWithMeta(
+            int limit, String cursor, Instant after, UUID userId) {
+
+        // 1) 커서 디코딩
         Instant cursorUpdatedAt = null;
         UUID cursorId = null;
         if (cursor != null && !cursor.isBlank()) {
@@ -125,16 +118,29 @@ public class NotificationService {
             } catch (Exception ignored) {}
         }
 
+        // 2) 페이지 크기 & 정렬
         int pageSize = Math.min(Math.max(limit, 1), 100);
+        Pageable pageable = PageRequest.of(
+                0, pageSize + 1, Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.desc("id"))
+        );
 
-        // --- 2) DB 조회 ---
-        List<NotificationEntity> list = notificationRepository.findUnreadByCursor(
-                userId, cursorUpdatedAt, cursorId, PageRequest.of(0, pageSize + 1));
+        // 3) DB 조회 (커서 유/무 분기)
+        List<NotificationEntity> list;
+        if (cursorUpdatedAt == null || cursorId == null) {
+            // 첫 페이지: 커서 조건 없이 최신부터
+            list = notificationRepository.findUnreadFirstPage(userId, pageable);
+        } else {
+            // 다음 페이지: 커서 기준으로 keyset
+            list = notificationRepository.findUnreadByCursor(userId, cursorUpdatedAt, cursorId, pageable);
+        }
 
+        // 4) hasNext & 잘라내기
         boolean hasNext = list.size() > pageSize;
-        if (hasNext) list = list.subList(0, pageSize);
+        if (hasNext) {
+            list = list.subList(0, pageSize);
+        }
 
-        // --- 3) nextCursor 생성 ---
+        // 5) nextCursor 생성
         String nextCursor = null;
         if (hasNext && !list.isEmpty()) {
             NotificationEntity last = list.get(list.size() - 1);
@@ -143,12 +149,11 @@ public class NotificationService {
                     .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
         }
 
-        // --- 4) 매핑 ---
+        // (선택) after 파라미터를 서버 응답 메타로만 반영 (필터로 쓰려면 리포지토리에 조건 추가)
         List<NotificationResponse> responses = list.stream()
                 .map(notificationMapper::toNotificationRepose)
                 .toList();
 
-        // --- 5) 응답 빌드 ---
         return CursorPageResponse.<NotificationResponse>builder()
                 .content(responses)
                 .nextCursor(nextCursor)
@@ -158,6 +163,7 @@ public class NotificationService {
                 .totalElements(null)
                 .build();
     }
+
 
 
 
