@@ -50,19 +50,19 @@ CREATE TABLE articles (
 );
 -- // 기사 백업 - 단순 백업을 위한 테이블이라 제약조건 최소화
 CREATE TABLE article_backup (
-                          id UUID ,
-                          article_id UUID UNIQUE,
-                          source VARCHAR(255) ,
-                          source_url VARCHAR(255),
-                          title VARCHAR(255),
-                          created_at TIMESTAMP WITH TIME ZONE,
-                          publish_date VARCHAR(255),
-                          summary TEXT,
-                          comment_count INT,
-                          view_count INT,
-                          deleted_at TIMESTAMP,
-                          interest_id UUID,
-                          CONSTRAINT pk_article_backup PRIMARY KEY (id)
+                                id UUID ,
+                                article_id UUID UNIQUE,
+                                source VARCHAR(255) ,
+                                source_url VARCHAR(255),
+                                title VARCHAR(255),
+                                created_at TIMESTAMP WITH TIME ZONE,
+                                publish_date VARCHAR(255),
+                                summary TEXT,
+                                comment_count INT,
+                                view_count INT,
+                                deleted_at TIMESTAMP,
+                                interest_id UUID,
+                                CONSTRAINT pk_article_backup PRIMARY KEY (id)
 
 );
 
@@ -85,18 +85,18 @@ CREATE TABLE comments (
 
 -- // 댓글 좋아요
 CREATE TABLE comment_likes (
-                               id UUID NOT NULL,
-                               created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-                               deleted_at TIMESTAMP WITH TIME ZONE NULL,
-                               comment_id UUID NOT NULL,
-                               user_id    UUID NOT NULL,
+                            id UUID NOT NULL,
+                            created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                            deleted_at TIMESTAMP WITH TIME ZONE NULL,
+                            comment_id UUID NOT NULL,
+                            user_id UUID NOT NULL,
 
-                               CONSTRAINT pk_comment_likes PRIMARY KEY (id),
-                               CONSTRAINT uq_comment_likes_comment_user UNIQUE (comment_id, user_id),
-                               CONSTRAINT fk_comment_likes_comments FOREIGN KEY (comment_id)
-                                   REFERENCES comments (id) ON DELETE CASCADE,
-                               CONSTRAINT fk_comment_likes_users    FOREIGN KEY (user_id)
-                                   REFERENCES users (id) ON DELETE CASCADE
+                            CONSTRAINT pk_comment_likes PRIMARY KEY (id),
+
+                            CONSTRAINT fk_comment_likes_comments FOREIGN KEY (comment_id)
+                                REFERENCES comments (id) ON DELETE CASCADE,
+                             CONSTRAINT fk_comment_likes_users FOREIGN KEY (user_id)
+                                REFERENCES users (id) ON DELETE CASCADE
 );
 
 
@@ -260,6 +260,3 @@ CREATE TABLE batch_job_execution_context (
                                              CONSTRAINT job_exec_ctx_fk FOREIGN KEY (job_execution_id)
                                                  REFERENCES batch_job_execution (job_execution_id)
 );
-
-
-
