@@ -46,7 +46,7 @@ public class ArticleProcessor implements ItemProcessor<InterestKeywordDto, Artic
 
     @Override
     public Article process(InterestKeywordDto item) throws Exception {
-        final String clientId= "7UJkEH_tIBCmVEAY1HXl";
+        final String clientId= "sA54zNU2aIsWrCZ0RL8K";
 
         // 공통 Zone과 Formatter
         ZoneId zone = ZoneId.of("Asia/Seoul");
