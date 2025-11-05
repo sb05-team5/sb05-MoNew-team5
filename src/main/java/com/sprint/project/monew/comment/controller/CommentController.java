@@ -4,6 +4,7 @@ import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
+import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.service.CommentService;
 import com.sprint.project.monew.common.CursorPageResponse;
 import jakarta.validation.Valid;
@@ -30,21 +31,19 @@ public class CommentController {
     @GetMapping("/comments")
     public ResponseEntity<CursorPageResponse<CommentDto>> listByArticle(
             @RequestParam UUID articleId,
-            @RequestParam(defaultValue = "date") String sort,
-            @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(defaultValue = "createdAt") String orderBy,
+            @RequestParam(defaultValue = "desc") String direction,
             @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "" + DEFAULT_SIZE) int size
+            @RequestParam(required = false) String after,
+            @RequestParam(name = "limit", defaultValue = "20") int limit,
+            @RequestHeader(value = "Monew-Request-User-Id", required = false) UUID requestUserId
     ) {
-        SortKey sortKey = SortKey.from(sort);
-        SortDir sortDir = SortDir.from(order);
-
-        int pageSize = normalizedSize(size);
-
+        String externalCursor = (cursor != null && !cursor.isBlank()) ? cursor : after;
         CursorPageResponse<CommentDto> page =
-                commentService.pageByArticle(articleId, sortKey.value, sortDir.value, cursor, pageSize);
-
+                commentService.pageByArticle(articleId, orderBy, direction, externalCursor, limit, requestUserId);
         return ResponseEntity.ok(page);
     }
+
 
     // 댓글 등록
     @PostMapping("/comments")
