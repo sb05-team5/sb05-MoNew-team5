@@ -4,16 +4,12 @@ import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.comment.dto.CommentDto;
 import com.sprint.project.monew.comment.dto.CommentRegisterRequest;
 import com.sprint.project.monew.comment.dto.CommentUpdateRequest;
-import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.service.CommentService;
-import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.common.CursorPageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.UUID;

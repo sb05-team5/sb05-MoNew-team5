@@ -35,6 +35,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public CursorPageResponse<CommentDto> pageByArticle(

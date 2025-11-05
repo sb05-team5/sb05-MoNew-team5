@@ -48,10 +48,9 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
                                                            String direction,
                                                            String after,
                                                            Integer limit) {
-
-        final String sortKey = normalizeOrderBy(orderBy);
-        final String dir     = normalizeDirection(direction);
-        final int size       = normalizeLimit(limit);
+        final boolean sortByLikes = "likeCount".equalsIgnoreCase(orderBy);
+        final String dir = "asc".equalsIgnoreCase(direction) ? "asc" : "desc";
+        final int size = (limit == null || limit <= 0) ? 20 : Math.min(limit, 100);
 
         BooleanBuilder where = new BooleanBuilder()
                 .and(comment.article.id.eq(articleId))
@@ -62,7 +61,7 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
             if (parts.length == 2) {
                 try {
                     UUID cursorId = UUID.fromString(parts[1]);
-                    if("likeCount".equals(sortKey)) {
+                    if (sortByLikes) {
                         long likes = Long.parseLong(parts[0]);
                         applyLikeCountKeyset(where, dir, likes, cursorId);
                     } else {
@@ -70,15 +69,12 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
                         Instant createdAt = Instant.ofEpochMilli(epochMs);
                         applyCreatedAtKeyset(where, dir, createdAt, cursorId);
                     }
-                } catch (Exception ignored) {
-
-                }
+                } catch (Exception ignored) {}
             }
         }
 
         List<OrderSpecifier<?>> orders = new ArrayList<>();
-
-        if("likeCount".equals(sortKey)) {
+        if (sortByLikes) {
             orders.add(new OrderSpecifier<>(toOrder(dir), likeCountExpr()));
         } else {
             orders.add(new OrderSpecifier<>(toOrder(dir), comment.createdAt));
@@ -93,19 +89,17 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
                 .fetch();
 
         boolean hasNext = rows.size() > size;
-
         List<Comment> contents = hasNext ? rows.subList(0, size) : rows;
 
         String nextAfter = null;
         if (!contents.isEmpty()) {
             Comment last = contents.get(contents.size() - 1);
-            if ("likeCount".equals(sortKey)) {
+            if (sortByLikes) {
                 Long lastLikes = queryFactory
                         .select(likeCountExpr())
                         .from(comment)
                         .where(comment.id.eq(last.getId()))
                         .fetchOne();
-
                 long cnt = (lastLikes != null ? lastLikes : 0L);
                 nextAfter = cnt + "|" + last.getId();
             } else {
@@ -145,34 +139,13 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
         );
     }
 
-    private static String normalizeOrderBy(String raw) {
-        if (raw == null || raw.isBlank()) return "createdAt";
-        String r = raw.trim().toLowerCase();
-        if (r.equals("likecount") || r.equals("like") || r.equals("likes")) {
-            return "likeCount";
-        }
-        return "createdAt";
-    }
-
-    private static String normalizeDirection(String raw) {
-        if (raw == null || raw.isBlank()) return "desc";
-        String r = raw.trim().toLowerCase();
-        return ("asc".equals(r)) ? "asc" : "desc";
-    }
-
-    private static int normalizeLimit(Integer limit) {
-        if (limit == null || limit <= 0) return 20;
-        return Math.min(limit, 100);
-    }
-
     private static Order toOrder(String direction) {
         return ("asc".equalsIgnoreCase(direction)) ? Order.ASC : Order.DESC;
     }
 
     private static void applyCreatedAtKeyset(BooleanBuilder where, String dir, Instant createdAt, UUID id) {
         if (createdAt == null || id == null) return;
-
-        if("asc".equalsIgnoreCase(dir)) {
+        if ("asc".equalsIgnoreCase(dir)) {
             where.and(
                     comment.createdAt.gt(createdAt)
                             .or(comment.createdAt.eq(createdAt).and(comment.id.gt(id)))
@@ -187,13 +160,13 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
 
     private static void applyLikeCountKeyset(BooleanBuilder where, String dir, Long likeCount, UUID id) {
         if (likeCount == null || id == null) return;
+        NumberExpression<Long> likes = likeCountExpr();
         if ("asc".equalsIgnoreCase(dir)) {
-            where.and(likeCountExpr().gt(likeCount)
-                    .or(likeCountExpr().eq(likeCount).and(comment.id.gt(id))));
+            where.and(likes.gt(likeCount)
+                    .or(likes.eq(likeCount).and(comment.id.gt(id))));
         } else {
-            where.and(likeCountExpr().lt(likeCount)
-                    .or(likeCountExpr().eq(likeCount).and(comment.id.lt(id))));
+            where.and(likes.lt(likeCount)
+                    .or(likes.eq(likeCount).and(comment.id.lt(id))));
         }
     }
-
 }
