@@ -20,9 +20,9 @@ services:
 
 
     #    volumes:
-#      - ./BinaryContentStorage:/app/BinaryContentStorage
-#    depends_on:
-#      - postgres
+    #      - ./BinaryContentStorage:/app/BinaryContentStorage
+    #    depends_on:
+    #      - postgres
     restart: always
 
   postgres:

@@ -78,7 +78,7 @@ public class ArticleService {
     private final S3BackupService s3BackupService;
 
     //네이버 API를 위한 키값
-    private final String clientId= "7UJkEH_tIBCmVEAY1HXl";
+    private final String clientId= "2NC0HxwiBpc2YGK6l1DS";
 
     @Value("${CLIENT_SECRET}")
     private String clientSecret;

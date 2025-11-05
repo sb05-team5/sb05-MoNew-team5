@@ -85,18 +85,18 @@ CREATE TABLE comments (
 
 -- // 댓글 좋아요
 CREATE TABLE comment_likes (
-                               id UUID NOT NULL,
-                               created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-                               deleted_at TIMESTAMP WITH TIME ZONE NULL,
-                               comment_id UUID NOT NULL,
-                               user_id    UUID NOT NULL,
+                            id UUID NOT NULL,
+                            created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                            deleted_at TIMESTAMP WITH TIME ZONE NULL,
+                            comment_id UUID NOT NULL,
+                            user_id UUID NOT NULL,
 
-                               CONSTRAINT pk_comment_likes PRIMARY KEY (id),
-                               CONSTRAINT uq_comment_likes_comment_user UNIQUE (comment_id, user_id),
-                               CONSTRAINT fk_comment_likes_comments FOREIGN KEY (comment_id)
-                                   REFERENCES comments (id) ON DELETE CASCADE,
-                               CONSTRAINT fk_comment_likes_users    FOREIGN KEY (user_id)
-                                   REFERENCES users (id) ON DELETE CASCADE
+                            CONSTRAINT pk_comment_likes PRIMARY KEY (id),
+
+                            CONSTRAINT fk_comment_likes_comments FOREIGN KEY (comment_id)
+                                REFERENCES comments (id) ON DELETE CASCADE,
+                             CONSTRAINT fk_comment_likes_users FOREIGN KEY (user_id)
+                                REFERENCES users (id) ON DELETE CASCADE
 );
 
 
