@@ -52,7 +52,7 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
         final String dir = "asc".equalsIgnoreCase(direction) ? "asc" : "desc";
         final int size = (limit == null || limit <= 0) ? 20 : Math.min(limit, 100);
 
-        BooleanBuilder where = new  BooleanBuilder()
+        BooleanBuilder where = new BooleanBuilder()
                 .and(comment.article.id.eq(articleId))
                 .and(comment.deletedAt.isNull());
 
