@@ -1,12 +1,9 @@
 package com.sprint.project.monew.comment.entity;
 
 import com.sprint.project.monew.article.entity.Article;
-import com.sprint.project.monew.commentLike.entity.CommentLike;
 import com.sprint.project.monew.common.BaseEntity;
 import com.sprint.project.monew.user.entity.User;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,9 +50,6 @@ public class Comment extends BaseEntity {
                         deletedAt = Instant.now();
                 }
         }
-
-        // 논리삭제 : 복원
-        // public void restore() {}
 
         private void setContentInternal(String content) {
                 if (content == null || content.isBlank() || content.length() > 500) {
