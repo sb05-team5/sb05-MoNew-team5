@@ -258,6 +258,10 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         // 페이징 처리 기본 코드
         //int page = (cursor != null && cursor > 0) ? cursor : 0; // null, 음수 방지
 
+        if(interestId != null &&  !interestId.isEmpty()) {
+            builder.and(a.interest_id.eq(UUID.fromString(interestId)));
+        }
+
 
         int page=0;
         if (cursor != null && !cursor.isBlank()) {
