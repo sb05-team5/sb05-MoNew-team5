@@ -49,7 +49,6 @@ public class S3BackupService {
     private String prefix;
 
     public void uploadLogFileToS3() {
-        // 로컬 로그 파일 경로 지정 (필요에 따라 수정)
         Path logPath = Paths.get(".logs/application.log");
 
         if (!Files.exists(logPath)) {
@@ -65,7 +64,7 @@ public class S3BackupService {
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucket)
-                            .key( "logs/" + key)
+                            .key( "logs" + "/" + key)
                             .build(),
                     RequestBody.fromFile(logPath)
             );
