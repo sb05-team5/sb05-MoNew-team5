@@ -7,6 +7,7 @@ import com.sprint.project.monew.user.entity.User;
 public record CommentLikeRegisterEvent(
     Article article,
     Comment comment,
+    String content,
     User user
 ) {
 

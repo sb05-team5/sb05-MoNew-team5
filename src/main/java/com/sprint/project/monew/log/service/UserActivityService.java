@@ -61,7 +61,7 @@ public class UserActivityService {
 
   public List<SubscriptionActivityDto> getSubscriptionActivity(UUID userId) {
 
-    List<SubscriptionActivity> subs = subscriptionActivityRepository.findAllUserIdByOrderByCreatedAtDesc(String.valueOf(userId));
+    List<SubscriptionActivity> subs = subscriptionActivityRepository.findByUserId(String.valueOf(userId));
     List<SubscriptionActivityDto> subsDto = new ArrayList<>();
     for (SubscriptionActivity activity : subs) {
       SubscriptionActivityDto dto = SubscriptionActivityDto.builder()
@@ -112,8 +112,8 @@ public class UserActivityService {
             .articleId(c.getArticleId())
             .articleTitle(c.getArticleTitle())
             .commentId(c.getCommentId())
-            .content(c.getContent())
-            .likeCount(c.getLikeCount())
+            .commentContent(c.getCommentContent())
+            .commentLikeCount(c.getCommentLikeCount())
             .commentCreatedAt(c.getCommentCreatedAt())
             .userId(c.getUserId())
             .userName(c.getUserName())

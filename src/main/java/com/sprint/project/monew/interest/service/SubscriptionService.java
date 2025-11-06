@@ -68,7 +68,7 @@ public class SubscriptionService {
     validatedSubscription(user, interest);
 
     interest.decreaseSubscriber();
-
+    subscriptionActivityRepository.deleteByInterestIdAndUserId(String.valueOf(interestId), String.valueOf(userId));
     subscriptionRepository.deleteByUserAndInterest(user, interest);
   }
 

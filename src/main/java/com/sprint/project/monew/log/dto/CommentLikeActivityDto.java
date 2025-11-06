@@ -10,8 +10,8 @@ public record CommentLikeActivityDto(
     String articleId,
     String articleTitle,
     String commentId,
-    String content,
-    int likeCount,
+    String commentContent,
+    int commentLikeCount,
     Instant commentCreatedAt,
     String userId,
     String userName

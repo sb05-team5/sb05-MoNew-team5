@@ -42,4 +42,16 @@ public class ArticleViewActivity {
 
   private Integer articleViewCount;
 
+  public ArticleViewActivity update(Integer commentCount) {
+    return this.toBuilder()
+            .articleCommentCount(commentCount)
+            .build();
+  }
+
+  public ArticleViewActivity updateView(Integer viewCount) {
+    return this.toBuilder()
+            .articleViewCount(viewCount)
+            .build();
+  }
+
 }
