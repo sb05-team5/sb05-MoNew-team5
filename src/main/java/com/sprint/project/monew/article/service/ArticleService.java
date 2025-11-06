@@ -145,7 +145,7 @@ public class ArticleService {
                 .articleTitle(article.getTitle())
                 .articlePublishedDate(article.getPublishDate())
                 .articleSummary(article.getSummary())
-                .articleCommentCount(viewCount)
+                .articleCommentCount(Math.toIntExact(viewCount))
                 .articleViewCount(article.getViewCount())
                 .build();
 
