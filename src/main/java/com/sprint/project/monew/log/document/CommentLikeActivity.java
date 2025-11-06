@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class CommentLikeActivity {
 
   @Id
