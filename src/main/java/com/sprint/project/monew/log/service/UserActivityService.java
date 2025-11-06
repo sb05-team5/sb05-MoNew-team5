@@ -61,7 +61,7 @@ public class UserActivityService {
 
   public List<SubscriptionActivityDto> getSubscriptionActivity(UUID userId) {
 
-    List<SubscriptionActivity> subs = subscriptionActivityRepository.findAllUserIdByOrderByCreatedAtDesc(String.valueOf(userId));
+    List<SubscriptionActivity> subs = subscriptionActivityRepository.findByUserId(String.valueOf(userId));
     List<SubscriptionActivityDto> subsDto = new ArrayList<>();
     for (SubscriptionActivity activity : subs) {
       SubscriptionActivityDto dto = SubscriptionActivityDto.builder()

@@ -16,9 +16,9 @@ spring:
   # batch 시간 job1 = backup시간 , job2 = article등록 시간  (초 분 시 일 월 요일)
   backup:
     job1:
-      cron: "0 2 * * * *"
+      cron: "0 32 * * * *"
     job2:
-      cron: "0 0 * * * *"
+      cron: "0 30 * * * *"
   servlet:
     multipart:
       max-file-size: 100MB
