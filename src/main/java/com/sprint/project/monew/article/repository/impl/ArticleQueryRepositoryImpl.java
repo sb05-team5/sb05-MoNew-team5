@@ -77,7 +77,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                                 viewedByMeExpr
                         ))
                 .from(a)
-                .leftJoin(c).on(c.article.id.eq(a.id))
                 .where(builder)
                 .fetchOne();
     }

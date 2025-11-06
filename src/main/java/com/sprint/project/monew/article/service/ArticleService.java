@@ -25,6 +25,8 @@ import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.repository.InterestRepository;
+import com.sprint.project.monew.log.document.ArticleViewActivity;
+import com.sprint.project.monew.log.repository.ArticleViewActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import com.sprint.project.monew.user.service.UserService;
@@ -65,6 +67,7 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final ArticleViewService articleViewService;
     private final ArticleViewRepository articleViewRepository;
+    private final ArticleViewActivityRepository articleViewActivityRepository;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule()) // Instant 지원
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -130,6 +133,20 @@ public class ArticleService {
 
         if(view != null){
             incrementViewCount(articleId);
+            ArticleViewActivity articleViewActivity=ArticleViewActivity.builder()
+                    .id(null)
+                    .createdAt(Instant.now())
+                    .articleId(String.valueOf(article.getId()))
+                    .viewedBy(String.valueOf(user.getId()))
+                    .articleTitle(article.getTitle())
+                    .articleSummary(article.getSummary())
+                    .source(article.getSource())
+                    .sourceUrl(article.getSourceUrl())
+                    .articleViewCount(article.getViewCount())
+                    .articleCommentCount(article.getCommentCount())
+                    .articlePublishedDate(article.getPublishDate())
+                    .build();
+            articleViewActivityRepository.save(articleViewActivity);
         }
         // article에 달린 댓글 수 조회하는 부분 넣고 commentCount에 넣기
 

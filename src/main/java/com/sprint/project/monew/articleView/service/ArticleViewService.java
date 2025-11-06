@@ -40,20 +40,7 @@ public class ArticleViewService {
                 .createdAt(Instant.now())
                 .build();
 
-        ArticleViewActivity articleViewActivity=ArticleViewActivity.builder()
-                .id(null)
-                .createdAt(Instant.now())
-                .articleId(String.valueOf(article.getId()))
-                .viewedBy(String.valueOf(user.getId()))
-                .articleTitle(article.getTitle())
-                .articleSummary(article.getSummary())
-                .source(article.getSource())
-                .sourceUrl(article.getSourceUrl())
-                .articleViewCount(article.getViewCount())
-                .articleCommentCount(article.getCommentCount())
-                .articlePublishedDate(article.getPublishDate())
-                .build();
-        articleViewActivityRepository.save(articleViewActivity);
+
 
         return articleViewRepository.save(articleView);
     }
