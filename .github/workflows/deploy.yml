@@ -9,9 +9,9 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: prod/monew
-  ECS_CLUSTER: monew-management-cluster1
-  ECS_SERVICE: monew-management-service
-  ECS_TASK_DEFINITION: file-management-task
+  ECS_CLUSTER: monew-management-cluster
+  ECS_SERVICE: monew-management-task-service
+  ECS_TASK_DEFINITION: monew-management-task
   CONTAINER_NAME: monew-management-app
 
 # 환경 변수 권한
