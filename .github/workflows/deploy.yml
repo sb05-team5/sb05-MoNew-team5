@@ -58,10 +58,10 @@ jobs:
 
       - name: Build and tag Docker image
         run: |
-          docker build \
-#            --build-arg SPRING_PROFILES_ACTIVE=prod \
-            -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
-          docker tag ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+               docker build \
+#                      --build-arg SPRING_PROFILES_ACTIVE=prod \
+               -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+               docker tag ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
       - name: Push Docker image to ECR
         run: |
@@ -110,8 +110,3 @@ jobs:
             echo "❌ Deployment failed. Check ECS console for details."
             exit 1
           fi
-
-
-
-
-

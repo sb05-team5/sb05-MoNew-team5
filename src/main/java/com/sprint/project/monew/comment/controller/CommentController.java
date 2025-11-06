@@ -46,7 +46,7 @@ public class CommentController {
     ) {
         UUID id = commentService.create(req.articleId(), req.userId(), req.content());
         CommentDto dto = commentService.findDtoById(id);
-
+        articleService.incrementCommentCount(req.articleId());
 
         return ResponseEntity.created(URI.create("/api/comments/" + id)).body(dto);
     }
