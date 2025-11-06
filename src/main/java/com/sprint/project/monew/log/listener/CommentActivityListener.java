@@ -73,6 +73,8 @@ public class CommentActivityListener {
         .commentId(event.comment().getId().toString())
         .content(event.content())
         .likeCount(commentLikeRepository.countByComment_Id(event.comment().getId()))
+        .commentContent(event.comment().getContent())
+        .commentLikeCount(commentLikeRepository.countByComment_Id(event.comment().getId()))
         .commentCreatedAt(event.comment().getCreatedAt())
         .userId(event.user().getId().toString())
         .userName(event.user().getNickname())

@@ -30,8 +30,8 @@ public class CommentLikeActivity {
 
   @Field("comment_id")
   private String commentId;
-  private String content;
-  private int likeCount;
+  private String commentContent;
+  private int commentLikeCount;
   private Instant commentCreatedAt;
 
   @Field("user_id")
