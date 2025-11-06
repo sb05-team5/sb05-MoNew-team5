@@ -8,6 +8,8 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -30,4 +32,12 @@ public class JobConfig {
                 .build();
     }
 
+
+    @Bean
+    public RetryTemplate retryTemplate() {
+        RetryTemplate template = new RetryTemplate();
+        SimpleRetryPolicy policy = new SimpleRetryPolicy(3); // 최대 3회 재시도
+        template.setRetryPolicy(policy);
+        return template;
+    }
 }

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class ArticleWriter implements ItemWriter<Article> {
     private final NotificationService notificationService;
     private final SubscriptionRepository subscriptionRepository;
     private  final InterestRepository interestRepository;
+
 
 
     @Override
