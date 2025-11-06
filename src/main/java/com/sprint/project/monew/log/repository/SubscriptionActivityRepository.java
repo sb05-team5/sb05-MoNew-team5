@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface SubscriptionActivityRepository extends MongoRepository<SubscriptionActivity,String> {
-    List<SubscriptionActivity> findAllByOrderByCreatedAtDesc();
+    List<SubscriptionActivity> findAllUserIdByOrderByCreatedAtDesc(String userId);
 }
