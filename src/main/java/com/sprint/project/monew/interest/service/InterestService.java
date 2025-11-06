@@ -7,6 +7,7 @@ import com.sprint.project.monew.interest.dto.InterestUpdateRequest;
 import com.sprint.project.monew.interest.entity.Interest;
 import com.sprint.project.monew.interest.mapper.InterestMapper;
 import com.sprint.project.monew.interest.repository.InterestRepository;
+import com.sprint.project.monew.log.repository.SubscriptionActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import java.text.Normalizer;
@@ -31,6 +32,7 @@ public class InterestService {
   private final InterestMapper interestMapper;
   private final static double similarityThreshold = 0.8;
   private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+  private final SubscriptionActivityRepository subscriptionActivityRepository;
 
   @Transactional
   public InterestDto create(InterestRegisterRequest req) {
@@ -76,6 +78,7 @@ public class InterestService {
   @Transactional
   public void delete(UUID interestId) {
     Interest interest = validatedInterestId(interestId);
+    subscriptionActivityRepository.deleteByInterestId(String.valueOf(interestId));
     interestRepository.delete(interest);
   }
 
