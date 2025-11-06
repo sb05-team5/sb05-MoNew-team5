@@ -8,4 +8,7 @@ public interface CommentLikeActivityRepository extends MongoRepository<CommentLi
 
   List<CommentLikeActivity> findTop10ByUserIdOrderByCreatedAtDesc(String userId);
   void deleteByCommentIdAndUserId(String commentId, String userId);
+
+  List<CommentLikeActivity> findAllByCommentId(String commentId);
+  void deleteAllByCommentId(String commentId);
 }
