@@ -12,6 +12,7 @@ import com.sprint.project.monew.common.CursorPageResponse;
 import com.sprint.project.monew.log.event.CommentDeleteEvent;
 import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.log.event.CommentUpdateEvent;
+import com.sprint.project.monew.log.repository.CommentActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
 import java.util.NoSuchElementException;
@@ -36,6 +37,7 @@ public class CommentService {
     private final ArticleRepository articleRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CommentActivityRepository commentActivityRepository;
 
     @Transactional(readOnly = true)
     public CursorPageResponse<CommentDto> pageByArticle(
@@ -128,6 +130,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
         comment.softDelete();
+        commentActivityRepository.deleteById(String.valueOf(commentId));
     }
 
     @Transactional

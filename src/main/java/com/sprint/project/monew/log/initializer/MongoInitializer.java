@@ -1,6 +1,9 @@
 package com.sprint.project.monew.log.initializer;
 
 
+import com.sprint.project.monew.log.repository.ArticleViewActivityRepository;
+import com.sprint.project.monew.log.repository.CommentActivityRepository;
+import com.sprint.project.monew.log.repository.CommentLikeActivityRepository;
 import com.sprint.project.monew.log.repository.SubscriptionActivityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -13,13 +16,16 @@ import org.springframework.stereotype.Component;
 @Profile("!test")
 public class MongoInitializer {
     private final SubscriptionActivityRepository subscriptionActivityRepository;
+    private final CommentActivityRepository commentActivityRepository;
+    private final CommentLikeActivityRepository commentLikeActivityRepository;
+    private final ArticleViewActivityRepository articleViewActivityRepository;
 
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         // 컬렉션 삭제
         subscriptionActivityRepository.deleteAll();
-
-
+        commentActivityRepository.deleteAll();
+        commentLikeActivityRepository.deleteAll();
+        articleViewActivityRepository.deleteAll();
     }
-
 }
