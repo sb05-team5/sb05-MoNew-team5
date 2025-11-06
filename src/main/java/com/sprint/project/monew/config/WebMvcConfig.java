@@ -15,29 +15,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
     this.authInterceptor = authInterceptor;
   }
 
-//  @Bean
-//  public MDCLoggingInterceptor mdcLoggingInterceptor() {
-//    return new MDCLoggingInterceptor();
-//  }
-//
-//  @Override
-//  public void addInterceptors(InterceptorRegistry registry) {
-//    registry.addInterceptor(mdcLoggingInterceptor())
-//            .addPathPatterns("/**"); // 모든 경로에 적용
-//  }
+  @Bean
+  public MDCLoggingInterceptor mdcLoggingInterceptor() {
+    return new MDCLoggingInterceptor();
+  }
 
-//  @Override
-//  public void addInterceptors(InterceptorRegistry registry) {
-//    registry.addInterceptor(authInterceptor)
-//        .addPathPatterns("/api/**")
-//        .excludePathPatterns(
-//            "/api/users/login",
-//            "/api/users/signup",
-//            "/v3/api-docs/**",
-//            "/swagger-ui/**",
-//            "/swagger-resources/**",
-//            "/webjars/**",
-//            "/error", "/favicon.ico"
-//        );
-//  }
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(mdcLoggingInterceptor())
+            .addPathPatterns("/**"); // 모든 경로에 적용
+  }
+
 }
