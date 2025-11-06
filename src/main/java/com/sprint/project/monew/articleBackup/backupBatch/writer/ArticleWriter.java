@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -30,8 +31,10 @@ public class ArticleWriter implements ItemWriter<Article> {
     private  final InterestRepository interestRepository;
 
 
+
     @Override
     public void write(Chunk<? extends Article> chunk) throws Exception {
+
         for (Article article : chunk) {
             try {
                 articleRepository.save(article);

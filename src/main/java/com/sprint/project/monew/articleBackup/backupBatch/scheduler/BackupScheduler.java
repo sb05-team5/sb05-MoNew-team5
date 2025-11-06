@@ -11,6 +11,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -24,37 +25,47 @@ public class BackupScheduler {
 
     private final Job articleBackupJob;
     private final Job articleJob;
+    private final RetryTemplate retryTemplate;
 
     @Scheduled(cron = "${spring.backup.job1.cron}")
     public void runBackupJob()
             throws IOException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        try {
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("timestamp", System.currentTimeMillis()) // 중복 실행 방지
-                    .toJobParameters();
+        retryTemplate.execute(context -> {
+            try {
+                JobParameters jobParameters = new JobParametersBuilder()
+                        .addLong("timestamp", System.currentTimeMillis()) // 중복 실행 방지
+                        .toJobParameters();
 
-            jobLauncher.run(articleBackupJob, jobParameters);
-            System.out.println("✅ Article Backup Job executed successfully!");
-        } catch (Exception e) {
-            System.err.println("❌ Article Backup Job failed: " + e.getMessage());
-            e.printStackTrace();
-        }
+                jobLauncher.run(articleBackupJob, jobParameters);
+                System.out.println("✅ Article Backup Job executed successfully!");
+            } catch (Exception e) {
+                System.err.println("❌ Article Backup Job failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            return null;
+        });
     }
 
     @Scheduled(cron = "${spring.backup.job2.cron}")
     public void runArticleJob()
             throws IOException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        try {
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("timestamp", System.currentTimeMillis()) // 중복 실행 방지
-                    .toJobParameters();
+        retryTemplate.execute(context->{
+            try {
+                JobParameters jobParameters = new JobParametersBuilder()
+                        .addLong("timestamp", System.currentTimeMillis()) // 중복 실행 방지
+                        .toJobParameters();
 
-            jobLauncher.run(articleJob, jobParameters);
-            System.out.println("✅ Article Job executed successfully!");
-        } catch (Exception e) {
-            System.err.println("❌ Article Job failed: " + e.getMessage());
-            e.printStackTrace();
-        }
+                jobLauncher.run(articleJob, jobParameters);
+                System.out.println("✅ Article Job executed successfully!");
+            } catch (Exception e) {
+                System.err.println("❌ Article Job failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            return null;
+        });
+
     }
 
 

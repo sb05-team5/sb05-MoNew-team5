@@ -52,6 +52,5 @@ public class ArticleBackupWriter implements ItemWriter<ArticleBackup> {
             s3Service.uploadLogFileToS3();
             log.info("✅ S3 업로드 완료: {}", key);
         }
-
     }
 }
