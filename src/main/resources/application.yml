@@ -27,7 +27,7 @@ spring:
     init:
       mode: always          # 항상 실행 (none, embedded, always 중 always 선택)
       schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
+#      data-locations: classpath:data.sql
   jpa:
     hibernate:
       ddl-auto: none
