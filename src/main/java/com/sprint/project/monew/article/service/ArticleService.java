@@ -178,6 +178,10 @@ public class ArticleService {
 
         if( !articleViewRepository.existsById(articleId,userId) ) {
             ArticleViewDto view = articleViewCreate(articleId, userId);
+            List<ArticleViewActivity> activities=articleViewActivityRepository.findAllByArticleId(String.valueOf(articleId));
+            for(ArticleViewActivity viewActivity:activities){
+                viewActivity.updateView(viewActivity.getArticleViewCount()+1);
+            }
         }
 
         return articleMapper.toDto(articleRepository.searchOne(articleId,userId));

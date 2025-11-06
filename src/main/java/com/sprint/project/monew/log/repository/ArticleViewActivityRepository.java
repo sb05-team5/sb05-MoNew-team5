@@ -10,5 +10,7 @@ import java.util.UUID;
 
 public interface ArticleViewActivityRepository extends MongoRepository<ArticleViewActivity,String>{
     List<ArticleViewActivity> findTop10ByViewedByOrderByCreatedAtDesc(String viewedBy);
+    ArticleViewActivity findByArticleIdAndViewedByOrderByCreatedAtDesc(String articleId, String userId);
+    List<ArticleViewActivity> findAllByArticleId(String articleId);
 
 }
