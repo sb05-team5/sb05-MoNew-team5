@@ -4,6 +4,7 @@ import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
 import com.sprint.project.monew.log.document.CommentActivity;
 import com.sprint.project.monew.log.document.CommentLikeActivity;
 import com.sprint.project.monew.log.event.CommentDeleteEvent;
+import com.sprint.project.monew.log.event.CommentLikeDeleteEvent;
 import com.sprint.project.monew.log.event.CommentLikeRegisterEvent;
 import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.log.event.CommentUpdateEvent;
@@ -70,6 +71,8 @@ public class CommentActivityListener {
         .articleId(event.article().getId().toString())
         .articleTitle(event.article().getTitle())
         .commentId(event.comment().getId().toString())
+        .content(event.content())
+        .likeCount(commentLikeRepository.countByComment_Id(event.comment().getId()))
         .commentContent(event.comment().getContent())
         .commentLikeCount(commentLikeRepository.countByComment_Id(event.comment().getId()))
         .commentCreatedAt(event.comment().getCreatedAt())
@@ -79,5 +82,16 @@ public class CommentActivityListener {
 
     commentLikeActivityRepository.save(commentLikeActivity);
   }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void handleCommentLikeDelete(CommentLikeDeleteEvent event) {
+    String commentId = event.getCommentLike().getComment().getId().toString();
+    String userId = event.getCommentLike().getUser().getId().toString();
+
+    commentLikeActivityRepository.deleteByCommentIdAndUserId(commentId, userId);
+
+    System.out.println("[INFO] Deleted CommentLikeActivity for commentId = " + commentId + ", userId = " + userId);
+  }
+
 
 }

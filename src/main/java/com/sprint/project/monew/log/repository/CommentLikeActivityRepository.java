@@ -7,4 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface CommentLikeActivityRepository extends MongoRepository<CommentLikeActivity,String> {
 
   List<CommentLikeActivity> findTop10ByUserIdOrderByCreatedAtDesc(String userId);
+  void deleteByCommentIdAndUserId(String commentId, String userId);
 }

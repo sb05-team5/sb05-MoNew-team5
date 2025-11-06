@@ -120,6 +120,7 @@ public class CommentService {
         }
 
         comment.update(content);
+        eventPublisher.publishEvent(new CommentUpdateEvent(this, comment));
 
         long likeCount = commentLikeRepository.countByComment_Id(comment.getId());
         return commentMapper.toDtoWithCountsAndLiked(comment, likeCount, false);
@@ -130,6 +131,8 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
         comment.softDelete();
+
+        eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
         commentActivityRepository.deleteById(String.valueOf(commentId));
     }
 
