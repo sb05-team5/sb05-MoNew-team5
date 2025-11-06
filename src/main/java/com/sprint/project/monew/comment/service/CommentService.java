@@ -9,9 +9,11 @@ import com.sprint.project.monew.comment.mapper.CommentMapper;
 import com.sprint.project.monew.comment.repository.CommentRepository;
 import com.sprint.project.monew.commentLike.repository.CommentLikeRepository;
 import com.sprint.project.monew.common.CursorPageResponse;
+import com.sprint.project.monew.log.document.ArticleViewActivity;
 import com.sprint.project.monew.log.event.CommentDeleteEvent;
 import com.sprint.project.monew.log.event.CommentRegisterEvent;
 import com.sprint.project.monew.log.event.CommentUpdateEvent;
+import com.sprint.project.monew.log.repository.ArticleViewActivityRepository;
 import com.sprint.project.monew.log.repository.CommentActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.repository.UserRepository;
@@ -38,6 +40,7 @@ public class CommentService {
     private final CommentLikeRepository commentLikeRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CommentActivityRepository commentActivityRepository;
+    private final ArticleViewActivityRepository articleViewActivityRepository;
 
     @Transactional(readOnly = true)
     public CursorPageResponse<CommentDto> pageByArticle(
@@ -104,7 +107,8 @@ public class CommentService {
         User userRef = userRepository.getReferenceById(userId);
 
         Comment saved = commentRepository.save(Comment.create(articleRef, userRef, content));
-
+        ArticleViewActivity activity=articleViewActivityRepository.findByArticleIdAndViewedByOrderByCreatedAtDesc(articleId.toString(),userId.toString());
+        articleViewActivityRepository.save(activity.update(activity.getArticleCommentCount()+1));
         eventPublisher.publishEvent(new CommentRegisterEvent(saved, articleRef, userRef));
 
         return saved.getId();
@@ -131,6 +135,11 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
         comment.softDelete();
+        List<ArticleViewActivity> views=articleViewActivityRepository.findAllByArticleId(String.valueOf(comment.getArticle().getId()));
+        for(ArticleViewActivity view:views){
+            view.update(view.getArticleCommentCount()-1);
+            articleViewActivityRepository.save(view);
+        }
 
         eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
         commentActivityRepository.deleteById(String.valueOf(commentId));
@@ -141,6 +150,14 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
         commentRepository.delete(comment);
+        List<ArticleViewActivity> views=articleViewActivityRepository.findAllByArticleId(String.valueOf(comment.getArticle().getId()));
+        for(ArticleViewActivity view:views){
+            view.update(view.getArticleCommentCount()-1);
+            articleViewActivityRepository.save(view);
+        }
+
+        eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
+        commentActivityRepository.deleteById(String.valueOf(commentId));
     }
 
     @Transactional(readOnly = true)
