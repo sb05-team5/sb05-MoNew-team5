@@ -44,13 +44,20 @@ public class CommentActivityListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleCommentUpdate(CommentUpdateEvent event) {
     String commentId = event.getComment().getId().toString();
+    String updatedContent = event.getComment().getContent();
 
     commentActivityRepository.findById(commentId)
         .ifPresent(existing -> {
-          CommentActivity updated = existing.update(
-              event.getComment().getContent()
-          );
+          CommentActivity updated = existing.update(updatedContent);
           commentActivityRepository.save(updated);
+        });
+
+    commentLikeActivityRepository.findAllByCommentId(commentId)
+        .forEach(existing -> {
+          CommentLikeActivity updated = existing.toBuilder()
+              .commentContent(updatedContent)
+              .build();
+          commentLikeActivityRepository.save(updated);
         });
   }
 
@@ -59,6 +66,7 @@ public class CommentActivityListener {
     String commentId = event.getComment().getId().toString();
 
     commentActivityRepository.deleteById(commentId);
+    commentLikeActivityRepository.deleteAllByCommentId(commentId);
 
     System.out.println("[INFO] Deleted CommentActivity for commentId = " + commentId);
   }
