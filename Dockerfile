@@ -37,7 +37,7 @@ ENV JVM_OPTS=""
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
 # 80 포트 노출
-EXPOSE 8080
+EXPOSE 80
 
 # jar 파일 실행
 #ENTRYPOINT ["sh","-c","java $JVM_OPTS -jar /app/app.jar"]

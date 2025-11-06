@@ -74,6 +74,8 @@ dependencies {
 
     // 문자 유사도 검사 라이브러리
     implementation 'org.apache.commons:commons-text:1.10.0'
+
+    runtimeOnly 'org.postgresql:postgresql'
 }
 
 tasks.named('test') {

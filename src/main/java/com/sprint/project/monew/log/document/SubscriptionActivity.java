@@ -1,7 +1,6 @@
 package com.sprint.project.monew.log.document;
 
 
-import com.querydsl.core.annotations.QueryEntity;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,12 +10,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@QueryEntity
 @Document(collection = "subscriptions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Builder(toBuilder = true)
+@Builder
 public class SubscriptionActivity {
 
     @Id
@@ -35,16 +33,5 @@ public class SubscriptionActivity {
 
     @Field("user_id")
     private String userId; //보고 보류
-
-
-    public SubscriptionActivity update(List<String> newContent) {
-        return this.toBuilder()
-                .interestKeywords(newContent)
-                .build();
-    }
-
-
-
-
 
 }

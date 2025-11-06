@@ -88,20 +88,6 @@ public class CommentService {
         );
     }
 
-    private String toExternalCursor(String nextAfter, boolean byDate) {
-        if (nextAfter == null || nextAfter.isBlank()) {
-            return null;
-        }
-
-        String[] parts = nextAfter.split("\\|", 2);
-
-        if (parts.length != 2) {
-            return null;
-        }
-
-        return (byDate ? "date:" : "likes:") + parts[0] + "#" + parts[1];
-    }
-
     @Transactional
     public UUID create(UUID articleId, UUID userId, String content) {
 
@@ -148,9 +134,6 @@ public class CommentService {
     public void hardDelete(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."));
-
-        eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
-
         commentRepository.delete(comment);
     }
 

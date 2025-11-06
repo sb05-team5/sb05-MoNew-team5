@@ -22,9 +22,6 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -47,40 +44,6 @@ public class S3BackupService {
 //AWS_S3_PREFIX
     @Value("${aws.s3.prefix}")
     private String prefix;
-
-    public void uploadApplicationLogToS3() {
-        // 로그 파일 경로 지정
-        Path logPath = Paths.get("logs/application.log");
-
-        if (!Files.exists(logPath)) {
-            System.err.println("❌ 로그 파일이 존재하지 않습니다: " + logPath);
-            return;
-        }
-
-        // 업로드될 파일명 (날짜 기준)
-        String key = "application-log-" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".log";
-
-        try {
-            s3Client.putObject(
-                    PutObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(prefix + "/" + key)
-                            .build(),
-                    RequestBody.fromFile(logPath)
-            );
-
-            System.out.println("✅ 로그 파일 S3 업로드 완료: " + key);
-
-        } catch (Exception e) {
-            System.err.println("❌ 로그 파일 S3 업로드 실패: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-
-
-
 
     // 전체 데이터를 S3에 백업
     public void backupArticlesToS3() throws JsonProcessingException {

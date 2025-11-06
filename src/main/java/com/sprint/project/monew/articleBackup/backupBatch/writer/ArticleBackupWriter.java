@@ -49,7 +49,6 @@ public class ArticleBackupWriter implements ItemWriter<ArticleBackup> {
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmssSSS")) + ".json";
             // s3 업로드
             s3Service.uploadFile(key, json);
-            s3Service.uploadApplicationLogToS3();
             log.info("✅ S3 업로드 완료: {}", key);
         }
 
