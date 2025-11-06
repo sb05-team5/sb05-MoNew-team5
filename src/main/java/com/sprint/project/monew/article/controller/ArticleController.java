@@ -80,7 +80,6 @@ public class ArticleController {
 
 
 
-    //추후에 전체적인 틀이 잡히면 작업
     @PostMapping("/{articleId}/article-views")
     public ResponseEntity<ArticleView> fetchArticleViews(@PathVariable UUID articleId ,
                                                          @RequestHeader("Monew-Request-User-ID") UUID userId
@@ -91,7 +90,6 @@ public class ArticleController {
 
 
 
-    //수집된 기사의 출처에 포함되는 것만 중복되지 않게 가지고 오기 성공
     @GetMapping("/sources")
     public ResponseEntity<List<String>> getSources() {
 
@@ -101,9 +99,7 @@ public class ArticleController {
 
 
 
-    //삭제 부분은 추후에 프론트의 스펙과 맞지 않으면 수정 필요
-    //논리 삭제 부분은 article만 논리 삭제하면 다른 부분이 나오지 않는지,
-    // 다른 부분까지 모두 논리 삭제 처리해야 보이지 않는지 확인 필요
+
     @DeleteMapping("/{articleId}/hard")
     public ResponseEntity<Void> hardDelete(@PathVariable("articleId") UUID articleId) {
         articleService.hardDelete(articleId);

@@ -77,7 +77,6 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
                                 viewedByMeExpr
                         ))
                 .from(a)
-                .leftJoin(c).on(c.article.id.eq(a.id))
                 .where(builder)
                 .fetchOne();
     }
@@ -258,6 +257,10 @@ public class ArticleQueryRepositoryImpl implements ArticleQueryRepository{
         builder.and(a.deleted_at.isNull());
         // 페이징 처리 기본 코드
         //int page = (cursor != null && cursor > 0) ? cursor : 0; // null, 음수 방지
+
+        if(interestId != null &&  !interestId.isEmpty()) {
+            builder.and(a.interest_id.eq(UUID.fromString(interestId)));
+        }
 
 
         int page=0;
