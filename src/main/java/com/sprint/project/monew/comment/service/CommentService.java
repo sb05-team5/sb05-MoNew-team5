@@ -137,8 +137,8 @@ public class CommentService {
         comment.softDelete();
         List<ArticleViewActivity> views=articleViewActivityRepository.findAllByArticleId(String.valueOf(comment.getArticle().getId()));
         for(ArticleViewActivity view:views){
-            view.update(view.getArticleCommentCount()-1);
-            articleViewActivityRepository.save(view);
+            ArticleViewActivity target =view.update(view.getArticleCommentCount()-1);
+            articleViewActivityRepository.save(target);
         }
 
         eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
@@ -152,8 +152,8 @@ public class CommentService {
         commentRepository.delete(comment);
         List<ArticleViewActivity> views=articleViewActivityRepository.findAllByArticleId(String.valueOf(comment.getArticle().getId()));
         for(ArticleViewActivity view:views){
-            view.update(view.getArticleCommentCount()-1);
-            articleViewActivityRepository.save(view);
+            ArticleViewActivity target =view.update(view.getArticleCommentCount()-1);
+            articleViewActivityRepository.save(target);
         }
 
         eventPublisher.publishEvent(new CommentDeleteEvent(this, comment));
