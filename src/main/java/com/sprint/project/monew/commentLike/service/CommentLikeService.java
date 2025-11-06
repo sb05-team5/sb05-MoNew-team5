@@ -27,8 +27,7 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final CommentLikeMapper commentLikeMapper;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
-    private final ApplicationEventPublisher eventPublisher;
+
 
     @Transactional
     public CommentLikeDto commentLike(UUID commentId, UUID userId) {

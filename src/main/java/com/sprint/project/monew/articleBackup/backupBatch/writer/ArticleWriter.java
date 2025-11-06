@@ -15,6 +15,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class ArticleWriter implements ItemWriter<Article> {
 
     @Override
     public void write(Chunk<? extends Article> chunk) throws Exception {
+
         for (Article article : chunk) {
             try {
                 articleRepository.save(article);
@@ -39,7 +41,7 @@ public class ArticleWriter implements ItemWriter<Article> {
 
                 //관심사 알림 추가
                 List<UUID> subscribers =subscriptionRepository.findSubscriberUserIdsByInterestId(article.getInterest_id());
-                if (subscribers.isEmpty()) { return;}
+                if (subscribers.isEmpty()) { continue;}
 
                 notificationService.notifyInterestArticlesRegistered(article.getInterest_id(),
                         resolveInterestName(article.getInterest_id()),1, subscribers);;

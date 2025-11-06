@@ -54,6 +54,7 @@ public class NotificationService {
                         .content(content)
                         .resourceType("INTEREST")
                         .resourceId(interestId)
+                        .createdAt(now)
                         .build()
                 )
                 .collect(Collectors.toList());

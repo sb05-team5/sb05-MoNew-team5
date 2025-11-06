@@ -29,11 +29,11 @@ public class NotificationEntity extends BaseEntity {
 
     // updated_at TIMESTAMP WITH TIME ZONE NULL
     @LastModifiedDate
-    @Column(name = "updated_at", columnDefinition = "timestamp with time zone")
+    @Column(name = "updated_at", columnDefinition = "timestamp with time zone", nullable = false, updatable = false)
     private Instant updatedAt;
 
 
-    @Column(name = "confirmed", nullable = false)
+    @Column(name = "confirmed", nullable = false, updatable = false)
     @Builder.Default
     private boolean confirmed = false;
 
@@ -52,5 +52,17 @@ public class NotificationEntity extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+
+    @PrePersist
+    protected void onCreate() {
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
 
 }
