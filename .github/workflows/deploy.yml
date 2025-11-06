@@ -12,7 +12,7 @@ env:
   ECS_CLUSTER: monew-management-cluster
   ECS_SERVICE: monew-management-task-service
   ECS_TASK_DEFINITION: monew-management-task
-  CONTAINER_NAME: monew-management-app
+  CONTAINER_NAME: monew-management-task
 
 # 환경 변수 권한
 permissions:
@@ -58,9 +58,7 @@ jobs:
 
       - name: Build and tag Docker image
         run: |
-               docker build \
-          #            --build-arg SPRING_PROFILES_ACTIVE=prod \
-               -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+               docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
                docker tag ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
 
       - name: Push Docker image to ECR
