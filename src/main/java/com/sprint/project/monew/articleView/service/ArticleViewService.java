@@ -6,6 +6,8 @@ import com.sprint.project.monew.article.service.ArticleService;
 import com.sprint.project.monew.articleView.dto.ArticleViewDto;
 import com.sprint.project.monew.articleView.entity.ArticleView;
 import com.sprint.project.monew.articleView.repository.ArticleViewRepository;
+import com.sprint.project.monew.log.document.ArticleViewActivity;
+import com.sprint.project.monew.log.repository.ArticleViewActivityRepository;
 import com.sprint.project.monew.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class ArticleViewService {
     private final ArticleViewRepository articleViewRepository;
+    private final ArticleViewActivityRepository  articleViewActivityRepository;
 
 
     public ArticleView createArticleView(Article article, User user) {
@@ -36,6 +39,21 @@ public class ArticleViewService {
                 .user(user)
                 .createdAt(Instant.now())
                 .build();
+
+        ArticleViewActivity articleViewActivity=ArticleViewActivity.builder()
+                .id(null)
+                .createdAt(Instant.now())
+                .articleId(String.valueOf(article.getId()))
+                .viewedBy(String.valueOf(user.getId()))
+                .articleTitle(article.getTitle())
+                .articleSummary(article.getSummary())
+                .source(article.getSource())
+                .sourceUrl(article.getSourceUrl())
+                .articleViewCount(article.getViewCount())
+                .articleCommentCount(article.getCommentCount())
+                .articlePublishedDate(article.getPublishDate())
+                .build();
+        articleViewActivityRepository.save(articleViewActivity);
 
         return articleViewRepository.save(articleView);
     }
