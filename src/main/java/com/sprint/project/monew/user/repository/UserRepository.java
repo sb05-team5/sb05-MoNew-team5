@@ -19,6 +19,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByIdAndDeletedAtIsNull(UUID uuid);
 
+
+    @Query("select u.nickname from User u where u.id = :userId")
+    Optional<String> findNicknameById(@Param("userId") UUID userId);
+
   @Modifying
   @Query("""
           update User u 

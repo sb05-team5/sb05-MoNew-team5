@@ -72,5 +72,5 @@ public interface  NotificationRepository extends JpaRepository<NotificationEntit
             Pageable pageable
     );
 
-    Optional<NotificationEntity> findByIdAndUserId(UUID id, UUID userId);
+
 }

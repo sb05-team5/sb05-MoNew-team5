@@ -229,3 +229,4 @@ gradle-app.setting
 .yml
 .yaml
 .env
+/src/main/resources/application.yml

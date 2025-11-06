@@ -2,6 +2,9 @@ package com.sprint.project.monew.commentLike.controller;
 
 import com.sprint.project.monew.commentLike.dto.CommentLikeDto;
 import com.sprint.project.monew.commentLike.service.CommentLikeService;
+import com.sprint.project.monew.notification.service.NotificationService;
+import com.sprint.project.monew.user.repository.UserRepository;
+import com.sprint.project.monew.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +17,8 @@ import java.util.UUID;
 public class CommentLikeController {
 
     private final CommentLikeService commentLikeService;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     @PostMapping("/{commentId}/comment-likes")
     public ResponseEntity<CommentLikeDto> like(
@@ -21,6 +26,7 @@ public class CommentLikeController {
             @RequestHeader("Monew-Request-User-ID") UUID userId
     ) {
         CommentLikeDto dto = commentLikeService.commentLike(commentId, userId);
+        notificationService.notifyCommentLiked(commentId,dto.commentUserId(), userService.getUserIdByNickName(userId) );
         return ResponseEntity.ok(dto);
     }
 

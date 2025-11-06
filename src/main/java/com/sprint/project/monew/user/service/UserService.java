@@ -8,6 +8,7 @@ import com.sprint.project.monew.user.dto.UserUpdateRequest;
 import com.sprint.project.monew.user.entity.User;
 import com.sprint.project.monew.user.mapper.UserMapper;
 import com.sprint.project.monew.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.UUID;
@@ -59,4 +60,14 @@ public class UserService {
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     userRepository.deleteById(id);
   }
+
+    @Transactional
+    public String getUserIdByNickName(UUID uuid){
+        String nickname = userRepository.findById(uuid)
+                .map(User::getNickname)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return  nickname;
+    }
+
+
 }
