@@ -50,19 +50,19 @@ CREATE TABLE articles (
 );
 -- // 기사 백업 - 단순 백업을 위한 테이블이라 제약조건 최소화
 CREATE TABLE article_backup (
-                          id UUID ,
-                          article_id UUID UNIQUE,
-                          source VARCHAR(255) ,
-                          source_url VARCHAR(255),
-                          title VARCHAR(255),
-                          created_at TIMESTAMP WITH TIME ZONE,
-                          publish_date VARCHAR(255),
-                          summary TEXT,
-                          comment_count INT,
-                          view_count INT,
-                          deleted_at TIMESTAMP,
-                          interest_id UUID,
-                          CONSTRAINT pk_article_backup PRIMARY KEY (id)
+                                id UUID ,
+                                article_id UUID UNIQUE,
+                                source VARCHAR(255) ,
+                                source_url VARCHAR(255),
+                                title VARCHAR(255),
+                                created_at TIMESTAMP WITH TIME ZONE,
+                                publish_date VARCHAR(255),
+                                summary TEXT,
+                                comment_count INT,
+                                view_count INT,
+                                deleted_at TIMESTAMP,
+                                interest_id UUID,
+                                CONSTRAINT pk_article_backup PRIMARY KEY (id)
 
 );
 
@@ -260,6 +260,3 @@ CREATE TABLE batch_job_execution_context (
                                              CONSTRAINT job_exec_ctx_fk FOREIGN KEY (job_execution_id)
                                                  REFERENCES batch_job_execution (job_execution_id)
 );
-
-
-
